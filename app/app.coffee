@@ -1,56 +1,84 @@
+###
+Author: Jason Gwartz
+2016
+###
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext
-context = new AudioContext()
+# Data store
 
-class LoadedBuffer
+sample_urls = [
+    "../samples/drum_bass_hard.wav",
+    "../samples/drum_cymbal_closed.wav",
+    "../samples/drum_snare_hard.wav"
+  ]
+
+
+# Variable declarations with global scope
+
+context = null
+samples = null
+t = null
+
+
+# Class definitions
+
+class LoadedSample
+  # Objects of this class are playable samples which have been
+    # loaded into memory and decoded (ie. are ready to be played)
+
   constructor: (@file) ->
-  
-  init: ->
-    self = @
+
     request = new XMLHttpRequest()
     request.open('GET', @file, true)
     request.responseType = 'arraybuffer'
 
+    self = @
     request.onload = ->
       self.data = request.response
-      console.log("loaded")
-      load = true
-      [load = false if i.data is undefined] for i in arr
-      if load
-        playall()
-      
     request.send()
-    
+
   play: (n) ->
-    
     context.decodeAudioData(@data, (decoded) ->
       @source = context.createBufferSource()
       @source.buffer = decoded
       @source.connect(context.destination)
       @source.start(n)
-      console.log("playing")
-      #@source.onended = @source.stop
     , null)
 
-    
-a = new LoadedBuffer("../samples/drum_bass_hard.wav")
-b = new LoadedBuffer("../samples/drum_cymbal_closed.wav")
-c = new LoadedBuffer("../samples/drum_snare_hard.wav")
 
-arr = [a, b, c]
+# Core utility function definitions
 
-playall = ->
-  console.log("playall")
+play = ->
 
+  loaded = true
+  [(loaded = false if i.data is undefined) for i in samples]
+  
+  if not loaded
+    alert("Samples still loading, please wait.")
+  else
+    return play_patterns
+
+
+play_patterns = {
+
+  drumbeat: ->
+    samples[0].play(i) for i in [t..t+8]
+    samples[1].play(j) for j in [t..t+8] by 0.25
+    samples[2].play(k) for k in [t+0.5..t+8]
+
+  bass_drum: ->
+    samples[0].play(i) for i in [t..t+8]
+
+}
+
+# Preloader function definitions
+
+main = ->
+  window.AudioContext = window.AudioContext || window.webkitAudioContext
+  context = new AudioContext()
   t = context.currentTime
 
-  a.play(i) for i in [t..t+8] by 2
-  b.play(j) for j in [t..t+8] by 0.5
-  c.play(k) for k in [t+1..t+8] by 2
+  samples = (new LoadedSample(i) for i in sample_urls)
 
-exec = ->
-  i.init() for i in arr
+# Script load-time functions
 
-  
-
-#exec()
+main()
