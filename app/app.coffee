@@ -41,20 +41,54 @@ class LoadedSample
       @source = context.createBufferSource()
       @source.buffer = decoded
       @source.connect(context.destination)
+      console.log("n = " + n)
       @source.start(n)
     , null)
+
+class PlaySound
+  constructor: (@sample, @beat) ->
+
+class SoundContainer
+  constructor: ->
+    @buffer = []
+
+  
+
+
 
 
 # Core utility function definitions
 
 play = ->
-
+  t = context.currentTime
   loaded = true
   [(loaded = false if i.data is undefined) for i in samples]
   
   if not loaded
     alert("Samples still loading, please wait.")
   else
+    bd_beats =
+      (t + parseFloat(n)) for n in document.
+        getElementById('bd').value.split(' ') when (n) ->
+          if n is NaN
+            return false
+
+    sd_beats =
+      (t + parseFloat(n)) for n in document.
+        getElementById('sd').value.split(' ') when (n) ->
+          if n is NaN
+            return false
+    
+    cym_beats =
+      (t + parseFloat(n)) for n in document.
+        getElementById('cym').value.split(' ') when (n) ->
+          if n is NaN
+            return false
+
+    console.log(sd_beats)
+    samples[0].play(i) for i in bd_beats
+    samples[1].play(i) for i in cym_beats
+    samples[2].play(i) for i in sd_beats
     return play_patterns
 
 
@@ -75,7 +109,7 @@ play_patterns = {
 main = ->
   window.AudioContext = window.AudioContext || window.webkitAudioContext
   context = new AudioContext()
-  t = context.currentTime
+  
 
   samples = (new LoadedSample(i) for i in sample_urls)
 

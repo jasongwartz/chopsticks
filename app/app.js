@@ -4,7 +4,7 @@
 Author: Jason Gwartz
 2016
  */
-var LoadedSample, context, main, play, play_patterns, sample_urls, samples, t;
+var LoadedSample, PlaySound, SoundContainer, context, main, play, play_patterns, sample_urls, samples, t;
 
 sample_urls = ["../samples/drum_bass_hard.wav", "../samples/drum_cymbal_closed.wav", "../samples/drum_snare_hard.wav"];
 
@@ -33,6 +33,7 @@ LoadedSample = (function() {
       this.source = context.createBufferSource();
       this.source.buffer = decoded;
       this.source.connect(context.destination);
+      console.log("n = " + n);
       return this.source.start(n);
     }, null);
   };
@@ -41,8 +42,28 @@ LoadedSample = (function() {
 
 })();
 
+PlaySound = (function() {
+  function PlaySound(sample, beat) {
+    this.sample = sample;
+    this.beat = beat;
+  }
+
+  return PlaySound;
+
+})();
+
+SoundContainer = (function() {
+  function SoundContainer() {
+    this.buffer = [];
+  }
+
+  return SoundContainer;
+
+})();
+
 play = function() {
-  var i, loaded;
+  var bd_beats, cym_beats, i, l, len, len1, len2, loaded, m, n, o, sd_beats;
+  t = context.currentTime;
   loaded = true;
   [
     (function() {
@@ -58,6 +79,67 @@ play = function() {
   if (!loaded) {
     return alert("Samples still loading, please wait.");
   } else {
+    bd_beats = (function() {
+      var l, len, ref, results;
+      ref = document.getElementById('bd').value.split(' ');
+      results = [];
+      for (l = 0, len = ref.length; l < len; l++) {
+        n = ref[l];
+        if (function(n) {
+          if (n === NaN) {
+            return false;
+          }
+        }) {
+          results.push(t + parseFloat(n));
+        }
+      }
+      return results;
+    })();
+    sd_beats = (function() {
+      var l, len, ref, results;
+      ref = document.getElementById('sd').value.split(' ');
+      results = [];
+      for (l = 0, len = ref.length; l < len; l++) {
+        n = ref[l];
+        if (function(n) {
+          if (n === NaN) {
+            return false;
+          }
+        }) {
+          results.push(t + parseFloat(n));
+        }
+      }
+      return results;
+    })();
+    cym_beats = (function() {
+      var l, len, ref, results;
+      ref = document.getElementById('cym').value.split(' ');
+      results = [];
+      for (l = 0, len = ref.length; l < len; l++) {
+        n = ref[l];
+        if (function(n) {
+          if (n === NaN) {
+            return false;
+          }
+        }) {
+          results.push(t + parseFloat(n));
+        }
+      }
+      return results;
+    })();
+    console.log(sd_beats);
+    for (l = 0, len = bd_beats.length; l < len; l++) {
+      i = bd_beats[l];
+      samples[0].play(i);
+    }
+    for (m = 0, len1 = cym_beats.length; m < len1; m++) {
+      i = cym_beats[m];
+      samples[1].play(i);
+    }
+    for (o = 0, len2 = sd_beats.length; o < len2; o++) {
+      i = sd_beats[o];
+      samples[2].play(i);
+    }
     return play_patterns;
   }
 };
@@ -91,7 +173,6 @@ main = function() {
   var i;
   window.AudioContext = window.AudioContext || window.webkitAudioContext;
   context = new AudioContext();
-  t = context.currentTime;
   return samples = (function() {
     var l, len, results;
     results = [];

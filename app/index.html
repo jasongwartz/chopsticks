@@ -13,24 +13,15 @@
 
 <body>
 
-<ul class="checkbox-grid">
-    <li><input type="checkbox" name="text1" value="value1" /><label for="text1">Text 1</label></li>
-    <li><input type="checkbox" name="text2" value="value2" /><label for="text2">Text 2</label></li>
-    <li><input type="checkbox" name="text3" value="value3" /><label for="text3">Text 3</label></li>
-    <li><input type="checkbox" name="text4" value="value4" /><label for="text4">Text 4</label></li>
-    <li><input type="checkbox" name="text5" value="value5" /><label for="text5">Text 5</label></li>
-    <li><input type="checkbox" name="text6" value="value6" /><label for="text6">Text 6</label></li>
-    <li><input type="checkbox" name="text7" value="value7" /><label for="text7">Text 7</label></li>
-    <li><input type="checkbox" name="text8" value="value8" /><label for="text8">Text 8</label></li>
-</ul>
-<!--
-source: http://stackoverflow.com/questions/14690621/arrange-multiple-checkboxes-like-a-grid-without-tables-->
+  Bass drum: <input type="text" id="bd" value="0 0.75 1 2 2.75 3 3.25">
+  Snare drum: <input type="text" id="sd" value="0.5 1.5 2.5 3.5">
+  Hi hats: <input type="text" id="cym" value="0 0.25 0.5 0.75 1 1.25 1.5 1.75 2 2.25 2.5 2.75 3 3.25 3.5 3.75">
 
   <p><button style="display: block">Play/pause</button></p>
 
 <script type="text/javascript">
 document.querySelector('button').addEventListener('click', function() {
- 	play().drumbeat()
+ 	play()
 });
 </script>
   
