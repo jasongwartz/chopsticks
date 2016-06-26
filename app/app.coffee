@@ -7,8 +7,8 @@ Author: Jason Gwartz
 
 sample_urls = [
     "../samples/drum_bass_hard.wav",
-    "../samples/drum_cymbal_closed.wav",
-    "../samples/drum_snare_hard.wav"
+    "../samples/drum_snare_hard.wav",
+    "../samples/drum_cymbal_closed.wav"
   ]
 
 
@@ -41,77 +41,77 @@ class LoadedSample
       @source = context.createBufferSource()
       @source.buffer = decoded
       @source.connect(context.destination)
-      console.log("n = " + n)
+      #console.log("n = " + n)
       @source.start(n)
     , null)
 
 class PlaySound
-  constructor: (@sample, @beat) ->
+  constructor: (@sample, @beat) -> # LoadedSample, integer
 
 class SoundContainer
   constructor: ->
-    @buffer = []
+    @buffer = [] # array of PlaySounds
 
-  
+  prepare: ->
+    t = context.currentTime
+    loaded = true
+    [(loaded = false if i.data is undefined) for i in samples]
+    
+    if not loaded
+      alert("Samples still loading, please wait.")
+    else
+      inputs = ( ## TODO: make number of input fields variable
+        document.getElementById(v).value.split(' ') for v in ["bd", "sd", "cym"]
+      )
 
+      (@.add(new PlaySound(
+        samples[index], t + parseFloat(n)
+        )
+      ) for n in inputs[index] when (n) ->
+        n is not NaN
+        ) for index in [0...inputs.length]
 
+  add: (p) -> # playSound
+    @buffer.push(p)
+
+  play: ->
+    i.sample.play(i.beat) for i in @buffer
 
 
 # Core utility function definitions
 
-play = ->
-  t = context.currentTime
-  loaded = true
-  [(loaded = false if i.data is undefined) for i in samples]
-  
-  if not loaded
-    alert("Samples still loading, please wait.")
-  else
-    bd_beats =
-      (t + parseFloat(n)) for n in document.
-        getElementById('bd').value.split(' ') when (n) ->
-          if n is NaN
-            return false
+startPlayback = ->
+  track = new SoundContainer()
+  track.prepare()
+  track.play()
 
-    sd_beats =
-      (t + parseFloat(n)) for n in document.
-        getElementById('sd').value.split(' ') when (n) ->
-          if n is NaN
-            return false
-    
-    cym_beats =
-      (t + parseFloat(n)) for n in document.
-        getElementById('cym').value.split(' ') when (n) ->
-          if n is NaN
-            return false
-
-    console.log(sd_beats)
-    samples[0].play(i) for i in bd_beats
-    samples[1].play(i) for i in cym_beats
-    samples[2].play(i) for i in sd_beats
-    return play_patterns
-
-
-play_patterns = {
-
-  drumbeat: ->
-    samples[0].play(i) for i in [t..t+8]
-    samples[1].play(j) for j in [t..t+8] by 0.25
-    samples[2].play(k) for k in [t+0.5..t+8]
-
-  bass_drum: ->
-    samples[0].play(i) for i in [t..t+8]
-
-}
 
 # Preloader function definitions
+track = null
 
 main = ->
   window.AudioContext = window.AudioContext || window.webkitAudioContext
   context = new AudioContext()
-  
 
   samples = (new LoadedSample(i) for i in sample_urls)
+
+  # TODO: find some sort of good callback system for loading samples!!
+  loop
+    console.log("in")
+    ready = true
+    (->
+      ready = false
+      console.log("not ready")
+      setTimeout (->
+        
+        return
+        ), 0.5
+    ) for i in samples when i.data is undefined
+    if ready
+      console.log("ready")
+      break
+
+
 
 # Script load-time functions
 
