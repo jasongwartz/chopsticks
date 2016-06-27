@@ -34,16 +34,17 @@ class LoadedSample
     self = @
     request.onload = ->
       self.data = request.response
+      context.decodeAudioData(self.data, (decoded) ->
+        self.decoded = decoded
+      , null)
     request.send()
 
   play: (n) ->
-    context.decodeAudioData(@data, (decoded) ->
-      @source = context.createBufferSource()
-      @source.buffer = decoded
-      @source.connect(context.destination)
-      #console.log("n = " + n)
-      @source.start(n)
-    , null)
+    source = context.createBufferSource()
+    source.buffer = @decoded
+    source.connect(context.destination)
+    source.start(n)
+  
 
 class PlaySound
   constructor: (@sample, @beat) -> # LoadedSample, integer
@@ -56,7 +57,7 @@ class SoundContainer
     t = context.currentTime
     loaded = true
     [(loaded = false if i.data is undefined) for i in samples]
-    
+
     if not loaded
       alert("Samples still loading, please wait.")
     else
@@ -85,6 +86,10 @@ startPlayback = ->
   track.prepare()
   track.play()
 
+  # TODO: Inactive tab problem
+  setTimeout (->
+    startPlayback()
+    ), 4000
 
 # Preloader function definitions
 track = null

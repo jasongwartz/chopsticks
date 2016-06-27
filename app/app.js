@@ -23,18 +23,20 @@ LoadedSample = (function() {
     request.responseType = 'arraybuffer';
     self = this;
     request.onload = function() {
-      return self.data = request.response;
+      self.data = request.response;
+      return context.decodeAudioData(self.data, function(decoded) {
+        return self.decoded = decoded;
+      }, null);
     };
     request.send();
   }
 
   LoadedSample.prototype.play = function(n) {
-    return context.decodeAudioData(this.data, function(decoded) {
-      this.source = context.createBufferSource();
-      this.source.buffer = decoded;
-      this.source.connect(context.destination);
-      return this.source.start(n);
-    }, null);
+    var source;
+    source = context.createBufferSource();
+    source.buffer = this.decoded;
+    source.connect(context.destination);
+    return source.start(n);
   };
 
   return LoadedSample;
@@ -128,7 +130,10 @@ startPlayback = function() {
   var track;
   track = new SoundContainer();
   track.prepare();
-  return track.play();
+  track.play();
+  return setTimeout((function() {
+    startPlayback();
+  }), 4000);
 };
 
 track = null;
