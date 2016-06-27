@@ -33,6 +33,9 @@ LoadedSample = (function() {
 
   LoadedSample.prototype.play = function(n) {
     var source;
+    if (isNaN(n)) {
+      return;
+    }
     source = context.createBufferSource();
     source.buffer = this.decoded;
     source.connect(context.destination);
@@ -94,8 +97,9 @@ SoundContainer = (function() {
           results1 = [];
           for (k = 0, len = ref1.length; k < len; k++) {
             n = ref1[k];
-            if (function(n) {
-              return n === !NaN;
+            if (function() {
+              console.log(isNaN(n));
+              return !isNaN(n);
             }) {
               results1.push(this.add(new PlaySound(samples[index], t + parseFloat(n))));
             }
@@ -132,7 +136,7 @@ startPlayback = function() {
   track.prepare();
   track.play();
   return setTimeout((function() {
-    startPlayback();
+    return startPlayback();
   }), 4000);
 };
 

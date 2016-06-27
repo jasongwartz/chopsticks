@@ -40,6 +40,8 @@ class LoadedSample
     request.send()
 
   play: (n) ->
+    if isNaN(n)
+      return
     source = context.createBufferSource()
     source.buffer = @decoded
     source.connect(context.destination)
@@ -68,8 +70,10 @@ class SoundContainer
       (@.add(new PlaySound(
         samples[index], t + parseFloat(n)
         )
-      ) for n in inputs[index] when (n) ->
-        n is not NaN
+      ) for n in inputs[index] when ->
+        console.log(isNaN(n))
+        return !isNaN(n)
+        # TODO: fix this, it doesn't do anything
         ) for index in [0...inputs.length]
 
   add: (p) -> # playSound
@@ -90,6 +94,7 @@ startPlayback = ->
   setTimeout (->
     startPlayback()
     ), 4000
+    # TODO: very slight early jump on succeeding phrase
 
 # Preloader function definitions
 track = null
