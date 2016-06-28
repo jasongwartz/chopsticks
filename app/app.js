@@ -4,7 +4,7 @@
 Author: Jason Gwartz
 2016
  */
-var LoadedSample, PlaySound, SoundContainer, context, main, sample_urls, samples, startPlayback, t, track;
+var LoadedSample, PlaySound, SoundContainer, context, final_gain, main, output_chain, sample_urls, samples, startPlayback, t, track;
 
 sample_urls = ["../samples/drum_bass_hard.wav", "../samples/drum_snare_hard.wav", "../samples/drum_cymbal_closed.wav"];
 
@@ -13,6 +13,10 @@ context = null;
 samples = null;
 
 t = null;
+
+final_gain = null;
+
+output_chain = null;
 
 LoadedSample = (function() {
   function LoadedSample(file) {
@@ -38,7 +42,7 @@ LoadedSample = (function() {
     }
     source = context.createBufferSource();
     source.buffer = this.decoded;
-    source.connect(context.destination);
+    source.connect(output_chain);
     return source.start(n);
   };
 
@@ -143,9 +147,12 @@ startPlayback = function() {
 track = null;
 
 main = function() {
-  var i, j, len, ready, results;
+  var HEIGHT, WIDTH, analyser, bufferLength, canvas, canvasCtx, dataArray, draw, i, j, len, ready;
   window.AudioContext = window.AudioContext || window.webkitAudioContext;
   context = new AudioContext();
+  output_chain = context.createGain();
+  final_gain = context.createGain();
+  final_gain.connect(context.destination);
   samples = (function() {
     var j, len, results;
     results = [];
@@ -155,7 +162,6 @@ main = function() {
     }
     return results;
   })();
-  results = [];
   while (true) {
     console.log("in");
     ready = true;
@@ -172,11 +178,44 @@ main = function() {
     if (ready) {
       console.log("ready");
       break;
-    } else {
-      results.push(void 0);
     }
   }
-  return results;
+  analyser = context.createAnalyser();
+  analyser.connect(final_gain);
+  analyser.fftSize = 2048;
+  bufferLength = analyser.fftSize;
+  dataArray = new Uint8Array(bufferLength);
+  HEIGHT = 100;
+  WIDTH = window.innerWidth;
+  canvas = document.getElementById("visual");
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
+  canvasCtx = canvas.getContext("2d");
+  canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+  draw = function() {
+    var drawVisual, k, ref, sliceWidth, v, x, y;
+    drawVisual = requestAnimationFrame(draw);
+    analyser.getByteTimeDomainData(dataArray);
+    canvasCtx.fillStyle = 'rgb(255, 255, 255)';
+    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+    canvasCtx.lineWidth = 2;
+    canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+    canvasCtx.beginPath();
+    sliceWidth = WIDTH * 1.0 / bufferLength;
+    x = 0;
+    for (i = k = 0, ref = bufferLength; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
+      v = dataArray[i] / 128.0;
+      y = v * HEIGHT / 2;
+      if (i === 0) {
+        canvasCtx.moveTo(x, y);
+      } else {
+        canvasCtx.lineTo(x, y);
+      }
+      x += sliceWidth;
+    }
+    canvasCtx.lineTo(canvas.width, canvas.height / 2);
+    return canvasCtx.stroke();
+  };
+  draw();
+  return output_chain.connect(analyser);
 };
-
-main();

@@ -17,7 +17,8 @@ sample_urls = [
 context = null
 samples = null
 t = null
-
+final_gain = null
+output_chain = null
 
 # Class definitions
 
@@ -44,7 +45,7 @@ class LoadedSample
       return
     source = context.createBufferSource()
     source.buffer = @decoded
-    source.connect(context.destination)
+    source.connect(output_chain)
     source.start(n)
   
 
@@ -102,6 +103,10 @@ track = null
 main = ->
   window.AudioContext = window.AudioContext || window.webkitAudioContext
   context = new AudioContext()
+  output_chain = context.createGain()
+  
+  final_gain = context.createGain()
+  final_gain.connect(context.destination)
 
   samples = (new LoadedSample(i) for i in sample_urls)
 
@@ -121,8 +126,60 @@ main = ->
       console.log("ready")
       break
 
+  # initiate the analyser
+
+  analyser = context.createAnalyser()
+  analyser.connect(final_gain)
+  analyser.fftSize = 2048
+  bufferLength = analyser.fftSize
+  dataArray = new Uint8Array(bufferLength)
+
+  #  https://github.com/mdn/voice-change-o-matic/blob/gh-pages/scripts/app.js#L123-L167
+
+  HEIGHT = 100
+  WIDTH = window.innerWidth
+
+  canvas = document.getElementById("visual")
+  canvas.width = WIDTH
+  canvas.height = HEIGHT
+  canvasCtx = canvas.getContext("2d")
+  canvasCtx.clearRect(0, 0, WIDTH, HEIGHT)
+
+  draw = ->
+
+    drawVisual = requestAnimationFrame(draw)
+
+    analyser.getByteTimeDomainData(dataArray)
+    canvasCtx.fillStyle = 'rgb(255, 255, 255)'
+    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT)
+
+    canvasCtx.lineWidth = 2
+    canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
+
+    canvasCtx.beginPath()
+
+    sliceWidth = WIDTH * 1.0 / bufferLength
+    x = 0
+
+    for i in [0...bufferLength]
+      v = dataArray[i] / 128.0
+      y = v * HEIGHT/2
+
+      if i == 0
+        canvasCtx.moveTo(x, y)
+      else
+        canvasCtx.lineTo(x, y)
+      x += sliceWidth
+    canvasCtx.lineTo(canvas.width, canvas.height/2)
+    canvasCtx.stroke()
+
+  draw()
+
+
+  output_chain.connect(analyser)
+
 
 
 # Script load-time functions
 
-main()
+#main()
