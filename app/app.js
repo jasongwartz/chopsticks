@@ -4,7 +4,8 @@
 Author: Jason Gwartz
 2016
  */
-var LoadedSample, PlaySound, SoundContainer, context, final_gain, main, output_chain, sample_urls, samples, startPlayback, t, track;
+var JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, context, final_gain, main, sample_urls, samples, startPlayback, t,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 sample_urls = ["../samples/drum_bass_hard.wav", "../samples/drum_snare_hard.wav", "../samples/drum_cymbal_closed.wav"];
 
@@ -14,9 +15,9 @@ samples = null;
 
 t = null;
 
-final_gain = null;
+analyser = null;
 
-output_chain = null;
+final_gain = null;
 
 LoadedSample = (function() {
   function LoadedSample(file) {
@@ -35,7 +36,7 @@ LoadedSample = (function() {
     request.send();
   }
 
-  LoadedSample.prototype.play = function(n) {
+  LoadedSample.prototype.play = function(n, output_chain) {
     var source;
     if (isNaN(n)) {
       return;
@@ -119,13 +120,13 @@ SoundContainer = (function() {
     return this.buffer.push(p);
   };
 
-  SoundContainer.prototype.play = function() {
+  SoundContainer.prototype.play = function(output_chain) {
     var i, j, len, ref, results;
     ref = this.buffer;
     results = [];
     for (j = 0, len = ref.length; j < len; j++) {
       i = ref[j];
-      results.push(i.sample.play(i.beat));
+      results.push(i.sample.play(i.beat, output_chain));
     }
     return results;
   };
@@ -134,24 +135,74 @@ SoundContainer = (function() {
 
 })();
 
-startPlayback = function() {
+JGAnalyser = (function() {
+  function JGAnalyser() {
+    this.draw = bind(this.draw, this);
+    this.node = context.createAnalyser();
+    this.node.fftSize = 2048;
+    this.bufferLength = this.node.fftSize;
+    this.dataArray = new Uint8Array(this.bufferLength);
+    this.HEIGHT = 100;
+    this.WIDTH = window.innerWidth;
+    this.canvas = document.getElementById("visual");
+    this.canvas.width = this.WIDTH;
+    this.canvas.height = this.HEIGHT;
+    this.canvasCtx = this.canvas.getContext("2d");
+    this.canvasCtx.clearRect(0, 0, this.WIDTH, this.HEIGHT);
+  }
+
+  JGAnalyser.prototype.draw = function() {
+    var drawVisual, i, j, ref, sliceWidth, v, x, y;
+    this.canvasCtx.fillStyle = 'rgb(255, 255, 255)';
+    drawVisual = requestAnimationFrame(this.draw);
+    this.node.getByteTimeDomainData(this.dataArray);
+    this.canvasCtx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
+    this.canvasCtx.lineWidth = 2;
+    this.canvasCtx.beginPath();
+    sliceWidth = this.WIDTH * 1.0 / this.bufferLength;
+    x = 0;
+    for (i = j = 0, ref = this.bufferLength; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+      v = this.dataArray[i] / 128.0;
+      y = v * this.HEIGHT / 2;
+      if (i === 0) {
+        this.canvasCtx.moveTo(x, y);
+      } else {
+        this.canvasCtx.lineTo(x, y);
+      }
+      x += sliceWidth;
+    }
+    this.canvasCtx.lineTo(this.canvas.width, this.canvas.height / 2);
+    return this.canvasCtx.stroke();
+  };
+
+  return JGAnalyser;
+
+})();
+
+startPlayback = function(output_chain) {
   var track;
   track = new SoundContainer();
   track.prepare();
-  track.play();
+  track.play(output_chain);
+  analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+  setTimeout((function() {
+    return analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)';
+  }), 3500);
   return setTimeout((function() {
-    return startPlayback();
+    return startPlayback(output_chain);
   }), 4000);
 };
 
-track = null;
-
 main = function() {
-  var HEIGHT, WIDTH, analyser, bufferLength, canvas, canvasCtx, dataArray, draw, i, j, len, ready;
+  var i, j, len, output_chain, ready;
   window.AudioContext = window.AudioContext || window.webkitAudioContext;
   context = new AudioContext();
   output_chain = context.createGain();
   final_gain = context.createGain();
+  analyser = new JGAnalyser();
+  analyser.draw();
+  output_chain.connect(analyser.node);
+  analyser.node.connect(final_gain);
   final_gain.connect(context.destination);
   samples = (function() {
     var j, len, results;
@@ -163,59 +214,19 @@ main = function() {
     return results;
   })();
   while (true) {
-    console.log("in");
     ready = true;
     for (j = 0, len = samples.length; j < len; j++) {
       i = samples[j];
       if (i.data === void 0) {
         (function() {
           ready = false;
-          console.log("not ready");
           return setTimeout((function() {}), 0.5);
         });
       }
     }
     if (ready) {
-      console.log("ready");
       break;
     }
   }
-  analyser = context.createAnalyser();
-  analyser.connect(final_gain);
-  analyser.fftSize = 2048;
-  bufferLength = analyser.fftSize;
-  dataArray = new Uint8Array(bufferLength);
-  HEIGHT = 100;
-  WIDTH = window.innerWidth;
-  canvas = document.getElementById("visual");
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT;
-  canvasCtx = canvas.getContext("2d");
-  canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
-  draw = function() {
-    var drawVisual, k, ref, sliceWidth, v, x, y;
-    drawVisual = requestAnimationFrame(draw);
-    analyser.getByteTimeDomainData(dataArray);
-    canvasCtx.fillStyle = 'rgb(255, 255, 255)';
-    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
-    canvasCtx.lineWidth = 2;
-    canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
-    canvasCtx.beginPath();
-    sliceWidth = WIDTH * 1.0 / bufferLength;
-    x = 0;
-    for (i = k = 0, ref = bufferLength; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
-      v = dataArray[i] / 128.0;
-      y = v * HEIGHT / 2;
-      if (i === 0) {
-        canvasCtx.moveTo(x, y);
-      } else {
-        canvasCtx.lineTo(x, y);
-      }
-      x += sliceWidth;
-    }
-    canvasCtx.lineTo(canvas.width, canvas.height / 2);
-    return canvasCtx.stroke();
-  };
-  draw();
-  return output_chain.connect(analyser);
+  return output_chain;
 };

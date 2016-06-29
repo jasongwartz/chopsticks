@@ -17,8 +17,8 @@ sample_urls = [
 context = null
 samples = null
 t = null
+analyser = null
 final_gain = null
-output_chain = null
 
 # Class definitions
 
@@ -40,7 +40,7 @@ class LoadedSample
       , null)
     request.send()
 
-  play: (n) ->
+  play: (n, output_chain) ->
     if isNaN(n)
       return
     source = context.createBufferSource()
@@ -80,103 +80,117 @@ class SoundContainer
   add: (p) -> # playSound
     @buffer.push(p)
 
-  play: ->
-    i.sample.play(i.beat) for i in @buffer
+  play: (output_chain) ->
+    i.sample.play(i.beat, output_chain) for i in @buffer
 
+class JGAnalyser
 
+  # NOTE NOTE NOTE the @ character is class-level, normal vars are instance
+
+  constructor: ->
+    @node = context.createAnalyser()
+    @node.fftSize = 2048
+    @bufferLength = @node.fftSize
+    @dataArray = new Uint8Array(@bufferLength)
+
+    #  https://github.com/mdn/voice-change-o-matic/blob/gh-pages/scripts/app.js#L123-L167
+
+    @HEIGHT = 100
+    @WIDTH = window.innerWidth
+    
+
+    @canvas = document.getElementById("visual")
+    @canvas.width = @WIDTH
+    @canvas.height = @HEIGHT
+    @canvasCtx = @canvas.getContext("2d")
+    @canvasCtx.clearRect(0, 0, @WIDTH, @HEIGHT)
+
+  draw: =>
+    
+    @canvasCtx.fillStyle = 'rgb(255, 255, 255)'
+ #   @canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
+
+    drawVisual = requestAnimationFrame(@draw)
+    @node.getByteTimeDomainData(@dataArray)
+    
+    @canvasCtx.fillRect(0, 0, @WIDTH, @HEIGHT)
+
+    @canvasCtx.lineWidth = 2
+
+    @canvasCtx.beginPath()
+
+    sliceWidth = @WIDTH * 1.0 / @bufferLength
+    x = 0
+
+    for i in [0...@bufferLength]
+      v = @dataArray[i] / 128.0
+      y = v * @HEIGHT/2
+
+      if i == 0
+        @canvasCtx.moveTo(x, y)
+      else
+        @canvasCtx.lineTo(x, y)
+      x += sliceWidth
+    @canvasCtx.lineTo(@canvas.width, @canvas.height/2)
+    @canvasCtx.stroke()
+  
 # Core utility function definitions
 
-startPlayback = ->
+startPlayback = (output_chain) ->
   track = new SoundContainer()
   track.prepare()
-  track.play()
+  track.play(output_chain)
+  analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
+  
+  # Inner timer to change colour, indicate reloop
+  setTimeout (->
+    analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)'
+    ), 3500
 
+  # Timer to keep in loop
   # TODO: Inactive tab problem
   setTimeout (->
-    startPlayback()
+    startPlayback(output_chain)
     ), 4000
     # TODO: very slight early jump on succeeding phrase
 
+
 # Preloader function definitions
-track = null
 
 main = ->
   window.AudioContext = window.AudioContext || window.webkitAudioContext
   context = new AudioContext()
-  output_chain = context.createGain()
-  
-  final_gain = context.createGain()
-  final_gain.connect(context.destination)
 
+  # sources go into output_chain for "master" manipulation
+  output_chain = context.createGain()
+  # after all "master" controls, final_gain goes to output
+  final_gain = context.createGain()
+  
+  # initiate the analyser
+  analyser = new JGAnalyser()
+  analyser.draw()
+
+  # Wire up the components
+  output_chain.connect(analyser.node)
+  analyser.node.connect(final_gain)
+  final_gain.connect(context.destination)
+  
   samples = (new LoadedSample(i) for i in sample_urls)
 
   # TODO: find some sort of good callback system for loading samples!!
   loop
-    console.log("in")
     ready = true
     (->
       ready = false
-      console.log("not ready")
       setTimeout (->
         
         return
         ), 0.5
     ) for i in samples when i.data is undefined
     if ready
-      console.log("ready")
       break
 
-  # initiate the analyser
-
-  analyser = context.createAnalyser()
-  analyser.connect(final_gain)
-  analyser.fftSize = 2048
-  bufferLength = analyser.fftSize
-  dataArray = new Uint8Array(bufferLength)
-
-  #  https://github.com/mdn/voice-change-o-matic/blob/gh-pages/scripts/app.js#L123-L167
-
-  HEIGHT = 100
-  WIDTH = window.innerWidth
-
-  canvas = document.getElementById("visual")
-  canvas.width = WIDTH
-  canvas.height = HEIGHT
-  canvasCtx = canvas.getContext("2d")
-  canvasCtx.clearRect(0, 0, WIDTH, HEIGHT)
-
-  draw = ->
-
-    drawVisual = requestAnimationFrame(draw)
-
-    analyser.getByteTimeDomainData(dataArray)
-    canvasCtx.fillStyle = 'rgb(255, 255, 255)'
-    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT)
-
-    canvasCtx.lineWidth = 2
-    canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
-
-    canvasCtx.beginPath()
-
-    sliceWidth = WIDTH * 1.0 / bufferLength
-    x = 0
-
-    for i in [0...bufferLength]
-      v = dataArray[i] / 128.0
-      y = v * HEIGHT/2
-
-      if i == 0
-        canvasCtx.moveTo(x, y)
-      else
-        canvasCtx.lineTo(x, y)
-      x += sliceWidth
-    canvasCtx.lineTo(canvas.width, canvas.height/2)
-    canvasCtx.stroke()
-
-  draw()
-
-
-  output_chain.connect(analyser)
+  return output_chain
 
 
 
