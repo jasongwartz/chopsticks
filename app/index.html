@@ -19,13 +19,12 @@
   Snare drum: <input type="text" id="sd" value="0.5 1.5 1.875 2.5 3.5 3.75 3.875"><br />
   Hi hats: <input type="text" id="cym" value="0 0.25 0.5 0.75 1 1.25 1.5 1.75 2 2.25 2.5 2.75 3 3.25 3.5 3.75"><br />
 
-  <p><button style="display: block">Play/pause</button></p>
+<br />
 
-<script type="text/javascript">
-document.querySelector('button').addEventListener('click', function() {
-   startPlayback(oc);
-});
-</script>
+Volume<br />
+  <input id="volume" type="range"
+ min="0" max="1" step="0.01" value="100"
+ onchange="final_gain.gain.value = this.value" />
   
   </body>
 </html>

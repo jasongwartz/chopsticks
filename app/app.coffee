@@ -95,7 +95,7 @@ class JGAnalyser
 
     #  https://github.com/mdn/voice-change-o-matic/blob/gh-pages/scripts/app.js#L123-L167
 
-    @HEIGHT = 100
+    @HEIGHT = 30
     @WIDTH = window.innerWidth
     
 
@@ -106,7 +106,9 @@ class JGAnalyser
     @canvasCtx.clearRect(0, 0, @WIDTH, @HEIGHT)
 
   draw: =>
-    
+    # Reset width
+    @WIDTH = window.innerWidth
+
     @canvasCtx.fillStyle = 'rgb(255, 255, 255)'
  #   @canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
 
@@ -177,18 +179,21 @@ main = ->
   
   samples = (new LoadedSample(i) for i in sample_urls)
 
+  # TODO: New bug, first page load doesn't start playing automatically
   # TODO: find some sort of good callback system for loading samples!!
-  loop
+  init_samples = ->
     ready = true
-    (->
-      ready = false
-      setTimeout (->
-        
-        return
-        ), 0.5
-    ) for i in samples when i.data is undefined
-    if ready
-      break
+    for i in samples
+      if i.data is undefined
+        ready = false
+    if not ready
+      console.log("Loading and decoding samples...")
+      setTimeout(init_samples, 100)
+    else
+      console.log("Samples loaded. Starting playback.")
+      startPlayback(output_chain)
+
+  init_samples()
 
   return output_chain
 

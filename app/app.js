@@ -142,7 +142,7 @@ JGAnalyser = (function() {
     this.node.fftSize = 2048;
     this.bufferLength = this.node.fftSize;
     this.dataArray = new Uint8Array(this.bufferLength);
-    this.HEIGHT = 100;
+    this.HEIGHT = 30;
     this.WIDTH = window.innerWidth;
     this.canvas = document.getElementById("visual");
     this.canvas.width = this.WIDTH;
@@ -153,6 +153,7 @@ JGAnalyser = (function() {
 
   JGAnalyser.prototype.draw = function() {
     var drawVisual, i, j, ref, sliceWidth, v, x, y;
+    this.WIDTH = window.innerWidth;
     this.canvasCtx.fillStyle = 'rgb(255, 255, 255)';
     drawVisual = requestAnimationFrame(this.draw);
     this.node.getByteTimeDomainData(this.dataArray);
@@ -194,7 +195,7 @@ startPlayback = function(output_chain) {
 };
 
 main = function() {
-  var i, j, len, output_chain, ready;
+  var i, init_samples, output_chain;
   window.AudioContext = window.AudioContext || window.webkitAudioContext;
   context = new AudioContext();
   output_chain = context.createGain();
@@ -213,20 +214,23 @@ main = function() {
     }
     return results;
   })();
-  while (true) {
+  init_samples = function() {
+    var j, len, ready;
     ready = true;
     for (j = 0, len = samples.length; j < len; j++) {
       i = samples[j];
       if (i.data === void 0) {
-        (function() {
-          ready = false;
-          return setTimeout((function() {}), 0.5);
-        });
+        ready = false;
       }
     }
-    if (ready) {
-      break;
+    if (!ready) {
+      console.log("Loading and decoding samples...");
+      return setTimeout(init_samples, 100);
+    } else {
+      console.log("Samples loaded. Starting playback.");
+      return startPlayback(output_chain);
     }
-  }
+  };
+  init_samples();
   return output_chain;
 };
