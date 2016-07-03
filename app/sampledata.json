@@ -1,0 +1,7 @@
+{
+  "sample_urls" : {
+    "bd" : "../samples/drum_bass_hard.wav",
+    "sd" : "../samples/drum_snare_hard.wav",
+    "cym" : "../samples/drum_cymbal_closed.wav"
+  }
+}

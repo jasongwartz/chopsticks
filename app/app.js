@@ -4,14 +4,17 @@
 Author: Jason Gwartz
 2016
  */
-var JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, context, final_gain, main, sample_urls, samples, startPlayback, t,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+var JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, context, final_gain, main, sample_data, sample_urls, samples, startPlayback, t,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  hasProp = {}.hasOwnProperty;
 
 sample_urls = ["../samples/drum_bass_hard.wav", "../samples/drum_snare_hard.wav", "../samples/drum_cymbal_closed.wav"];
 
 context = null;
 
 samples = null;
+
+sample_data = null;
 
 t = null;
 
@@ -20,9 +23,9 @@ analyser = null;
 final_gain = null;
 
 LoadedSample = (function() {
-  function LoadedSample(file) {
+  function LoadedSample(file1) {
     var request, self;
-    this.file = file;
+    this.file = file1;
     request = new XMLHttpRequest();
     request.open('GET', this.file, true);
     request.responseType = 'arraybuffer';
@@ -197,7 +200,44 @@ startPlayback = function(output_chain) {
 };
 
 main = function() {
-  var i, init_samples, output_chain;
+  var output_chain;
+  $.getJSON("sampledata.json", function(result) {
+    var file, init_samples, name;
+    sample_data = result;
+    samples = (function() {
+      var ref, results;
+      ref = sample_data.sample_urls;
+      results = [];
+      for (name in ref) {
+        if (!hasProp.call(ref, name)) continue;
+        file = ref[name];
+        results.push(new LoadedSample(file));
+      }
+      return results;
+    })();
+    init_samples = function() {
+      var i, j, len, ready;
+      ready = true;
+      for (j = 0, len = samples.length; j < len; j++) {
+        i = samples[j];
+        if (!i.hasOwnProperty("decoded")) {
+          console.log(i.file + " not decoded");
+          ready = false;
+          continue;
+        } else {
+
+        }
+      }
+      if (!ready) {
+        console.log("Loading and decoding samples...");
+        return setTimeout(init_samples, 100);
+      } else {
+        console.log("Samples loaded. Starting playback.");
+        return startPlayback(output_chain);
+      }
+    };
+    return init_samples();
+  });
   window.AudioContext = window.AudioContext || window.webkitAudioContext;
   context = new AudioContext();
   output_chain = context.createGain();
@@ -207,36 +247,5 @@ main = function() {
   output_chain.connect(analyser.node);
   analyser.node.connect(final_gain);
   final_gain.connect(context.destination);
-  samples = (function() {
-    var j, len, results;
-    results = [];
-    for (j = 0, len = sample_urls.length; j < len; j++) {
-      i = sample_urls[j];
-      results.push(new LoadedSample(i));
-    }
-    return results;
-  })();
-  init_samples = function() {
-    var j, len, ready;
-    ready = true;
-    for (j = 0, len = samples.length; j < len; j++) {
-      i = samples[j];
-      if (!i.hasOwnProperty("decoded")) {
-        console.log(i.file + " not decoded");
-        ready = false;
-        continue;
-      } else {
-        console.log(i.decoded.getChannelData(0));
-      }
-    }
-    if (!ready) {
-      console.log("Loading and decoding samples...");
-      return setTimeout(init_samples, 100);
-    } else {
-      console.log("Samples loaded. Starting playback.");
-      return startPlayback(output_chain);
-    }
-  };
-  init_samples();
   return output_chain;
 };

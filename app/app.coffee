@@ -3,19 +3,11 @@ Author: Jason Gwartz
 2016
 ###
 
-# Data store
-
-sample_urls = [
-    "../samples/drum_bass_hard.wav",
-    "../samples/drum_snare_hard.wav",
-    "../samples/drum_cymbal_closed.wav"
-  ]
-
-
 # Variable declarations with global scope
 
 context = null
 samples = null
+sample_data = null
 t = null
 analyser = null
 final_gain = null
@@ -61,6 +53,7 @@ class SoundContainer
     t = context.currentTime
     loaded = true
     [(loaded = false if i.data is undefined) for i in samples]
+    # TODO: is this the source of the loading bug?
 
     if not loaded
       alert("Samples still loading, please wait.")
@@ -161,6 +154,37 @@ startPlayback = (output_chain) ->
 # Preloader function definitions
 
 main = ->
+  
+  # async load sample data from JSON
+  $.getJSON("sampledata.json", (result) ->
+    sample_data = result
+
+    samples = (
+      new LoadedSample(file) for own name, file of sample_data.sample_urls
+    )
+
+    # TODO: BUG Safari only: first page load doesn't start playing automatically
+    # closer to fixing it using this indented callback but not quite
+    init_samples = ->
+      ready = true
+      for i in samples
+        if not i.hasOwnProperty("decoded")
+          console.log(i.file + " not decoded")
+          ready = false
+          continue
+        else
+          #console.log(i.decoded.getChannelData(0))
+          
+      if not ready
+        console.log("Loading and decoding samples...")
+        setTimeout(init_samples, 100)
+      else
+        console.log("Samples loaded. Starting playback.")
+        startPlayback(output_chain)
+
+    init_samples()
+  )
+  
   window.AudioContext = window.AudioContext || window.webkitAudioContext
   context = new AudioContext()
 
@@ -177,32 +201,6 @@ main = ->
   output_chain.connect(analyser.node)
   analyser.node.connect(final_gain)
   final_gain.connect(context.destination)
-  
-  samples = (new LoadedSample(i) for i in sample_urls)
-
-  # TODO: BUG Safari only: first page load doesn't start playing automatically
-  init_samples = ->
-    ready = true
-    for i in samples
-      if not i.hasOwnProperty("decoded")
-        console.log(i.file + " not decoded")
-        ready = false
-        continue
-      else
-        console.log(i.decoded.getChannelData(0))
-        
-    if not ready
-      console.log("Loading and decoding samples...")
-      setTimeout(init_samples, 100)
-    else
-      console.log("Samples loaded. Starting playback.")
-      startPlayback(output_chain)
-
-  init_samples()
-
-  return output_chain
-
-
 
 # Script load-time functions
 
