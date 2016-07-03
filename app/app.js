@@ -31,7 +31,9 @@ LoadedSample = (function() {
       self.data = request.response;
       return context.decodeAudioData(self.data, function(decoded) {
         return self.decoded = decoded;
-      }, null);
+      }, function(e) {
+        return console.log("Error loading:" + self.file + e);
+      });
     };
     request.send();
   }
@@ -219,8 +221,12 @@ main = function() {
     ready = true;
     for (j = 0, len = samples.length; j < len; j++) {
       i = samples[j];
-      if (i.data === void 0) {
+      if (!i.hasOwnProperty("decoded")) {
+        console.log(i.file + " not decoded");
         ready = false;
+        continue;
+      } else {
+        console.log(i.decoded.getChannelData(0));
       }
     }
     if (!ready) {

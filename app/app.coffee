@@ -37,7 +37,8 @@ class LoadedSample
       self.data = request.response
       context.decodeAudioData(self.data, (decoded) ->
         self.decoded = decoded
-      , null)
+      , (e) ->
+        console.log("Error loading:" + self.file + e))
     request.send()
 
   play: (n, output_chain) ->
@@ -179,13 +180,17 @@ main = ->
   
   samples = (new LoadedSample(i) for i in sample_urls)
 
-  # TODO: New bug, first page load doesn't start playing automatically
-  # TODO: find some sort of good callback system for loading samples!!
+  # TODO: BUG Safari only: first page load doesn't start playing automatically
   init_samples = ->
     ready = true
     for i in samples
-      if i.data is undefined
+      if not i.hasOwnProperty("decoded")
+        console.log(i.file + " not decoded")
         ready = false
+        continue
+      else
+        console.log(i.decoded.getChannelData(0))
+        
     if not ready
       console.log("Loading and decoding samples...")
       setTimeout(init_samples, 100)
