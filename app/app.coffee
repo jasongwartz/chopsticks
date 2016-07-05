@@ -7,6 +7,7 @@ Author: Jason Gwartz
 
 context = null
 samples = null
+instruments = null
 sample_data = null
 t = null
 analyser = null
@@ -45,41 +46,49 @@ class LoadedSample
 class PlaySound
   constructor: (@sample, @beat) -> # LoadedSample, integer
 
+  play: (output) ->
+    @sample.play(@beat, output)
+
+class Instrument
+  constructor: (@name, @data) ->
+    @is_live = true
+    @pattern = [] # array of PlaySounds
+
+  load: ->
+    @sample = new LoadedSample(@data.file)
+
+  add: (beat) -> # playSound
+   # console.log(@name + ' ' + beat)
+    @pattern.push(new PlaySound(@sample, beat))
+  
+  reset: ->
+    @pattern = []
+
 class SoundContainer
   constructor: ->
-    @buffer = [] # array of PlaySounds
-
+    @active_instruments = [] # array of Instruments
   prepare: ->
+    i.reset() for i in instruments
     t = context.currentTime
-    loaded = true
-    [(loaded = false if i.data is undefined) for i in samples]
-    # TODO: is this the source of the loading bug?
+    @active_instruments.push(i) for i in instruments when i.is_live
 
-    if not loaded
-      alert("Samples still loading, please wait.")
-    else
-      inputs = ( ## TODO: make number of input fields variable
-        document.getElementById(v).value.split(' ') for v in ["bd", "sd", "cym"]
-      )
+    # Takes the beat pattern from the text box
+    # TODO: refactor when using graphical nodes
 
-      (@.add(new PlaySound(
-        samples[index], t + parseFloat(n)
-        )
-      ) for n in inputs[index] when ->
-        console.log(isNaN(n))
-        return !isNaN(n)
-        # TODO: fix this, it doesn't do anything
-        ) for index in [0...inputs.length]
+    for i in @active_instruments
+      i.add(
+        parseFloat(b) + t
+        ) for b in document.getElementById(i.name).value.split(' ')
 
-  add: (p) -> # playSound
-    @buffer.push(p)
-
+    # TODO: how to prepare times, knowing that
+      # the computation time is inconsistent
   play: (output_chain) ->
-    i.sample.play(i.beat, output_chain) for i in @buffer
+    # refactor to comprehension with -> when
+    console.log(@active_instruments)
+    for instrument in @active_instruments
+      ps.play(output_chain) for ps in instrument.pattern
 
 class JGAnalyser
-
-  # NOTE NOTE NOTE the @ character is class-level, normal vars are instance
 
   constructor: ->
     @node = context.createAnalyser()
@@ -102,6 +111,7 @@ class JGAnalyser
   draw: =>
     # Reset width
     @WIDTH = window.innerWidth
+    @canvas.width = @WIDTH
 
     @canvasCtx.fillStyle = 'rgb(255, 255, 255)'
  #   @canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
@@ -136,6 +146,7 @@ startPlayback = (output_chain) ->
   track = new SoundContainer()
   track.prepare()
   track.play(output_chain)
+  # change analyser colour back to black
   analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
   
   # Inner timer to change colour, indicate reloop
@@ -159,22 +170,16 @@ main = ->
   $.getJSON("sampledata.json", (result) ->
     sample_data = result
 
-    samples = (
-      new LoadedSample(file) for own name, file of sample_data.sample_urls
-    )
+    instruments = (new Instrument(d, v) for d, v of sample_data)
+    i.load() for i in instruments
 
     # TODO: BUG Safari only: first page load doesn't start playing automatically
     # closer to fixing it using this indented callback but not quite
     init_samples = ->
       ready = true
-      for i in samples
-        if not i.hasOwnProperty("decoded")
-          console.log(i.file + " not decoded")
+      for i in instruments
+        if i.sample.decoded is undefined
           ready = false
-          continue
-        else
-          #console.log(i.decoded.getChannelData(0))
-          
       if not ready
         console.log("Loading and decoding samples...")
         setTimeout(init_samples, 100)
