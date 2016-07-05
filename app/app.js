@@ -4,15 +4,14 @@
 Author: Jason Gwartz
 2016
  */
-var JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, context, final_gain, main, sample_data, sample_urls, samples, startPlayback, t,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  hasProp = {}.hasOwnProperty;
-
-sample_urls = ["../samples/drum_bass_hard.wav", "../samples/drum_snare_hard.wav", "../samples/drum_cymbal_closed.wav"];
+var Instrument, JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, context, final_gain, instruments, main, sample_data, samples, startPlayback, t,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 context = null;
 
 samples = null;
+
+instruments = null;
 
 sample_data = null;
 
@@ -23,9 +22,9 @@ analyser = null;
 final_gain = null;
 
 LoadedSample = (function() {
-  function LoadedSample(file1) {
+  function LoadedSample(file) {
     var request, self;
-    this.file = file1;
+    this.file = file;
     request = new XMLHttpRequest();
     request.open('GET', this.file, true);
     request.responseType = 'arraybuffer';
@@ -57,81 +56,96 @@ LoadedSample = (function() {
 })();
 
 PlaySound = (function() {
-  function PlaySound(sample, beat) {
+  function PlaySound(sample, beat1) {
     this.sample = sample;
-    this.beat = beat;
+    this.beat = beat1;
   }
+
+  PlaySound.prototype.play = function(output) {
+    return this.sample.play(this.beat, output);
+  };
 
   return PlaySound;
 
 })();
 
+Instrument = (function() {
+  function Instrument(name, data) {
+    this.name = name;
+    this.data = data;
+    this.is_live = true;
+    this.pattern = [];
+  }
+
+  Instrument.prototype.load = function() {
+    return this.sample = new LoadedSample(this.data.file);
+  };
+
+  Instrument.prototype.add = function(beat) {
+    return this.pattern.push(new PlaySound(this.sample, beat));
+  };
+
+  Instrument.prototype.reset = function() {
+    return this.pattern = [];
+  };
+
+  return Instrument;
+
+})();
+
 SoundContainer = (function() {
   function SoundContainer() {
-    this.buffer = [];
+    this.active_instruments = [];
   }
 
   SoundContainer.prototype.prepare = function() {
-    var i, index, inputs, j, loaded, n, ref, results, v;
-    t = context.currentTime;
-    loaded = true;
-    [
-      (function() {
-        var j, len, results;
-        results = [];
-        for (j = 0, len = samples.length; j < len; j++) {
-          i = samples[j];
-          results.push(i.data === void 0 ? loaded = false : void 0);
-        }
-        return results;
-      })()
-    ];
-    if (!loaded) {
-      return alert("Samples still loading, please wait.");
-    } else {
-      inputs = (function() {
-        var j, len, ref, results;
-        ref = ["bd", "sd", "cym"];
-        results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          v = ref[j];
-          results.push(document.getElementById(v).value.split(' '));
-        }
-        return results;
-      })();
-      results = [];
-      for (index = j = 0, ref = inputs.length; 0 <= ref ? j < ref : j > ref; index = 0 <= ref ? ++j : --j) {
-        results.push((function() {
-          var k, len, ref1, results1;
-          ref1 = inputs[index];
-          results1 = [];
-          for (k = 0, len = ref1.length; k < len; k++) {
-            n = ref1[k];
-            if (function() {
-              console.log(isNaN(n));
-              return !isNaN(n);
-            }) {
-              results1.push(this.add(new PlaySound(samples[index], t + parseFloat(n))));
-            }
-          }
-          return results1;
-        }).call(this));
-      }
-      return results;
+    var b, i, j, k, l, len, len1, len2, ref, results;
+    for (j = 0, len = instruments.length; j < len; j++) {
+      i = instruments[j];
+      i.reset();
     }
-  };
-
-  SoundContainer.prototype.add = function(p) {
-    return this.buffer.push(p);
+    t = context.currentTime;
+    for (k = 0, len1 = instruments.length; k < len1; k++) {
+      i = instruments[k];
+      if (i.is_live) {
+        this.active_instruments.push(i);
+      }
+    }
+    ref = this.active_instruments;
+    results = [];
+    for (l = 0, len2 = ref.length; l < len2; l++) {
+      i = ref[l];
+      results.push((function() {
+        var len3, m, ref1, results1;
+        ref1 = document.getElementById(i.name).value.split(' ');
+        results1 = [];
+        for (m = 0, len3 = ref1.length; m < len3; m++) {
+          b = ref1[m];
+          results1.push(i.add(parseFloat(b) + t));
+        }
+        return results1;
+      })());
+    }
+    return results;
   };
 
   SoundContainer.prototype.play = function(output_chain) {
-    var i, j, len, ref, results;
-    ref = this.buffer;
+    var instrument, j, len, ps, ref, results;
+    console.log(this.active_instruments);
+    ref = this.active_instruments;
     results = [];
     for (j = 0, len = ref.length; j < len; j++) {
-      i = ref[j];
-      results.push(i.sample.play(i.beat, output_chain));
+      instrument = ref[j];
+      results.push((function() {
+        var k, len1, ref1, results1;
+        ref1 = instrument.pattern;
+        results1 = [];
+        for (k = 0, len1 = ref1.length; k < len1; k++) {
+          ps = ref1[k];
+          results1.push(ps.play(output_chain));
+        }
+        return results1;
+      })());
     }
     return results;
   };
@@ -159,6 +173,7 @@ JGAnalyser = (function() {
   JGAnalyser.prototype.draw = function() {
     var drawVisual, i, j, ref, sliceWidth, v, x, y;
     this.WIDTH = window.innerWidth;
+    this.canvas.width = this.WIDTH;
     this.canvasCtx.fillStyle = 'rgb(255, 255, 255)';
     drawVisual = requestAnimationFrame(this.draw);
     this.node.getByteTimeDomainData(this.dataArray);
@@ -202,30 +217,28 @@ startPlayback = function(output_chain) {
 main = function() {
   var output_chain;
   $.getJSON("sampledata.json", function(result) {
-    var file, init_samples, name;
+    var d, i, init_samples, j, len, v;
     sample_data = result;
-    samples = (function() {
-      var ref, results;
-      ref = sample_data.sample_urls;
+    instruments = (function() {
+      var results;
       results = [];
-      for (name in ref) {
-        if (!hasProp.call(ref, name)) continue;
-        file = ref[name];
-        results.push(new LoadedSample(file));
+      for (d in sample_data) {
+        v = sample_data[d];
+        results.push(new Instrument(d, v));
       }
       return results;
     })();
+    for (j = 0, len = instruments.length; j < len; j++) {
+      i = instruments[j];
+      i.load();
+    }
     init_samples = function() {
-      var i, j, len, ready;
+      var k, len1, ready;
       ready = true;
-      for (j = 0, len = samples.length; j < len; j++) {
-        i = samples[j];
-        if (!i.hasOwnProperty("decoded")) {
-          console.log(i.file + " not decoded");
+      for (k = 0, len1 = instruments.length; k < len1; k++) {
+        i = instruments[k];
+        if (i.sample.decoded === void 0) {
           ready = false;
-          continue;
-        } else {
-
         }
       }
       if (!ready) {
@@ -246,6 +259,5 @@ main = function() {
   analyser.draw();
   output_chain.connect(analyser.node);
   analyser.node.connect(final_gain);
-  final_gain.connect(context.destination);
-  return output_chain;
+  return final_gain.connect(context.destination);
 };

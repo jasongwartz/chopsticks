@@ -1,23 +1,77 @@
-<html>
+<html lang="en">
+
 <head>
 
-<script type="text/javascript" src="app.js"></script>
+  <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
+
+
+  <script type="text/javascript" src="app.js"></script>
 </head>
 
 <body onload="oc = main();">
 
-  <canvas id="visual" width="640" height="50"></canvas> 
-<br>
-  Bass drum: <input type="text" id="bd" value="0 0.75 1 2 2.75 3 3.25"><br />
-  Snare drum: <input type="text" id="sd" value="0.5 1.5 1.875 2.5 3.5 3.75 3.875"><br />
-  Hi hats: <input type="text" id="cym" value="0 0.25 0.5 0.75 1 1.25 1.5 1.75 2 2.25 2.5 2.75 3 3.25 3.5 3.75"><br />
 
-<br />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="static/bootstrap/js/bootstrap.min.js"></script>
 
-Volume<br />
-  <input id="volume" type="range"
- min="0" max="1" step="0.01" value="100"
- onchange="final_gain.gain.value = this.value" />
 
-  </body>
+<div class="container-fluid">
+
+  <canvas id="visual" width="640" height="50"></canvas>
+  <br /><br /><br />
+
+<div class="row">
+<div class="col-md-4">
+</div>
+<div class="col-md-4">
+
+  <div class="input-group">
+    <input type="text" id="bd" class="form-control" value="0 0.75 1 2 2.75 3 3.25">
+    <span class="input-group-btn">
+ <button type="button" id="bdbutton" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+  Bass Drum
+</button></span>
+  </div>
+    <br /><br />
+  <div class="input-group">
+    <input type="text" id="sd" class="form-control" value="0.5 1.5 1.875 2.5 3.5 3.75 3.875">
+    <span class="input-group-btn">
+  <button type="button" id="sdbutton" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+  Snare Drum
+</button></span></div>
+
+  <br /><br />
+  <div class="input-group">
+    <input type="text" id="cym" class="form-control" value="0 0.25 0.5 0.75 1 1.25 1.5 1.75 2 2.25 2.5 2.75 3 3.25 3.5 3.75">
+    <span class="input-group-btn">
+      <button type="button" id="cymbutton" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+  Hi hats
+</button>
+</span></div>
+
+
+
+  <br /><br /> Volume
+
+  <br />
+  <input id="volume" type="range" min="0" max="1" step="0.01" value="100" onchange="final_gain.gain.value = this.value" />
+
+</div>
+<div class="col-md-4">
+</div></div>
+</div>
+
+  <!--<script>
+  $('#bdbutton').on('click', function () {
+    var $btn = $(this).button('loading')
+    console.log("clicked!")
+    // business logic...
+    $btn.button('reset')
+  });
+</script>-->
+  <script type="text/javascript" src="ui.js"></script>
+
+</body>
+
 </html>
