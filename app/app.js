@@ -172,7 +172,6 @@ JGAnalyser = (function() {
 
   JGAnalyser.prototype.draw = function() {
     var drawVisual, i, j, ref, sliceWidth, v, x, y;
-    this.WIDTH = window.innerWidth;
     this.canvas.width = this.WIDTH;
     this.canvasCtx.fillStyle = 'rgb(255, 255, 255)';
     drawVisual = requestAnimationFrame(this.draw);
@@ -205,9 +204,11 @@ startPlayback = function(output_chain) {
   track = new SoundContainer();
   track.prepare();
   track.play(output_chain);
+  console.log("black");
   analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
   setTimeout((function() {
-    return analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)';
+    analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)';
+    return console.log("red");
   }), 3500);
   return setTimeout((function() {
     return startPlayback(output_chain);

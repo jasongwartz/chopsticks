@@ -111,10 +111,10 @@ class JGAnalyser
   draw: =>
     # Reset width
     @WIDTH = window.innerWidth
-    @canvas.width = @WIDTH
-
+    
+    # TODO: fix bug where auto-resizing canvas breaks the colours
+ #   @canvas.width = @WIDTH
     @canvasCtx.fillStyle = 'rgb(255, 255, 255)'
- #   @canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
 
     drawVisual = requestAnimationFrame(@draw)
     @node.getByteTimeDomainData(@dataArray)
@@ -139,7 +139,7 @@ class JGAnalyser
       x += sliceWidth
     @canvasCtx.lineTo(@canvas.width, @canvas.height/2)
     @canvasCtx.stroke()
-  
+
 # Core utility function definitions
 
 startPlayback = (output_chain) ->
