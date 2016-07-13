@@ -131,7 +131,6 @@ SoundContainer = (function() {
 
   SoundContainer.prototype.play = function(output_chain) {
     var instrument, j, len, ps, ref, results;
-    console.log(this.active_instruments);
     ref = this.active_instruments;
     results = [];
     for (j = 0, len = ref.length; j < len; j++) {
@@ -231,6 +230,7 @@ main = function() {
       i = instruments[j];
       i.load();
     }
+    ui_init();
     init_samples = function() {
       var k, len1, ready;
       ready = true;

@@ -58,7 +58,6 @@ class Instrument
     @sample = new LoadedSample(@data.file)
 
   add: (beat) -> # playSound
-   # console.log(@name + ' ' + beat)
     @pattern.push(new PlaySound(@sample, beat))
   
   reset: ->
@@ -84,7 +83,6 @@ class SoundContainer
       # the computation time is inconsistent
   play: (output_chain) ->
     # refactor to comprehension with -> when
-    console.log(@active_instruments)
     for instrument in @active_instruments
       ps.play(output_chain) for ps in instrument.pattern
 
@@ -170,8 +168,10 @@ main = ->
   $.getJSON("sampledata.json", (result) ->
     sample_data = result
 
+    # TODO: should this be a dict???
     instruments = (new Instrument(d, v) for d, v of sample_data)
     i.load() for i in instruments
+    ui_init()  # Initialise the button listeners
 
     # TODO: BUG Safari only: first page load doesn't start playing automatically
     # closer to fixing it using this indented callback but not quite
@@ -207,6 +207,6 @@ main = ->
   analyser.node.connect(final_gain)
   final_gain.connect(context.destination)
 
-# Script load-time functions
 
-#main()
+
+# Script load-time functions
