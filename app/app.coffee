@@ -51,7 +51,7 @@ class PlaySound
 
 class Instrument
   constructor: (@name, @data) ->
-    @is_live = true
+    @is_live = false
     @pattern = [] # array of PlaySounds
 
   load: ->
@@ -163,6 +163,7 @@ startPlayback = (output_chain) ->
 # Preloader function definitions
 
 main = ->
+# is called by 'onload=', thus runs slightly after $("document").ready
   
   # async load sample data from JSON
   $.getJSON("sampledata.json", (result) ->

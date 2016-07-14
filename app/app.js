@@ -73,7 +73,7 @@ Instrument = (function() {
   function Instrument(name, data) {
     this.name = name;
     this.data = data;
-    this.is_live = true;
+    this.is_live = false;
     this.pattern = [];
   }
 
