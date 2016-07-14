@@ -10,14 +10,12 @@ $("document").ready(->
       name = ui.draggable.find("h2").text()
       i = (x for x in instruments when x.name == name)[0] # the hacky part
       i.is_live = true
-  })
-
-  $("#node-tray").droppable({
-    drop: (evt, ui) ->
+    out: (evt, ui) ->
       name = ui.draggable.find("h2").text()
       i = (x for x in instruments when x.name == name)[0] # the hacky part
       i.is_live = false
   })
+
 
 )
 

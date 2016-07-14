@@ -2,7 +2,7 @@
 var node, ui_init;
 
 $("document").ready(function() {
-  $("#node-canvas").droppable({
+  return $("#node-canvas").droppable({
     hoverClass: "node-canvas-hover",
     activeClass: "node-canvas-hover",
     tolerance: "pointer",
@@ -21,10 +21,8 @@ $("document").ready(function() {
         return results;
       })())[0];
       return i.is_live = true;
-    }
-  });
-  return $("#node-tray").droppable({
-    drop: function(evt, ui) {
+    },
+    out: function(evt, ui) {
       var i, name, x;
       name = ui.draggable.find("h2").text();
       i = ((function() {
