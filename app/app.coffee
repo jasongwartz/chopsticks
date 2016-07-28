@@ -182,10 +182,10 @@ main = ->
         if i.sample.decoded is undefined
           ready = false
       if not ready
-        console.log("Loading and decoding samples...")
-        setTimeout(init_samples, 100)
+        console.log(i.name + " not loaded.")
+        setTimeout(init_samples, 1000)
       else
-        console.log("Samples loaded. Starting playback.")
+        console.log("All samples loaded.")
         startPlayback(output_chain)
 
     init_samples()

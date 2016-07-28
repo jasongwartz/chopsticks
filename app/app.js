@@ -241,10 +241,10 @@ main = function() {
         }
       }
       if (!ready) {
-        console.log("Loading and decoding samples...");
-        return setTimeout(init_samples, 100);
+        console.log(i.name + " not loaded.");
+        return setTimeout(init_samples, 1000);
       } else {
-        console.log("Samples loaded. Starting playback.");
+        console.log("All samples loaded.");
         return startPlayback(output_chain);
       }
     };

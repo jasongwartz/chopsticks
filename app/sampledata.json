@@ -1,14 +1,14 @@
 {
     "bd": {
-      "file": "../samples/drum_bass_hard.wav",
+      "file": "samples/drum_bass_hard.wav",
       "default_pattern": "0 0.75 1 2 2.75 3 3.25"
     },
     "sd": {
-      "file": "../samples/drum_snare_hard.wav",
+      "file": "samples/drum_snare_hard.wav",
       "default_pattern": "0.5 1.5 1.875 2.5 3.5 3.75 3.875"
     },
     "cym": {
-      "file": "../samples/drum_cymbal_closed.wav",
+      "file": "samples/drum_cymbal_closed.wav",
       "default_pattern": "0 0.25 0.5 0.75 1 1.25 1.5 1.75 2 2.25 2.5 2.75 3 3.25 3.5 3.75"
     
   }
