@@ -57,6 +57,9 @@ class Instrument
   load: ->
     @sample = new LoadedSample(@data.file)
 
+  is_loaded: ->
+    return @sample.data?
+
   add: (beat) -> # playSound
     @pattern.push(new PlaySound(@sample, beat))
   
@@ -182,9 +185,10 @@ main = ->
         if i.sample.decoded is undefined
           ready = false
       if not ready
-        console.log(i.name + " not loaded.")
+        console.log(i.name + ": " + i.is_loaded() for i in instruments)
         setTimeout(init_samples, 1000)
       else
+        console.log(i.name + ": " + i.is_loaded() for i in instruments)
         console.log("All samples loaded.")
         startPlayback(output_chain)
 

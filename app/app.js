@@ -81,6 +81,10 @@ Instrument = (function() {
     return this.sample = new LoadedSample(this.data.file);
   };
 
+  Instrument.prototype.is_loaded = function() {
+    return this.sample.data != null;
+  };
+
   Instrument.prototype.add = function(beat) {
     return this.pattern.push(new PlaySound(this.sample, beat));
   };
@@ -241,9 +245,26 @@ main = function() {
         }
       }
       if (!ready) {
-        console.log(i.name + " not loaded.");
+        console.log((function() {
+          var l, len2, results;
+          results = [];
+          for (l = 0, len2 = instruments.length; l < len2; l++) {
+            i = instruments[l];
+            results.push(i.name + ": " + i.is_loaded());
+          }
+          return results;
+        })());
         return setTimeout(init_samples, 1000);
       } else {
+        console.log((function() {
+          var l, len2, results;
+          results = [];
+          for (l = 0, len2 = instruments.length; l < len2; l++) {
+            i = instruments[l];
+            results.push(i.name + ": " + i.is_loaded());
+          }
+          return results;
+        })());
         console.log("All samples loaded.");
         return startPlayback(output_chain);
       }
