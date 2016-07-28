@@ -99,7 +99,7 @@ SoundContainer = (function() {
   }
 
   SoundContainer.prototype.prepare = function() {
-    var b, i, j, k, l, len, len1, len2, ref, results;
+    var i, j, k, l, len, len1, len2, n, ref, results;
     for (j = 0, len = instruments.length; j < len; j++) {
       i = instruments[j];
       i.reset();
@@ -117,11 +117,11 @@ SoundContainer = (function() {
       i = ref[l];
       results.push((function() {
         var len3, m, ref1, results1;
-        ref1 = document.getElementById(i.name).value.split(' ');
+        ref1 = i.data.default_pattern.split(' ');
         results1 = [];
         for (m = 0, len3 = ref1.length; m < len3; m++) {
-          b = ref1[m];
-          results1.push(i.add(parseFloat(b) + t));
+          n = ref1[m];
+          results1.push(i.add(parseFloat(n) + t));
         }
         return results1;
       })());

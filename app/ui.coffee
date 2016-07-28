@@ -27,7 +27,7 @@ $("document").ready(->
                   scope:"canvas",
                   tolerance:"pointer",
                   drop: (evt, ui) ->
-                    console.log("Accepted!")
+                    $(this).append(ui.draggable)
                 }
               )
             )
@@ -52,12 +52,26 @@ $("document").ready(->
  
 
     out: (evt, ui) -> # not in use because nodes duplicate on drop (line 14)
+      console.log("dragged out")
       name = ui.draggable.find("h2").text()
       i = (x for x in instruments when x.name == name)[0] # the hacky part
       i.is_live = false
   })
 
-
+  # Drop node back on tray to disable
+  $("#node-tray").droppable({
+    scope:"canvas",
+    drop: (evt, ui) ->
+      # Handles children of wrapper
+      names = ($(i).text() for i in ui.draggable.find("h2"))
+      for name in names
+        i = (x for x in instruments when x.name == name)[0] # the hacky part
+        try
+          i.is_live = false
+        catch e
+        #pass
+      ui.draggable.remove()
+  })
 )
 
 ui_init = ->
@@ -82,15 +96,10 @@ ui_init = ->
     node("wrapper", "")
     )
       .draggable({scope:"tray", helper:"clone"})
-      .addClass("node-wrapper").removeClass("node")
+      .addClass("node-wrapper").removeClass("node-sample")
       .appendTo($("#node-tray"))
 
 node = (name, def_pat) ->
-  return """<div class="node">
+  return """<div class="node node-sample">
   <h2>#{ name }</h2>
-  <input type="text" id="#{ name }" class="form-control" value="#{ def_pat }">
-  <br />
-<button type="button" id="#{ name }button" class="btn btn-primary" data-toggle="button" autocomplete="off">
-#{ name }
-</button>
 </div>"""

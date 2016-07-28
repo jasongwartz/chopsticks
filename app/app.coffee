@@ -76,8 +76,8 @@ class SoundContainer
 
     for i in @active_instruments
       i.add(
-        parseFloat(b) + t
-        ) for b in document.getElementById(i.name).value.split(' ')
+        parseFloat(n) + t
+      ) for n in i.data.default_pattern.split(' ')
 
     # TODO: how to prepare times, knowing that
       # the computation time is inconsistent

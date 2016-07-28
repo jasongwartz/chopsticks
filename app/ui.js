@@ -2,7 +2,7 @@
 var node, ui_init;
 
 $("document").ready(function() {
-  return $("#node-canvas").droppable({
+  $("#node-canvas").droppable({
     hoverClass: "node-canvas-hover",
     tolerance: "pointer",
     scope: "tray",
@@ -17,7 +17,7 @@ $("document").ready(function() {
             scope: "canvas",
             tolerance: "pointer",
             drop: function(evt, ui) {
-              return console.log("Accepted!");
+              return $(this).append(ui.draggable);
             }
           }));
         }
@@ -45,6 +45,7 @@ $("document").ready(function() {
     },
     out: function(evt, ui) {
       var i, name, x;
+      console.log("dragged out");
       name = ui.draggable.find("h2").text();
       i = ((function() {
         var j, len, results;
@@ -58,6 +59,42 @@ $("document").ready(function() {
         return results;
       })())[0];
       return i.is_live = false;
+    }
+  });
+  return $("#node-tray").droppable({
+    scope: "canvas",
+    drop: function(evt, ui) {
+      var e, error, i, j, len, name, names, x;
+      names = (function() {
+        var j, len, ref, results;
+        ref = ui.draggable.find("h2");
+        results = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          i = ref[j];
+          results.push($(i).text());
+        }
+        return results;
+      })();
+      for (j = 0, len = names.length; j < len; j++) {
+        name = names[j];
+        i = ((function() {
+          var k, len1, results;
+          results = [];
+          for (k = 0, len1 = instruments.length; k < len1; k++) {
+            x = instruments[k];
+            if (x.name === name) {
+              results.push(x);
+            }
+          }
+          return results;
+        })())[0];
+        try {
+          i.is_live = false;
+        } catch (error) {
+          e = error;
+        }
+      }
+      return ui.draggable.remove();
     }
   });
 });
@@ -81,9 +118,9 @@ ui_init = function() {
   return $(node("wrapper", "")).draggable({
     scope: "tray",
     helper: "clone"
-  }).addClass("node-wrapper").removeClass("node").appendTo($("#node-tray"));
+  }).addClass("node-wrapper").removeClass("node-sample").appendTo($("#node-tray"));
 };
 
 node = function(name, def_pat) {
-  return "<div class=\"node\">\n<h2>" + name + "</h2>\n<input type=\"text\" id=\"" + name + "\" class=\"form-control\" value=\"" + def_pat + "\">\n<br />\n<button type=\"button\" id=\"" + name + "button\" class=\"btn btn-primary\" data-toggle=\"button\" autocomplete=\"off\">\n" + name + "\n</button>\n</div>";
+  return "<div class=\"node node-sample\">\n<h2>" + name + "</h2>\n</div>";
 };
