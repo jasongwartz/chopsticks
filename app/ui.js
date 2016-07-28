@@ -10,16 +10,23 @@ $("document").ready(function() {
       var i, name, x;
       if (ui.draggable.hasClass("node-wrapper")) {
         if (!ui.draggable.hasClass("on-canvas")) {
-          return $("#node-canvas").append(ui.draggable.clone().addClass("on-canvas").draggable({
+          return ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable({
             helper: "original",
             scope: "canvas"
           }).droppable({
             scope: "canvas",
             tolerance: "pointer",
             drop: function(evt, ui) {
-              return $(this).append(ui.draggable);
+              var n;
+              n = $(ui.draggable.appendTo($(this)));
+              console.log(ui.draggable.parentsUntil("#node-canvas"));
+              return n.position({
+                of: n.parent().children().last(),
+                my: "top",
+                at: "bottom"
+              });
             }
-          }));
+          });
         }
       } else {
         name = ui.draggable.find("h2").text();
@@ -36,10 +43,10 @@ $("document").ready(function() {
         })())[0];
         i.is_live = true;
         if (!ui.draggable.hasClass("on-canvas")) {
-          return $("#node-canvas").append(ui.draggable.clone().addClass("on-canvas").draggable({
+          return ui.draggable.clone().appendTo($("#node-canvas")).addClass("on-canvas").draggable({
             helper: "original",
             scope: "canvas"
-          }));
+          });
         }
       }
     },
@@ -115,10 +122,10 @@ ui_init = function() {
     name = $(element).find("input").attr("id");
     return btn.on("click", function() {});
   });
-  return $(node("wrapper", "")).draggable({
+  return $(node("wrapper", "")).appendTo($("#node-tray")).draggable({
     scope: "tray",
     helper: "clone"
-  }).addClass("node-wrapper").removeClass("node-sample").appendTo($("#node-tray"));
+  }).addClass("node-wrapper").removeClass("node-sample");
 };
 
 node = function(name, def_pat) {

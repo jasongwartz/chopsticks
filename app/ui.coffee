@@ -11,25 +11,30 @@ $("document").ready(->
 
       # code path for node-wrappers
       if ui.draggable.hasClass("node-wrapper")
-        if !ui.draggable.hasClass("on-canvas")
-          
-          $("#node-canvas").append(
-            ui.draggable.clone()
-              .addClass("on-canvas")
-              .draggable(
-                {
-                  helper:"original",
-                  scope:"canvas"
-                }
-              )
-              .droppable(
-                {
-                  scope:"canvas",
-                  tolerance:"pointer",
-                  drop: (evt, ui) ->
-                    $(this).append(ui.draggable)
-                }
-              )
+        if not ui.draggable.hasClass("on-canvas")
+          ui.draggable.clone().appendTo("#node-canvas")
+            .addClass("on-canvas")
+            .draggable(
+              {
+                helper:"original",
+                scope:"canvas"
+              }
+            )
+            .droppable( # node-wrappers accept node-sample
+              {
+                scope:"canvas",
+                tolerance:"pointer",
+                drop: (evt, ui) ->
+                  n = $(ui.draggable.appendTo($(this)))
+                  console.log(ui.draggable.parentsUntil("#node-canvas"))
+                  n.position(
+                    {
+                      of:n.parent().children().last(),
+                      my:"top",
+                      at:"bottom"
+                    }
+                  )
+              }
             )
           
       else
@@ -39,17 +44,14 @@ $("document").ready(->
 
         # adding a new sound node to the canvas
         if !ui.draggable.hasClass("on-canvas")
-          $("#node-canvas").append(
-            ui.draggable.clone()
-              .addClass("on-canvas")
+          ui.draggable.clone().appendTo($("#node-canvas"))
+            .addClass("on-canvas")
               .draggable(
                 {
                   helper:"original",
                   scope:"canvas"
                 }
               )
-            )
- 
 
     out: (evt, ui) -> # not in use because nodes duplicate on drop (line 14)
       console.log("dragged out")
@@ -95,9 +97,9 @@ ui_init = ->
   $(
     node("wrapper", "")
     )
+      .appendTo($("#node-tray")) # append first, else 'position: relative' bug
       .draggable({scope:"tray", helper:"clone"})
       .addClass("node-wrapper").removeClass("node-sample")
-      .appendTo($("#node-tray"))
 
 node = (name, def_pat) ->
   return """<div class="node node-sample">

@@ -27,6 +27,7 @@ class LoadedSample
 
     self = @
     request.onload = ->
+    # TODO: P1: samples don't load from remote server in safari, 40% in chrome
       self.data = request.response
       context.decodeAudioData(self.data, (decoded) ->
         self.decoded = decoded
@@ -74,9 +75,7 @@ class SoundContainer
     t = context.currentTime
     @active_instruments.push(i) for i in instruments when i.is_live
 
-    # Takes the beat pattern from the text box
-    # TODO: refactor when using graphical nodes
-
+    # Adds all beats from default pattern
     for i in @active_instruments
       i.add(
         parseFloat(n) + t
