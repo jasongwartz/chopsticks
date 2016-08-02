@@ -17,11 +17,14 @@ $("document").ready(function() {
             scope: "canvas",
             tolerance: "pointer",
             drop: function(evt, ui) {
-              var n;
-              n = $(ui.draggable.appendTo($(this)));
-              console.log(ui.draggable.parentsUntil("#node-canvas"));
-              return n.position({
-                of: n.parent().children().last(),
+              var loc;
+              if ($(this).parent().is("#node-canvas")) {
+                loc = $(this).children().last();
+              } else {
+                loc = $(this).parent().children().last();
+              }
+              return ui.draggable.appendTo($(this)).position({
+                of: loc,
                 my: "top",
                 at: "bottom"
               });

@@ -21,19 +21,23 @@ $("document").ready(->
               }
             )
             .droppable( # node-wrappers accept node-sample
+            # TODO: bug still exists when dropping wrapper with children
               {
                 scope:"canvas",
                 tolerance:"pointer",
                 drop: (evt, ui) ->
-                  n = $(ui.draggable.appendTo($(this)))
-                  console.log(ui.draggable.parentsUntil("#node-canvas"))
-                  n.position(
-                    {
-                      of:n.parent().children().last(),
-                      my:"top",
-                      at:"bottom"
-                    }
-                  )
+                  if $(this).parent().is("#node-canvas")
+                    loc = $(this).children().last()
+                  else
+                    loc = $(this).parent().children().last()
+                  ui.draggable.appendTo($(this))
+                    .position(
+                      {
+                        of: loc,
+                        my: "top",
+                        at: "bottom"
+                      }
+                    )
               }
             )
           
