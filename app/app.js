@@ -236,7 +236,7 @@ startPlayback = function(output_chain) {
 main = function() {
   var output_chain;
   $.getJSON("sampledata.json", function(result) {
-    var d, i, init_samples, j, len, v;
+    var d, i, init_samples, j, k, len, len1, v;
     sample_data = result;
     instruments = (function() {
       var results;
@@ -251,22 +251,26 @@ main = function() {
       i = instruments[j];
       i.load();
     }
+    for (k = 0, len1 = instruments.length; k < len1; k++) {
+      i = instruments[k];
+      SoundNode.tray_instances.push(new SoundNode(i));
+    }
     ui_init();
     init_samples = function() {
-      var k, len1, ready;
+      var l, len2, ready;
       ready = true;
-      for (k = 0, len1 = instruments.length; k < len1; k++) {
-        i = instruments[k];
+      for (l = 0, len2 = instruments.length; l < len2; l++) {
+        i = instruments[l];
         if (i.sample.decoded === void 0) {
           ready = false;
         }
       }
       if (!ready) {
         console.log((function() {
-          var l, len2, results;
+          var len3, m, results;
           results = [];
-          for (l = 0, len2 = instruments.length; l < len2; l++) {
-            i = instruments[l];
+          for (m = 0, len3 = instruments.length; m < len3; m++) {
+            i = instruments[m];
             results.push(i.name + ": " + i.is_loaded());
           }
           return results;
@@ -274,10 +278,10 @@ main = function() {
         return setTimeout(init_samples, 1000);
       } else {
         console.log((function() {
-          var l, len2, results;
+          var len3, m, results;
           results = [];
-          for (l = 0, len2 = instruments.length; l < len2; l++) {
-            i = instruments[l];
+          for (m = 0, len3 = instruments.length; m < len3; m++) {
+            i = instruments[m];
             results.push(i.name + ": " + i.is_loaded());
           }
           return results;

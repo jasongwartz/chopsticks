@@ -61,7 +61,7 @@ class Instrument
     @sample = new LoadedSample(@data.file)
 
   is_loaded: ->
-    return @sample.data?
+    return @sample.data? # Check if not undefined/null
 
   add: (beat) -> # playSound
     @pattern.push(new PlaySound(@sample, beat))
@@ -187,9 +187,12 @@ main = ->
   $.getJSON("sampledata.json", (result) ->
     sample_data = result
 
-    # TODO: should this be a dict???
+    # Init all the Instrument and SoundNode objects
     instruments = (new Instrument(d, v) for d, v of sample_data)
     i.load() for i in instruments
+    SoundNode.tray_instances.push(
+      new SoundNode(i)
+    ) for i in instruments # calls into lang.coffee
     ui_init()  # Initialise the button listeners
 
     # TODO: BUG Safari only: first page load doesn't start playing automatically
@@ -227,6 +230,3 @@ main = ->
   analyser.node.connect(final_gain)
   final_gain.connect(context.destination)
 
-
-
-# Script load-time functions
