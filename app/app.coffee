@@ -12,6 +12,8 @@ sample_data = null
 t = null
 analyser = null
 final_gain = null
+phrase = 1
+beat = 0
 
 # Class definitions
 
@@ -98,11 +100,12 @@ class JGAnalyser
 
     #  https://github.com/mdn/voice-change-o-matic/blob/gh-pages/scripts/app.js#L123-L167
 
-    @HEIGHT = 30
-    @WIDTH = window.innerWidth
-    
-
     @canvas = document.getElementById("visual")
+    @HEIGHT = 30
+    @WIDTH = $(@canvas).parent().width()
+    
+    #console.log(typeof()
+    
     @canvas.width = @WIDTH
     @canvas.height = @HEIGHT
     @canvasCtx = @canvas.getContext("2d")
@@ -110,10 +113,10 @@ class JGAnalyser
 
   draw: =>
     # Reset width
-    @WIDTH = window.innerWidth
+    @WIDTH = $(@canvas).parent().width()
     
     # TODO: fix bug where auto-resizing canvas breaks the colours
- #   @canvas.width = @WIDTH
+    #@canvas.width = @WIDTH
     @canvasCtx.fillStyle = 'rgb(255, 255, 255)'
 
     drawVisual = requestAnimationFrame(@draw)
@@ -150,15 +153,28 @@ startPlayback = (output_chain) ->
   analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
   
   # Inner timer to change colour, indicate reloop
-  setTimeout (->
+  setTimeout(->
     analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)'
-    ), 3500
+  , 3000)
+
+  beat_increment = ->
+    beat += 1
+    update_beat_labels()
+    if beat is 4
+      phrase += 1
+      beat = 0
+    else
+      setTimeout(->
+        beat_increment()
+      , 1000)
+    
+  beat_increment()
 
   # Timer to keep in loop
   # TODO: Inactive tab problem
-  setTimeout (->
+  setTimeout(->
     startPlayback(output_chain)
-    ), 4000
+  , 4000)
     # TODO: very slight early jump on succeeding phrase
 
 

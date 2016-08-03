@@ -109,3 +109,7 @@ node = (name, def_pat) ->
   return """<div class="node node-sample">
   <h2>#{ name }</h2>
 </div>"""
+
+update_beat_labels = ->
+  $("#beat_label").text(phrase + ":" + beat)
+#  $("#phrase_label").text(phrase)

@@ -4,7 +4,7 @@
 Author: Jason Gwartz
 2016
  */
-var Instrument, JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, context, final_gain, instruments, main, sample_data, samples, startPlayback, t,
+var Instrument, JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, beat, context, final_gain, instruments, main, phrase, sample_data, samples, startPlayback, t,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 context = null;
@@ -20,6 +20,10 @@ t = null;
 analyser = null;
 
 final_gain = null;
+
+phrase = 1;
+
+beat = 0;
 
 LoadedSample = (function() {
   function LoadedSample(file) {
@@ -164,9 +168,9 @@ JGAnalyser = (function() {
     this.node.fftSize = 2048;
     this.bufferLength = this.node.fftSize;
     this.dataArray = new Uint8Array(this.bufferLength);
-    this.HEIGHT = 30;
-    this.WIDTH = window.innerWidth;
     this.canvas = document.getElementById("visual");
+    this.HEIGHT = 30;
+    this.WIDTH = $(this.canvas).parent().width();
     this.canvas.width = this.WIDTH;
     this.canvas.height = this.HEIGHT;
     this.canvasCtx = this.canvas.getContext("2d");
@@ -175,7 +179,7 @@ JGAnalyser = (function() {
 
   JGAnalyser.prototype.draw = function() {
     var drawVisual, i, j, ref, sliceWidth, v, x, y;
-    this.WIDTH = window.innerWidth;
+    this.WIDTH = $(this.canvas).parent().width();
     this.canvasCtx.fillStyle = 'rgb(255, 255, 255)';
     drawVisual = requestAnimationFrame(this.draw);
     this.node.getByteTimeDomainData(this.dataArray);
@@ -203,17 +207,30 @@ JGAnalyser = (function() {
 })();
 
 startPlayback = function(output_chain) {
-  var track;
+  var beat_increment, track;
   track = new SoundContainer();
   track.prepare();
   track.play(output_chain);
   analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
-  setTimeout((function() {
+  setTimeout(function() {
     return analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)';
-  }), 3500);
-  return setTimeout((function() {
+  }, 3000);
+  beat_increment = function() {
+    beat += 1;
+    update_beat_labels();
+    if (beat === 4) {
+      phrase += 1;
+      return beat = 0;
+    } else {
+      return setTimeout(function() {
+        return beat_increment();
+      }, 1000);
+    }
+  };
+  beat_increment();
+  return setTimeout(function() {
     return startPlayback(output_chain);
-  }), 4000);
+  }, 4000);
 };
 
 main = function() {
