@@ -1,3 +1,7 @@
+###
+Author: Jason Gwartz
+2016
+###
 
 canvas_init = ->
 
@@ -26,6 +30,8 @@ canvas_init = ->
                 scope:"canvas",
                 tolerance:"pointer",
                 drop: (evt, ui) ->
+              # TODO: clean this up for parent hierarchy
+                # drag/drop both directions, keep sound-node as last child
                   if $(this).parent().is("#node-canvas")
                     loc = $(this).children().last()
                   else
@@ -73,35 +79,26 @@ canvas_init = ->
       ui.draggable.remove()
   })
 
-
 ui_init = ->
 
   canvas_init() # changed to happen in ui_init call, not on document.ready()
 
-  # add nodes to tray
+  # add sound nodes to tray
   $(n.html).appendTo($("#node-tray"))
-    .data("SoundNode", n) for n in SoundNode.tray_instances
+    .draggable(
+      {
+        helper:"clone",
+        scope:"tray"
+      }
+    ).data("SoundNode", n) for n in SoundNode.tray_instances
 
-  # make nodes draggable - drags 'clone' from tray
-  $(".node").draggable({helper:"clone", scope:"tray"})
-
-  # TODO: Now does correctly toggle each instrument, next: make it less hacky!
-  $(".node").each( (index, element) ->
-    btn = $(element).find("button")
-    btn.on("click", ->
-#      $(btn).button('reset')
-    )
-  )
-
-  $(
-    """
-      <div class="node node-wrapper" id="wrapper">
-        <h2>wrapper</h2>
-      </div>"""
-    )
-      .appendTo($("#node-tray")) # append first, else 'position: relative' bug
-      .draggable({scope:"tray", helper:"clone"})
-      .addClass("node-wrapper").removeClass("node-sample")
+  $(w.html).appendTo($("#node-tray"))
+    .draggable(
+      {
+        scope:"tray",
+        helper:"clone"
+      }
+    ).data("Wrapper", w) for w in Wrapper.instances
 
 
 update_beat_labels = ->

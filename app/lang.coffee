@@ -1,12 +1,22 @@
+###
+Author: Jason Gwartz
+2016
+###
+
 class Wrapper
   # If condition, on_beats, for loop
   @instances = []
-  constructor: (@check, @sound_node, @div) -> # TODO: create subclasses?
+  constructor: (@name, @check) -> # TODO: create subclasses?
     Wrapper.instances.push(this)
+    
+    @html = """
+      <div class="node node-wrapper" id="#{ @name }">
+        <h2>#{ @name }</h2>
+      </div>"""
 
 
 # TODO: conditional not yet implemented
-if_conditional = new Wrapper( (condition_to_check, input) ->
+if_conditional = new Wrapper("If", (condition_to_check, input) ->
   input = (parseInt(i) for i in input.replace(/\D/g," ").split(" "))
   if condition_to_check is "phrase"
     # var phrase is singleton from other .js file
@@ -17,7 +27,7 @@ if_conditional = new Wrapper( (condition_to_check, input) ->
 )
 
 # TODO: for loop not yet implemented
-for_loop = new Wrapper( (number_loops, loop_block) ->
+for_loop = new Wrapper("For", (number_loops, loop_block) ->
   if loop_block is "phrase"
     pass()
   else if loop_block is "bars"
@@ -33,12 +43,12 @@ class SoundNode
     @id = @instrument.name
     @wrappers = []
     @html = """
-      <div class="node node-sample" id="#{ @instrument.name }">
-        <h2>#{ @instrument.name }</h2>
+      <div class="node node-sample" id="#{ @id }">
+        <h2>#{ @id }</h2>
       </div>"""
 
   get_wrappers: ->
-    w = $("#{ @instrument.name }").parentsUntil("#node-canvas")
+    w = $("#{ @id }").parentsUntil("#node-canvas")
     console.log(w)
   phrase_eval: ->
     for w in wrappers
