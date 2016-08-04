@@ -43,8 +43,12 @@ class SoundNode
     @id = @instrument.name
     @wrappers = []
     @html = """
+    <div class="node-sample-container">
+      <div class="wrappers">
+      </div>
       <div class="node node-sample" id="#{ @id }">
         <h2>#{ @id }</h2>
+      </div>
       </div>"""
 
   get_wrappers: ->

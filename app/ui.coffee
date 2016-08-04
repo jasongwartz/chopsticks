@@ -24,46 +24,48 @@ canvas_init = ->
                 scope:"canvas"
               }
             )
-            .droppable( # node-wrappers accept node-sample
-            # TODO: bug still exists when dropping wrapper with children
-              {
-                scope:"canvas",
-                tolerance:"pointer",
-                drop: (evt, ui) ->
-              # TODO: clean this up for parent hierarchy
-                # drag/drop both directions, keep sound-node as last child
-                  if $(this).parent().is("#node-canvas")
-                    loc = $(this).children().last()
-                  else
-                    loc = $(this).parent().children().last()
-                  ui.draggable.appendTo($(this))
-                    .position(
-                      {
-                        of: loc,
-                        my: "top",
-                        at: "bottom"
-                      }
-                    )
-              }
-            )
           
       else # code path for Sound Nodes
 
-        sn = ui.draggable.data("SoundNode")
-        new_sn = new SoundNode(sn.instrument)
-        SoundNode.canvas_instances.push(new_sn)
-
-        i = new_sn.instrument
-        i.is_live = true
-
         # adding a new sound node to the canvas
         if !ui.draggable.hasClass("on-canvas")
+
+          sn = ui.draggable.data("SoundNode")
+          new_sn = new SoundNode(sn.instrument)
+          SoundNode.canvas_instances.push(new_sn)
+
+          i = new_sn.instrument
+          i.is_live = true
+
           ui.draggable.clone().appendTo($("#node-canvas"))
             .addClass("on-canvas")
               .draggable(
                 {
                   helper:"original",
                   scope:"canvas"
+                }
+              )
+              .droppable(
+                {
+                  accept: ".node-wrapper",
+                  scope:"canvas",
+                  tolerance:"pointer",
+                  drop: (evt, ui) ->
+                    ui.draggable.appendTo($(this).find(".wrappers"))
+                      .draggable("disable")
+                      .position(
+                        {
+                          of: $(this).find(".node-sample"),
+                          my: "bottom",
+                          at: "top"
+                        }
+                      ).css("top", "0px")
+                }
+              )
+              .find(".wrappers").sortable(
+                {
+                  stop: (evt, ui) ->
+                    console.log("Done sorting")
                 }
               )
               .data("SoundNode", new_sn)
@@ -90,8 +92,10 @@ ui_init = ->
         helper:"clone",
         scope:"tray"
       }
-    ).data("SoundNode", n) for n in SoundNode.tray_instances
+    )
+    .data("SoundNode", n) for n in SoundNode.tray_instances
 
+  # add wrappers to tray
   $(w.html).appendTo($("#node-tray"))
     .draggable(
       {
@@ -103,4 +107,3 @@ ui_init = ->
 
 update_beat_labels = ->
   $("#beat_label").text(phrase + ":" + beat)
-#  $("#phrase_label").text(phrase)

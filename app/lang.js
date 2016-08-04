@@ -63,7 +63,7 @@ SoundNode = (function() {
     this.instrument = instrument;
     this.id = this.instrument.name;
     this.wrappers = [];
-    this.html = "<div class=\"node node-sample\" id=\"" + this.id + "\">\n  <h2>" + this.id + "</h2>\n</div>";
+    this.html = "<div class=\"node-sample-container\">\n  <div class=\"wrappers\">\n  </div>\n  <div class=\"node node-sample\" id=\"" + this.id + "\">\n    <h2>" + this.id + "</h2>\n  </div>\n  </div>";
   }
 
   SoundNode.prototype.get_wrappers = function() {

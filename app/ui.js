@@ -18,34 +18,33 @@ canvas_init = function() {
           return ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable({
             helper: "original",
             scope: "canvas"
-          }).droppable({
-            scope: "canvas",
-            tolerance: "pointer",
-            drop: function(evt, ui) {
-              var loc;
-              if ($(this).parent().is("#node-canvas")) {
-                loc = $(this).children().last();
-              } else {
-                loc = $(this).parent().children().last();
-              }
-              return ui.draggable.appendTo($(this)).position({
-                of: loc,
-                my: "top",
-                at: "bottom"
-              });
-            }
           });
         }
       } else {
-        sn = ui.draggable.data("SoundNode");
-        new_sn = new SoundNode(sn.instrument);
-        SoundNode.canvas_instances.push(new_sn);
-        i = new_sn.instrument;
-        i.is_live = true;
         if (!ui.draggable.hasClass("on-canvas")) {
+          sn = ui.draggable.data("SoundNode");
+          new_sn = new SoundNode(sn.instrument);
+          SoundNode.canvas_instances.push(new_sn);
+          i = new_sn.instrument;
+          i.is_live = true;
           return ui.draggable.clone().appendTo($("#node-canvas")).addClass("on-canvas").draggable({
             helper: "original",
             scope: "canvas"
+          }).droppable({
+            accept: ".node-wrapper",
+            scope: "canvas",
+            tolerance: "pointer",
+            drop: function(evt, ui) {
+              return ui.draggable.appendTo($(this).find(".wrappers")).draggable("disable").position({
+                of: $(this).find(".node-sample"),
+                my: "bottom",
+                at: "top"
+              }).css("top", "0px");
+            }
+          }).find(".wrappers").sortable({
+            stop: function(evt, ui) {
+              return console.log("Done sorting");
+            }
           }).data("SoundNode", new_sn);
         }
       }
