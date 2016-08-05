@@ -5,14 +5,14 @@ Author: Jason Gwartz
 
 canvas_init = ->
 
+  glob = @ # to pass global vars to evt listeners
+
   $("#node-canvas").droppable({
-   # accept: true,
     hoverClass: "node-canvas-hover",
- #   activeClass: "node-canvas-hover",
     tolerance: "pointer",
     scope:"tray", # only accepts new drops from tray
     drop: (evt, ui) ->
-
+      console.log(self.playing)
       # code path for node-wrappers
       if ui.draggable.hasClass("node-wrapper")
         if not ui.draggable.hasClass("on-canvas")
@@ -69,6 +69,9 @@ canvas_init = ->
                 }
               )
               .data("SoundNode", new_sn)
+      if not glob.playing
+        glob.playing = true
+        startPlayback(output_chain) # init playback on first node drop
   })
 
   # Drop node back on tray to disable

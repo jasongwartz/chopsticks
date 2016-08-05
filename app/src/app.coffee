@@ -16,6 +16,8 @@ phrase = 1
 beat = 0
 bar = 1
 tempo = 500.0 # milliseconds per beat - 1000 = 60bpm
+playing = false
+output_chain = null
 
 # Class definitions
 
@@ -170,7 +172,7 @@ startPlayback = (output_chain) ->
         phrase += 1
       else
         bar += 1
-        setTimeout(->
+        setTimeout(-> # TODO: async bug here, might be from tab switching
           beat_increment()
         , tempo)
     else
@@ -219,7 +221,7 @@ main = ->
       else
         console.log(i.name + ": " + i.is_loaded() for i in instruments)
         console.log("All samples loaded.")
-        startPlayback(output_chain)
+        #startPlayback(output_chain)
 
     init_samples()
   )

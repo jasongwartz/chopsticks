@@ -4,7 +4,7 @@
 Author: Jason Gwartz
 2016
  */
-var Instrument, JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, bar, beat, context, final_gain, instruments, main, phrase, sample_data, samples, startPlayback, t, tempo,
+var Instrument, JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, bar, beat, context, final_gain, instruments, main, output_chain, phrase, playing, sample_data, samples, startPlayback, t, tempo,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 context = null;
@@ -28,6 +28,10 @@ beat = 0;
 bar = 1;
 
 tempo = 500.0;
+
+playing = false;
+
+output_chain = null;
 
 LoadedSample = (function() {
   function LoadedSample(file) {
@@ -246,7 +250,6 @@ startPlayback = function(output_chain) {
 };
 
 main = function() {
-  var output_chain;
   $.getJSON("static/sampledata.json", function(result) {
     var d, i, init_samples, j, k, len, len1, v;
     sample_data = result;
@@ -298,8 +301,7 @@ main = function() {
           }
           return results;
         })());
-        console.log("All samples loaded.");
-        return startPlayback(output_chain);
+        return console.log("All samples loaded.");
       }
     };
     return init_samples();

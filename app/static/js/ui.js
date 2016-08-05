@@ -7,15 +7,18 @@ Author: Jason Gwartz
 var canvas_init, ui_init, update_beat_labels;
 
 canvas_init = function() {
+  var glob;
+  glob = this;
   $("#node-canvas").droppable({
     hoverClass: "node-canvas-hover",
     tolerance: "pointer",
     scope: "tray",
     drop: function(evt, ui) {
       var i, new_sn, sn;
+      console.log(self.playing);
       if (ui.draggable.hasClass("node-wrapper")) {
         if (!ui.draggable.hasClass("on-canvas")) {
-          return ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable({
+          ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable({
             helper: "original",
             scope: "canvas"
           });
@@ -27,7 +30,7 @@ canvas_init = function() {
           SoundNode.canvas_instances.push(new_sn);
           i = new_sn.instrument;
           i.is_live = true;
-          return ui.draggable.clone().appendTo($("#node-canvas")).addClass("on-canvas").draggable({
+          ui.draggable.clone().appendTo($("#node-canvas")).addClass("on-canvas").draggable({
             helper: "original",
             scope: "canvas"
           }).droppable({
@@ -47,6 +50,10 @@ canvas_init = function() {
             }
           }).data("SoundNode", new_sn);
         }
+      }
+      if (!glob.playing) {
+        glob.playing = true;
+        return startPlayback(output_chain);
       }
     }
   });
