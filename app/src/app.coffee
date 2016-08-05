@@ -184,7 +184,7 @@ main = ->
 # is called by 'onload=', thus runs slightly after $("document").ready
   
   # async load sample data from JSON
-  $.getJSON("sampledata.json", (result) ->
+  $.getJSON("static/sampledata.json", (result) ->
     sample_data = result
 
     # Init all the Instrument and SoundNode objects

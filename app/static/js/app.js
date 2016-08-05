@@ -235,7 +235,7 @@ startPlayback = function(output_chain) {
 
 main = function() {
   var output_chain;
-  $.getJSON("sampledata.json", function(result) {
+  $.getJSON("static/sampledata.json", function(result) {
     var d, i, init_samples, j, k, len, len1, v;
     sample_data = result;
     instruments = (function() {
