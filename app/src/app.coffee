@@ -14,6 +14,8 @@ analyser = null
 final_gain = null
 phrase = 1
 beat = 0
+bar = 1
+tempo = 500.0 # milliseconds per beat - 1000 = 60bpm
 
 # Class definitions
 
@@ -86,8 +88,7 @@ class SoundContainer
     # TODO: how to prepare times, knowing that
       # the computation time is inconsistent
   play: (output_chain) ->
-    # refactor to comprehension with -> when
-    for instrument in @active_instruments
+    for instrument in @active_instruments # calls into lang.js
       ps.play(output_chain) for ps in instrument.pattern
 
 class JGAnalyser
@@ -155,26 +156,35 @@ startPlayback = (output_chain) ->
   # Inner timer to change colour, indicate reloop
   setTimeout(->
     analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)'
-  , 3000)
+  , (tempo * 16 - tempo * 2))
 
   beat_increment = ->
+    # only set time-out within a bar
+    # the auto-reload of the phrase will trigger the call
     beat += 1
     update_beat_labels()
     if beat is 4
-      phrase += 1
       beat = 0
+      if bar is 4
+        bar = 1
+        phrase += 1
+      else
+        bar += 1
+        setTimeout(->
+          beat_increment()
+        , tempo)
     else
       setTimeout(->
         beat_increment()
-      , 1000)
-    
-  beat_increment()
+      , tempo)
+  
+  beat_increment() # call
 
   # Timer to keep in loop
   # TODO: Inactive tab problem
   setTimeout(->
     startPlayback(output_chain)
-  , 4000)
+  , tempo * 16)
     # TODO: very slight early jump on succeeding phrase
 
 
@@ -182,6 +192,7 @@ startPlayback = (output_chain) ->
 
 main = ->
 # is called by 'onload=', thus runs slightly after $("document").ready
+# TODO: on iOS, trigger main() from button instead of onload
   
   # async load sample data from JSON
   $.getJSON("static/sampledata.json", (result) ->

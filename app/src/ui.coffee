@@ -106,4 +106,4 @@ ui_init = ->
 
 
 update_beat_labels = ->
-  $("#beat_label").text(phrase + ":" + beat)
+  $("#beat_label").text(phrase + ":" + bar + ":" + beat)

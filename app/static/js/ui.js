@@ -85,5 +85,5 @@ ui_init = function() {
 };
 
 update_beat_labels = function() {
-  return $("#beat_label").text(phrase + ":" + beat);
+  return $("#beat_label").text(phrase + ":" + bar + ":" + beat);
 };

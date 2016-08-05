@@ -4,7 +4,7 @@
 Author: Jason Gwartz
 2016
  */
-var Instrument, JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, beat, context, final_gain, instruments, main, phrase, sample_data, samples, startPlayback, t,
+var Instrument, JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, bar, beat, context, final_gain, instruments, main, phrase, sample_data, samples, startPlayback, t, tempo,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 context = null;
@@ -24,6 +24,10 @@ final_gain = null;
 phrase = 1;
 
 beat = 0;
+
+bar = 1;
+
+tempo = 500.0;
 
 LoadedSample = (function() {
   function LoadedSample(file) {
@@ -214,23 +218,31 @@ startPlayback = function(output_chain) {
   analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
   setTimeout(function() {
     return analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)';
-  }, 3000);
+  }, tempo * 16 - tempo * 2);
   beat_increment = function() {
     beat += 1;
     update_beat_labels();
     if (beat === 4) {
-      phrase += 1;
-      return beat = 0;
+      beat = 0;
+      if (bar === 4) {
+        bar = 1;
+        return phrase += 1;
+      } else {
+        bar += 1;
+        return setTimeout(function() {
+          return beat_increment();
+        }, tempo);
+      }
     } else {
       return setTimeout(function() {
         return beat_increment();
-      }, 1000);
+      }, tempo);
     }
   };
   beat_increment();
   return setTimeout(function() {
     return startPlayback(output_chain);
-  }, 4000);
+  }, tempo * 16);
 };
 
 main = function() {
