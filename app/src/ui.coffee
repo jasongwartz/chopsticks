@@ -107,7 +107,7 @@ ui_init = ->
         scope:"tray",
         helper:"clone"
       }
-    ).data("Wrapper", w) for w in Wrapper.instances
+    ).data("Wrapper", w) for w in [new IfConditional(), new ForLoop()]
 
 
 update_beat_labels = ->

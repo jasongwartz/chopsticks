@@ -4,15 +4,16 @@
 Author: Jason Gwartz
 2016
  */
-var SoundNode, Wrapper, for_loop, if_conditional,
+var ForLoop, IfConditional, SoundNode, Wrapper,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 Wrapper = (function() {
   Wrapper.instances = [];
 
-  function Wrapper(name, check, extra_html) {
-    this.name = name;
-    this.check = check;
+  function Wrapper(name1, extra_html) {
+    this.name = name1;
     Wrapper.instances.push(this);
     this.html = "<div class=\"node node-wrapper\" id=\"" + this.name + "\">\n  <h2>" + this.name + "</h2>\n  " + extra_html + "\n</div>";
   }
@@ -25,41 +26,78 @@ Wrapper = (function() {
 
 })();
 
-if_conditional = new Wrapper("If", function(condition_to_check, input, jq) {
-  var i, ins, j, len, ref;
-  input = (function() {
-    var j, len, ref, results;
-    ref = input.replace(/\D/g, " ").split(" ");
-    results = [];
-    for (j = 0, len = ref.length; j < len; j++) {
-      i = ref[j];
-      results.push(parseInt(i));
-    }
-    return results;
-  })();
-  if (condition_to_check === "phrase") {
-    return ref = phrase + 1, indexOf.call(input, ref) >= 0;
-  } else if (condition_to_check === "bar") {
-    return do_something;
-  } else if (condition_to_check === "beat") {
-    ins = jq.parent().parent().data("SoundNode").instrument;
-    for (j = 0, len = input.length; j < len; j++) {
-      i = input[j];
-      ins.add(i);
-    }
-    return true;
-  }
-}, "<select class=\"form-control\" id=\"if-select\">\n    <option value=\"beat\">Beat</option>\n    <option value=\"bar\">Bar</option>\n    <option value=\"phrase\">Phrase</option>\n  </select>\n<input type=\"text\" id=\"if-input\" class=\"form-control\">");
+IfConditional = (function(superClass) {
+  var extra_html, name;
 
-for_loop = new Wrapper("For", function(loop_block, number_loops) {
-  if (loop_block === "phrases") {
-    return pass();
-  } else if (loop_block === "bars") {
-    return pass();
-  } else if (loop_block === "beats") {
-    return pass();
+  extend(IfConditional, superClass);
+
+  name = "If";
+
+  extra_html = "<select class=\"form-control\" id=\"if-select\">\n    <option value=\"beat\">Beat</option>\n    <option value=\"bar\">Bar</option>\n    <option value=\"phrase\">Phrase</option>\n  </select>\n<input type=\"text\" id=\"if-input\" class=\"form-control\">";
+
+  function IfConditional() {
+    IfConditional.__super__.constructor.call(this, name, extra_html);
   }
-}, "<input type=\"text\" id=\"for-input\" class=\"form-control\">\n<select class=\"form-control\" id=\"for-select\">\n    <option value=\"beat\">Beats</option>\n    <option value=\"bar\">Bars</option>\n    <option value=\"phrase\">Phrases</option>\n  </select>");
+
+  IfConditional.prototype.check = function(condition_to_check, input, jq) {
+    var i, ins, j, len, ref;
+    input = (function() {
+      var j, len, ref, results;
+      ref = input.replace(/\D/g, " ").split(" ");
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        i = ref[j];
+        results.push(parseInt(i));
+      }
+      return results;
+    })();
+    if (condition_to_check === "phrase") {
+      return ref = phrase + 1, indexOf.call(input, ref) >= 0;
+    } else if (condition_to_check === "bar") {
+      console.log(jq);
+      jq.parent().find("#node-wrapper");
+      console.log(recurse);
+      if (typeof recurse !== "undefined" && recurse !== null) {
+        return recurse.data("Wrapper").eval_input(recurse);
+      }
+    } else if (condition_to_check === "beat") {
+      ins = jq.parent().parent().data("SoundNode").instrument;
+      for (j = 0, len = input.length; j < len; j++) {
+        i = input[j];
+        ins.add(i);
+      }
+      return true;
+    }
+  };
+
+  return IfConditional;
+
+})(Wrapper);
+
+ForLoop = (function(superClass) {
+  extend(ForLoop, superClass);
+
+  function ForLoop() {
+    return ForLoop.__super__.constructor.apply(this, arguments);
+  }
+
+  ForLoop.name = "For";
+
+  ForLoop.extra_html = "<input type=\"text\" id=\"for-input\" class=\"form-control\">\n<select class=\"form-control\" id=\"for-select\">\n    <option value=\"beat\">Beats</option>\n    <option value=\"bar\">Bars</option>\n    <option value=\"phrase\">Phrases</option>\n  </select>";
+
+  ForLoop.prototype.for_loop = function(loop_block, number_loops) {
+    if (loop_block === "phrases") {
+      return pass();
+    } else if (loop_block === "bars") {
+      return pass();
+    } else if (loop_block === "beats") {
+      return pass();
+    }
+  };
+
+  return ForLoop;
+
+})(Wrapper);
 
 SoundNode = (function() {
   SoundNode.tray_instances = [];
@@ -74,15 +112,21 @@ SoundNode = (function() {
   }
 
   SoundNode.prototype.phrase_eval = function() {
-    var j, len, results, w, wrappers;
-    wrappers = $("#" + this.id + "-container").find(".node-wrapper");
-    results = [];
-    for (j = 0, len = wrappers.length; j < len; j++) {
-      w = wrappers[j];
-      w = $(w);
-      results.push(w.data("Wrapper").eval_input(w));
+    var conditionals, i, j, len, ref, to_cont;
+    conditionals = {};
+    ref = $("#" + this.id + "-container").find(".wrappers").children("#If");
+    for (j = 0, len = ref.length; j < len; j++) {
+      i = ref[j];
+      conditionals[$(i).find("select").val()] = $(i).data("Wrapper");
     }
-    return results;
+    console.log(conditionals);
+    if (conditionals.phrase != null) {
+      return to_cont = conditionals.phrase.eval_input();
+    } else if (conditionals.bar != null) {
+      return console.log("bar");
+    } else {
+      return console.log("beat");
+    }
   };
 
   return SoundNode;

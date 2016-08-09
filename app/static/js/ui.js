@@ -76,7 +76,7 @@ ui_init = function() {
       scope: "tray"
     }).data("SoundNode", n);
   }
-  ref1 = Wrapper.instances;
+  ref1 = [new IfConditional(), new ForLoop()];
   results = [];
   for (k = 0, len1 = ref1.length; k < len1; k++) {
     w = ref1[k];
