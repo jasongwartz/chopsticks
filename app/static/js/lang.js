@@ -18,6 +18,20 @@ Wrapper = (function() {
     this.html = "<div class=\"node node-wrapper\" id=\"" + this.name + "\">\n  <h2>" + this.name + "</h2>\n  " + extra_html + "\n</div>";
   }
 
+  Wrapper.parse_input = function(str) {
+    var i;
+    return (function() {
+      var j, len, ref, results;
+      ref = str.replace(/\D/g, " ").split(" ");
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        i = ref[j];
+        results.push(parseInt(i));
+      }
+      return results;
+    })();
+  };
+
   Wrapper.prototype.eval_input = function(jq) {
     return this.check(jq.find("select").val(), jq.find("input").val(), jq);
   };
@@ -39,51 +53,22 @@ IfConditional = (function(superClass) {
     IfConditional.__super__.constructor.call(this, name, extra_html);
   }
 
-  IfConditional.prototype.check = function(condition_to_check, input, jq) {
-    var i, ins, j, len, ref;
-    input = (function() {
-      var j, len, ref, results;
-      ref = input.replace(/\D/g, " ").split(" ");
-      results = [];
-      for (j = 0, len = ref.length; j < len; j++) {
-        i = ref[j];
-        results.push(parseInt(i));
-      }
-      return results;
-    })();
-    if (condition_to_check === "phrase") {
-      return ref = phrase + 1, indexOf.call(input, ref) >= 0;
-    } else if (condition_to_check === "bar") {
-      console.log(jq);
-      jq.parent().find("#node-wrapper");
-      console.log(recurse);
-      if (typeof recurse !== "undefined" && recurse !== null) {
-        return recurse.data("Wrapper").eval_input(recurse);
-      }
-    } else if (condition_to_check === "beat") {
-      ins = jq.parent().parent().data("SoundNode").instrument;
-      for (j = 0, len = input.length; j < len; j++) {
-        i = input[j];
-        ins.add(i);
-      }
-      return true;
-    }
-  };
-
   return IfConditional;
 
 })(Wrapper);
 
 ForLoop = (function(superClass) {
+  var extra_html, name;
+
   extend(ForLoop, superClass);
 
+  name = "For";
+
+  extra_html = "<input type=\"text\" id=\"for-input\" class=\"form-control\">\n<select class=\"form-control\" id=\"for-select\">\n    <option value=\"beat\">Beats</option>\n    <option value=\"bar\">Bars</option>\n    <option value=\"phrase\">Phrases</option>\n  </select>";
+
   function ForLoop() {
-    return ForLoop.__super__.constructor.apply(this, arguments);
+    ForLoop.__super__.constructor.call(this, name, extra_html);
   }
-
-  ForLoop.name = "For";
-
-  ForLoop.extra_html = "<input type=\"text\" id=\"for-input\" class=\"form-control\">\n<select class=\"form-control\" id=\"for-select\">\n    <option value=\"beat\">Beats</option>\n    <option value=\"bar\">Bars</option>\n    <option value=\"phrase\">Phrases</option>\n  </select>";
 
   ForLoop.prototype.for_loop = function(loop_block, number_loops) {
     if (loop_block === "phrases") {
@@ -107,25 +92,89 @@ SoundNode = (function() {
   function SoundNode(instrument) {
     this.instrument = instrument;
     this.id = this.instrument.name;
-    this.wrappers = [];
+    this.wrappers = {
+      conditionals: {},
+      forloops: {}
+    };
+    this.playing_phrases = [];
     this.html = "<div class=\"node-sample-container\" id=\"" + this.id + "-container\">\n  <div class=\"wrappers\">\n  </div>\n  <div class=\"node node-sample\" id=\"" + this.id + "\">\n    <h2>" + this.id + "</h2>\n  </div>\n  </div>";
   }
 
   SoundNode.prototype.phrase_eval = function() {
-    var conditionals, i, j, len, ref, to_cont;
-    conditionals = {};
-    ref = $("#" + this.id + "-container").find(".wrappers").children("#If");
+    var bar_beats, br, bt, c, i, j, k, l, len, len1, len2, len3, len4, len5, len6, len7, m, n, o, p, playing_phrases, q, r, ref, ref1, ref2, ref3, ref4, results, s, w;
+    this.wrappers.conditionals = {};
+    c = this.wrappers.conditionals;
+    ref = $("#" + this.id + "-container").find(".wrappers");
     for (j = 0, len = ref.length; j < len; j++) {
-      i = ref[j];
-      conditionals[$(i).find("select").val()] = $(i).data("Wrapper");
+      w = ref[j];
+      ref1 = $(w).children("#If");
+      for (k = 0, len1 = ref1.length; k < len1; k++) {
+        i = ref1[k];
+        c[$(i).find("select").val()] = {
+          input: Wrapper.parse_input($(i).find("input").val()),
+          data: $(i).data("Wrapper")
+        };
+      }
     }
-    console.log(conditionals);
-    if (conditionals.phrase != null) {
-      return to_cont = conditionals.phrase.eval_input();
-    } else if (conditionals.bar != null) {
-      return console.log("bar");
+    console.log(this.wrappers);
+    if (c.phrase != null) {
+      playing_phrases = c.phrase.input;
+      if (indexOf.call(playing_phrases, phrase) < 0) {
+        return;
+      }
     } else {
-      return console.log("beat");
+      playing_phrases = [];
+    }
+    if (c.bar != null) {
+      if (c.beat != null) {
+        bar_beats = [];
+        ref2 = c.bar.input;
+        for (l = 0, len2 = ref2.length; l < len2; l++) {
+          br = ref2[l];
+          ref3 = c.beat.input;
+          for (m = 0, len3 = ref3.length; m < len3; m++) {
+            bt = ref3[m];
+            bar_beats.push(bt + ((br - 1) * 4));
+          }
+        }
+        for (n = 0, len4 = bar_beats.length; n < len4; n++) {
+          p = bar_beats[n];
+          this.instrument.add(p);
+        }
+      } else {
+        bar_beats = (function() {
+          var len5, o, ref4, results;
+          ref4 = c.bar.input;
+          results = [];
+          for (o = 0, len5 = ref4.length; o < len5; o++) {
+            i = ref4[o];
+            results.push(1 + (i - 1) * 4);
+          }
+          return results;
+        })();
+        console.log(bar_beats);
+        for (o = 0, len5 = bar_beats.length; o < len5; o++) {
+          p = bar_beats[o];
+          this.instrument.add(p);
+        }
+      }
+      return;
+    }
+    if (c.beat != null) {
+      bar_beats = [];
+      for (br = q = 1; q <= 4; br = ++q) {
+        ref4 = c.beat.input;
+        for (r = 0, len6 = ref4.length; r < len6; r++) {
+          bt = ref4[r];
+          bar_beats.push(bt + ((br - 1) * 4));
+        }
+      }
+      results = [];
+      for (s = 0, len7 = bar_beats.length; s < len7; s++) {
+        p = bar_beats[s];
+        results.push(this.instrument.add(p));
+      }
+      return results;
     }
   };
 

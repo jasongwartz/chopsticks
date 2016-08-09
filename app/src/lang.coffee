@@ -15,6 +15,9 @@ class Wrapper
         #{ extra_html }
       </div>"""
 
+  @parse_input: (str) ->
+    return (parseInt(i) for i in str.replace(/\D/g," ").split(" "))
+
   eval_input: (jq) -> # parameter is the corresponding jquery object
     @check(
       jq.find("select").val(),
@@ -36,26 +39,11 @@ class IfConditional extends Wrapper
   constructor: ->
     super(name, extra_html)
 
-  check: (condition_to_check, input, jq) ->
-    input = (parseInt(i) for i in input.replace(/\D/g," ").split(" "))
-    if condition_to_check is "phrase"
-      # var phrase is singleton from other .js file
-      return (phrase + 1) in input # returns true if playing on next phrase
-    else if condition_to_check is "bar"
-      console.log(jq)
-      jq.parent().find("#node-wrapper")
-      console.log(recurse)
-      if recurse?
-        recurse.data("Wrapper").eval_input(recurse)
-    else if condition_to_check is "beat"
-      ins = jq.parent().parent().data("SoundNode").instrument
-      ins.add(i) for i in input
-      return true # If no phrase specified, assume to be true
 
 # TODO: for loop not yet implemented
 class ForLoop extends Wrapper
-  @name = "For"
-  @extra_html = """
+  name = "For"
+  extra_html = """
         <input type="text" id="for-input" class="form-control">
         <select class="form-control" id="for-select">
             <option value="beat">Beats</option>
@@ -63,6 +51,10 @@ class ForLoop extends Wrapper
             <option value="phrase">Phrases</option>
           </select>
   """ # extra html
+
+  constructor: ->
+    super(name, extra_html)
+
   for_loop: (loop_block, number_loops) ->
     if loop_block is "phrases"
       pass()
@@ -76,7 +68,12 @@ class SoundNode
   @canvas_instances = []
   constructor: (@instrument) ->
     @id = @instrument.name
-    @wrappers = []
+    @wrappers = {
+      conditionals: {},
+      forloops: {}
+    }
+    @playing_phrases = []
+
     @html = """
     <div class="node-sample-container" id="#{ @id }-container">
       <div class="wrappers">
@@ -87,19 +84,44 @@ class SoundNode
       </div>"""
 
   phrase_eval: ->
-    conditionals = {}
-    conditionals[$(i).find("select").val()] = $(i).data("Wrapper") for i in $("##{ @id }-container").find(".wrappers").children("#If")
+    @wrappers.conditionals = {}
+    c = @wrappers.conditionals
 
-    console.log(conditionals)
-    if conditionals.phrase?
-      to_cont = conditionals.phrase.eval_input()
-      # finish implementing
+    for w in $("##{ @id }-container").find(".wrappers")
+      c[$(i).find("select").val()] = {
+        input: Wrapper.parse_input(
+          $(i).find("input").val()
+        ),
+        data: $(i).data("Wrapper")
+      } for i in $(w).children("#If")
 
-    else if conditionals.bar?
-      console.log("bar")
+    console.log(@wrappers)
+
+    if c.phrase?
+      playing_phrases = c.phrase.input
+      if phrase not in playing_phrases
+        return # exit phrase_eval() - not playing this phrase
     else
-      console.log("beat")
+      playing_phrases = []
+    
+    if c.bar?
+      if c.beat?
+        bar_beats = []
+        for br in c.bar.input
+          for bt in c.beat.input
+            # algorithm = beat + ( bar - 1 ) * 4
+            bar_beats.push(bt + ((br - 1) * 4))
+        @instrument.add(p) for p in bar_beats
+      else
+        bar_beats = (1 + (i-1) * 4 for i in c.bar.input)
+        console.log(bar_beats)
+        @instrument.add(p) for p in bar_beats
+      return
 
-#    for w in wrappers
- #     w = $(w)
-  #    w.data("Wrapper").eval_input(w)
+    if c.beat?
+      bar_beats = []
+      for br in [1..4]
+        for bt in c.beat.input
+          # algorithm = beat + ( bar - 1 ) * 4
+          bar_beats.push(bt + ((br - 1) * 4))
+      @instrument.add(p) for p in bar_beats
