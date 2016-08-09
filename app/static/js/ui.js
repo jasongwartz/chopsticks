@@ -15,13 +15,12 @@ canvas_init = function() {
     scope: "tray",
     drop: function(evt, ui) {
       var i, new_sn, sn;
-      console.log(self.playing);
       if (ui.draggable.hasClass("node-wrapper")) {
         if (!ui.draggable.hasClass("on-canvas")) {
           ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable({
             helper: "original",
             scope: "canvas"
-          });
+          }).data("Wrapper", ui.draggable.data("Wrapper"));
         }
       } else {
         if (!ui.draggable.hasClass("on-canvas")) {
@@ -44,16 +43,14 @@ canvas_init = function() {
                 at: "top"
               }).css("top", "0px");
             }
-          }).find(".wrappers").sortable({
-            stop: function(evt, ui) {
-              return console.log("Done sorting");
-            }
-          }).data("SoundNode", new_sn);
+          }).data("SoundNode", new_sn).find(".wrappers").sortable({
+            stop: function(evt, ui) {}
+          });
         }
       }
       if (!glob.playing) {
         glob.playing = true;
-        return startPlayback(output_chain);
+        return startPlayback(output_chain, context.currentTime);
       }
     }
   });

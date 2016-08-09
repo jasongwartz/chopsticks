@@ -12,7 +12,6 @@ canvas_init = ->
     tolerance: "pointer",
     scope:"tray", # only accepts new drops from tray
     drop: (evt, ui) ->
-      console.log(self.playing)
       # code path for node-wrappers
       if ui.draggable.hasClass("node-wrapper")
         if not ui.draggable.hasClass("on-canvas")
@@ -24,6 +23,7 @@ canvas_init = ->
                 scope:"canvas"
               }
             )
+            .data("Wrapper", ui.draggable.data("Wrapper"))
           
       else # code path for Sound Nodes
 
@@ -62,16 +62,18 @@ canvas_init = ->
                       ).css("top", "0px")
                 }
               )
+              .data("SoundNode", new_sn)
               .find(".wrappers").sortable(
                 {
                   stop: (evt, ui) ->
-                    console.log("Done sorting")
+                    # done sorting
                 }
               )
-              .data("SoundNode", new_sn)
+              
       if not glob.playing
+        # init playback on first node drop
         glob.playing = true
-        startPlayback(output_chain) # init playback on first node drop
+        startPlayback(output_chain, context.currentTime)
   })
 
   # Drop node back on tray to disable

@@ -4,14 +4,12 @@
 Author: Jason Gwartz
 2016
  */
-var Instrument, JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, bar, beat, context, final_gain, instruments, main, output_chain, phrase, playing, sample_data, samples, startPlayback, t, tempo,
+var Instrument, JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, bar, beat, context, final_gain, main, output_chain, phrase, playing, sample_data, samples, startPlayback, t, tempo,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 context = null;
 
 samples = null;
-
-instruments = null;
 
 sample_data = null;
 
@@ -52,7 +50,7 @@ LoadedSample = (function() {
     request.send();
   }
 
-  LoadedSample.prototype.play = function(n, output_chain) {
+  LoadedSample.prototype.play = function(output_chain, n) {
     var source;
     if (isNaN(n)) {
       return;
@@ -71,10 +69,11 @@ PlaySound = (function() {
   function PlaySound(sample, beat1) {
     this.sample = sample;
     this.beat = beat1;
+    this.beat = (this.beat - 1) * tempo / 1000;
   }
 
-  PlaySound.prototype.play = function(output) {
-    return this.sample.play(this.beat, output);
+  PlaySound.prototype.play = function(output, time_reference) {
+    return this.sample.play(output, this.beat + time_reference);
   };
 
   return PlaySound;
@@ -82,9 +81,12 @@ PlaySound = (function() {
 })();
 
 Instrument = (function() {
+  Instrument.instances = [];
+
   function Instrument(name, data) {
     this.name = name;
     this.data = data;
+    Instrument.instances.push(this);
     this.is_live = false;
     this.pattern = [];
   }
@@ -101,8 +103,15 @@ Instrument = (function() {
     return this.pattern.push(new PlaySound(this.sample, beat));
   };
 
-  Instrument.prototype.reset = function() {
-    return this.pattern = [];
+  Instrument.reset = function() {
+    var i, j, len, ref, results;
+    ref = this.instances;
+    results = [];
+    for (j = 0, len = ref.length; j < len; j++) {
+      i = ref[j];
+      results.push(i.pattern = []);
+    }
+    return results;
   };
 
   return Instrument;
@@ -114,50 +123,31 @@ SoundContainer = (function() {
     this.active_instruments = [];
   }
 
-  SoundContainer.prototype.prepare = function() {
-    var i, j, k, l, len, len1, len2, n, ref, results;
-    for (j = 0, len = instruments.length; j < len; j++) {
-      i = instruments[j];
-      i.reset();
-    }
-    t = context.currentTime;
-    for (k = 0, len1 = instruments.length; k < len1; k++) {
-      i = instruments[k];
-      if (i.is_live) {
-        this.active_instruments.push(i);
-      }
-    }
-    ref = this.active_instruments;
+  SoundContainer.prototype.prepare = function(phrase_time) {
+    var j, len, ref, results, s;
+    Instrument.reset();
+    ref = SoundNode.canvas_instances;
     results = [];
-    for (l = 0, len2 = ref.length; l < len2; l++) {
-      i = ref[l];
-      results.push((function() {
-        var len3, m, ref1, results1;
-        ref1 = i.data.default_pattern.split(' ');
-        results1 = [];
-        for (m = 0, len3 = ref1.length; m < len3; m++) {
-          n = ref1[m];
-          results1.push(i.add(parseFloat(n) + t));
-        }
-        return results1;
-      })());
+    for (j = 0, len = ref.length; j < len; j++) {
+      s = ref[j];
+      results.push(s.phrase_eval());
     }
     return results;
   };
 
-  SoundContainer.prototype.play = function(output_chain) {
-    var instrument, j, len, ps, ref, results;
-    ref = this.active_instruments;
+  SoundContainer.prototype.play = function(output_chain, phr_time) {
+    var j, len, node, ps, ref, results;
+    ref = SoundNode.canvas_instances;
     results = [];
     for (j = 0, len = ref.length; j < len; j++) {
-      instrument = ref[j];
+      node = ref[j];
       results.push((function() {
         var k, len1, ref1, results1;
-        ref1 = instrument.pattern;
+        ref1 = node.instrument.pattern;
         results1 = [];
         for (k = 0, len1 = ref1.length; k < len1; k++) {
           ps = ref1[k];
-          results1.push(ps.play(output_chain));
+          results1.push(ps.play(output_chain, phr_time));
         }
         return results1;
       })());
@@ -214,11 +204,12 @@ JGAnalyser = (function() {
 
 })();
 
-startPlayback = function(output_chain) {
+startPlayback = function(output_chain, phrase_start_time) {
   var beat_increment, track;
+  console.log("phrase start = " + phrase_start_time);
   track = new SoundContainer();
   track.prepare();
-  track.play(output_chain);
+  track.play(output_chain, phrase_start_time);
   analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
   setTimeout(function() {
     return analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)';
@@ -245,47 +236,46 @@ startPlayback = function(output_chain) {
   };
   beat_increment();
   return setTimeout(function() {
-    return startPlayback(output_chain);
+    return startPlayback(output_chain, phrase_start_time + (tempo * 16 / 1000));
   }, tempo * 16);
 };
 
 main = function() {
   $.getJSON("static/sampledata.json", function(result) {
-    var d, i, init_samples, j, k, len, len1, v;
+    var d, i, init_samples, j, k, len, len1, ref, ref1, v;
     sample_data = result;
-    instruments = (function() {
-      var results;
-      results = [];
-      for (d in sample_data) {
-        v = sample_data[d];
-        results.push(new Instrument(d, v));
-      }
-      return results;
-    })();
-    for (j = 0, len = instruments.length; j < len; j++) {
-      i = instruments[j];
+    for (d in sample_data) {
+      v = sample_data[d];
+      new Instrument(d, v);
+    }
+    ref = Instrument.instances;
+    for (j = 0, len = ref.length; j < len; j++) {
+      i = ref[j];
       i.load();
     }
-    for (k = 0, len1 = instruments.length; k < len1; k++) {
-      i = instruments[k];
+    ref1 = Instrument.instances;
+    for (k = 0, len1 = ref1.length; k < len1; k++) {
+      i = ref1[k];
       SoundNode.tray_instances.push(new SoundNode(i));
     }
     ui_init();
     init_samples = function() {
-      var l, len2, ready;
+      var l, len2, ready, ref2;
       ready = true;
-      for (l = 0, len2 = instruments.length; l < len2; l++) {
-        i = instruments[l];
+      ref2 = Instrument.instances;
+      for (l = 0, len2 = ref2.length; l < len2; l++) {
+        i = ref2[l];
         if (i.sample.decoded === void 0) {
           ready = false;
         }
       }
       if (!ready) {
         console.log((function() {
-          var len3, m, results;
+          var len3, m, ref3, results;
+          ref3 = Instrument.instances;
           results = [];
-          for (m = 0, len3 = instruments.length; m < len3; m++) {
-            i = instruments[m];
+          for (m = 0, len3 = ref3.length; m < len3; m++) {
+            i = ref3[m];
             results.push(i.name + ": " + i.is_loaded());
           }
           return results;
@@ -293,10 +283,11 @@ main = function() {
         return setTimeout(init_samples, 1000);
       } else {
         console.log((function() {
-          var len3, m, results;
+          var len3, m, ref3, results;
+          ref3 = Instrument.instances;
           results = [];
-          for (m = 0, len3 = instruments.length; m < len3; m++) {
-            i = instruments[m];
+          for (m = 0, len3 = ref3.length; m < len3; m++) {
+            i = ref3[m];
             results.push(i.name + ": " + i.is_loaded());
           }
           return results;

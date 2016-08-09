@@ -7,7 +7,6 @@ Author: Jason Gwartz
 
 context = null
 samples = null
-instruments = null
 sample_data = null
 t = null
 analyser = null
@@ -41,23 +40,25 @@ class LoadedSample
         console.log("Error loading:" + self.file + e))
     request.send()
 
-  play: (n, output_chain) ->
+  play: (output_chain, n) ->
     if isNaN(n)
       return
     source = context.createBufferSource()
     source.buffer = @decoded
     source.connect(output_chain)
     source.start(n)
-  
 
 class PlaySound
   constructor: (@sample, @beat) -> # LoadedSample, integer
-
-  play: (output) ->
-    @sample.play(@beat, output)
+    # milliseconds to seconds conversion, account for off by one
+    @beat = (@beat - 1) * tempo / 1000
+  play: (output, time_reference) ->
+    @sample.play(output, @beat + time_reference)
 
 class Instrument
+  @instances = []
   constructor: (@name, @data) ->
+    Instrument.instances.push(this)
     @is_live = false
     @pattern = [] # array of PlaySounds
 
@@ -68,30 +69,23 @@ class Instrument
     return @sample.data? # Check if not undefined/null
 
   add: (beat) -> # playSound
-    @pattern.push(new PlaySound(@sample, beat))
+    @pattern.push(new PlaySound(@sample, beat)) # beat 1 - 16
   
-  reset: ->
-    @pattern = []
+  @reset: ->
+    for i in @instances
+      i.pattern = []
 
 class SoundContainer
   constructor: ->
     @active_instruments = [] # array of Instruments
-  prepare: ->
-    i.reset() for i in instruments
-    t = context.currentTime
-    @active_instruments.push(i) for i in instruments when i.is_live
+  prepare: (phrase_time) ->
+    Instrument.reset()
+    for s in SoundNode.canvas_instances
+      s.phrase_eval()
 
-    # Adds all beats from default pattern
-    for i in @active_instruments
-      i.add(
-        parseFloat(n) + t
-      ) for n in i.data.default_pattern.split(' ')
-
-    # TODO: how to prepare times, knowing that
-      # the computation time is inconsistent
-  play: (output_chain) ->
-    for instrument in @active_instruments # calls into lang.js
-      ps.play(output_chain) for ps in instrument.pattern
+  play: (output_chain, phr_time) ->
+    for node in SoundNode.canvas_instances # calls into lang.js
+      ps.play(output_chain, phr_time) for ps in node.instrument.pattern
 
 class JGAnalyser
 
@@ -106,8 +100,6 @@ class JGAnalyser
     @canvas = document.getElementById("visual")
     @HEIGHT = 30
     @WIDTH = $(@canvas).parent().width()
-    
-    #console.log(typeof()
     
     @canvas.width = @WIDTH
     @canvas.height = @HEIGHT
@@ -148,10 +140,12 @@ class JGAnalyser
 
 # Core utility function definitions
 
-startPlayback = (output_chain) ->
+startPlayback = (output_chain, phrase_start_time) ->
+  console.log("phrase start = " + phrase_start_time)
   track = new SoundContainer()
   track.prepare()
-  track.play(output_chain)
+  track.play(output_chain, phrase_start_time)
+
   # change analyser colour back to black
   analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
   
@@ -185,7 +179,12 @@ startPlayback = (output_chain) ->
   # Timer to keep in loop
   # TODO: Inactive tab problem
   setTimeout(->
-    startPlayback(output_chain)
+    startPlayback(
+      output_chain,
+      (
+        phrase_start_time + (tempo * 16 / 1000)
+      )
+    )
   , tempo * 16)
     # TODO: very slight early jump on succeeding phrase
 
@@ -201,25 +200,25 @@ main = ->
     sample_data = result
 
     # Init all the Instrument and SoundNode objects
-    instruments = (new Instrument(d, v) for d, v of sample_data)
-    i.load() for i in instruments
+    new Instrument(d, v) for d, v of sample_data
+    i.load() for i in Instrument.instances
     SoundNode.tray_instances.push(
       new SoundNode(i)
-    ) for i in instruments # calls into lang.coffee
+    ) for i in Instrument.instances # calls into lang.coffee
     ui_init()  # Initialise the button listeners
 
     # TODO: BUG Safari only: first page load doesn't start playing automatically
     # closer to fixing it using this indented callback but not quite
     init_samples = ->
       ready = true
-      for i in instruments
+      for i in Instrument.instances
         if i.sample.decoded is undefined
           ready = false
       if not ready
-        console.log(i.name + ": " + i.is_loaded() for i in instruments)
+        console.log(i.name + ": " + i.is_loaded() for i in Instrument.instances)
         setTimeout(init_samples, 1000)
       else
-        console.log(i.name + ": " + i.is_loaded() for i in instruments)
+        console.log(i.name + ": " + i.is_loaded() for i in Instrument.instances)
         console.log("All samples loaded.")
         #startPlayback(output_chain)
 
