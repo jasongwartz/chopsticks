@@ -16,7 +16,8 @@ class Wrapper
       </div>"""
 
   @parse_input: (str) ->
-    return (parseInt(i) for i in str.replace(/\D/g," ").split(" "))
+    re = /(\d+(\.\d+)?)/g # matches all integers and floats
+    return (parseFloat(i) for i in str.match(re) when parseFloat(i) < 5)
 
   eval_input: (jq) -> # parameter is the corresponding jquery object
     @check(

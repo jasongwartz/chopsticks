@@ -19,14 +19,17 @@ Wrapper = (function() {
   }
 
   Wrapper.parse_input = function(str) {
-    var i;
+    var i, re;
+    re = /(\d+(\.\d+)?)/g;
     return (function() {
       var j, len, ref, results;
-      ref = str.replace(/\D/g, " ").split(" ");
+      ref = str.match(re);
       results = [];
       for (j = 0, len = ref.length; j < len; j++) {
         i = ref[j];
-        results.push(parseInt(i));
+        if (parseFloat(i) < 5) {
+          results.push(parseFloat(i));
+        }
       }
       return results;
     })();
