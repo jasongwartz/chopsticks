@@ -14,7 +14,7 @@ canvas_init = function() {
     tolerance: "pointer",
     scope: "tray",
     drop: function(evt, ui) {
-      var i, new_sn, sn;
+      var new_sn, sn;
       if (ui.draggable.hasClass("node-wrapper")) {
         if (!ui.draggable.hasClass("on-canvas")) {
           ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable({
@@ -27,9 +27,7 @@ canvas_init = function() {
           sn = ui.draggable.data("SoundNode");
           new_sn = new SoundNode(sn.instrument);
           SoundNode.canvas_instances.push(new_sn);
-          i = new_sn.instrument;
-          i.is_live = true;
-          ui.draggable.clone().appendTo($("#node-canvas")).addClass("on-canvas").draggable({
+          $(new_sn.html).appendTo($("#node-canvas")).addClass("on-canvas").draggable({
             helper: "original",
             scope: "canvas"
           }).droppable({
@@ -59,18 +57,17 @@ canvas_init = function() {
     drop: function(evt, ui) {
       var sn;
       sn = ui.draggable.find(".node-sample").data("SoundNode");
-      sn.is_live = false;
       return ui.draggable.remove();
     }
   });
 };
 
 ui_init = function() {
-  var j, k, len, len1, n, ref, ref1, results, w;
+  var i, j, len, len1, n, ref, ref1, results, w;
   canvas_init();
   ref = SoundNode.tray_instances;
-  for (j = 0, len = ref.length; j < len; j++) {
-    n = ref[j];
+  for (i = 0, len = ref.length; i < len; i++) {
+    n = ref[i];
     $(n.html).appendTo($("#node-tray")).draggable({
       helper: "clone",
       scope: "tray"
@@ -78,8 +75,8 @@ ui_init = function() {
   }
   ref1 = [new IfConditional(), new ForLoop()];
   results = [];
-  for (k = 0, len1 = ref1.length; k < len1; k++) {
-    w = ref1[k];
+  for (j = 0, len1 = ref1.length; j < len1; j++) {
+    w = ref1[j];
     results.push($(w.html).appendTo($("#node-tray")).draggable({
       scope: "tray",
       helper: "clone"

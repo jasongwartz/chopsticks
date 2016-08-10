@@ -87,8 +87,7 @@ Instrument = (function() {
     this.name = name;
     this.data = data;
     Instrument.instances.push(this);
-    this.is_live = false;
-    this.pattern = [];
+    this.pattern = {};
   }
 
   Instrument.prototype.load = function() {
@@ -100,16 +99,16 @@ Instrument = (function() {
   };
 
   Instrument.prototype.add = function(beat) {
-    return this.pattern.push(new PlaySound(this.sample, beat));
+    return this.pattern[beat] = new PlaySound(this.sample, beat);
   };
 
   Instrument.reset = function() {
     var i, j, len, ref, results;
-    ref = this.instances;
+    ref = Instrument.instances;
     results = [];
     for (j = 0, len = ref.length; j < len; j++) {
       i = ref[j];
-      results.push(i.pattern = []);
+      results.push(i.pattern = {});
     }
     return results;
   };
@@ -136,17 +135,17 @@ SoundContainer = (function() {
   };
 
   SoundContainer.prototype.play = function(output_chain, phr_time) {
-    var j, len, node, ps, ref, results;
-    ref = SoundNode.canvas_instances;
+    var b, instrument, j, len, ps, ref, results;
+    ref = Instrument.instances;
     results = [];
     for (j = 0, len = ref.length; j < len; j++) {
-      node = ref[j];
+      instrument = ref[j];
       results.push((function() {
-        var k, len1, ref1, results1;
-        ref1 = node.instrument.pattern;
+        var ref1, results1;
+        ref1 = instrument.pattern;
         results1 = [];
-        for (k = 0, len1 = ref1.length; k < len1; k++) {
-          ps = ref1[k];
+        for (b in ref1) {
+          ps = ref1[b];
           results1.push(ps.play(output_chain, phr_time));
         }
         return results1;

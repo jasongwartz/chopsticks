@@ -59,8 +59,7 @@ class Instrument
   @instances = []
   constructor: (@name, @data) ->
     Instrument.instances.push(this)
-    @is_live = false
-    @pattern = [] # array of PlaySounds
+    @pattern = {} # hash of beat : PlaySounds
 
   load: ->
     @sample = new LoadedSample(@data.file)
@@ -69,11 +68,11 @@ class Instrument
     return @sample.data? # Check if not undefined/null
 
   add: (beat) -> # playSound
-    @pattern.push(new PlaySound(@sample, beat)) # beat 1 - 16
+    @pattern[beat] = new PlaySound(@sample, beat) # beat 1 - 16
   
   @reset: ->
-    for i in @instances
-      i.pattern = []
+    for i in Instrument.instances
+      i.pattern = {}
 
 class SoundContainer
   constructor: ->
@@ -84,8 +83,8 @@ class SoundContainer
       s.phrase_eval()
 
   play: (output_chain, phr_time) ->
-    for node in SoundNode.canvas_instances # calls into lang.js
-      ps.play(output_chain, phr_time) for ps in node.instrument.pattern
+    for instrument in Instrument.instances
+      ps.play(output_chain, phr_time) for b, ps of instrument.pattern
 
 class JGAnalyser
 
@@ -220,7 +219,6 @@ main = ->
       else
         console.log(i.name + ": " + i.is_loaded() for i in Instrument.instances)
         console.log("All samples loaded.")
-        #startPlayback(output_chain)
 
     init_samples()
   )

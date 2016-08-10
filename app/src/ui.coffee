@@ -34,10 +34,7 @@ canvas_init = ->
           new_sn = new SoundNode(sn.instrument)
           SoundNode.canvas_instances.push(new_sn)
 
-          i = new_sn.instrument
-          i.is_live = true
-
-          ui.draggable.clone().appendTo($("#node-canvas"))
+          $(new_sn.html).appendTo($("#node-canvas"))
             .addClass("on-canvas")
               .draggable(
                 {
@@ -82,7 +79,6 @@ canvas_init = ->
     drop: (evt, ui) ->
       # Handles children of wrapper
       sn = ui.draggable.find(".node-sample").data("SoundNode")
-      sn.is_live = false # TODO: This will be redundant, remove!
       ui.draggable.remove()
   })
 

@@ -67,7 +67,14 @@ class SoundNode
   @tray_instances = []
   @canvas_instances = []
   constructor: (@instrument) ->
-    @id = @instrument.name
+    node_number = (
+      i for i in SoundNode.canvas_instances when i.instrument is @instrument
+      ).length + 1
+    
+    @id = switch node_number
+      when 1 then @instrument.name
+      else @instrument.name + node_number
+
     @wrappers = {
       conditionals: {},
       forloops: {}
@@ -95,8 +102,6 @@ class SoundNode
         data: $(i).data("Wrapper")
       } for i in $(w).children("#If")
 
-    console.log(@wrappers)
-
     if c.phrase?
       playing_phrases = c.phrase.input
       if phrase not in playing_phrases
@@ -114,7 +119,6 @@ class SoundNode
         @instrument.add(p) for p in bar_beats
       else
         bar_beats = (1 + (i-1) * 4 for i in c.bar.input)
-        console.log(bar_beats)
         @instrument.add(p) for p in bar_beats
       return
 

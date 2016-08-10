@@ -90,8 +90,28 @@ SoundNode = (function() {
   SoundNode.canvas_instances = [];
 
   function SoundNode(instrument) {
+    var i, node_number;
     this.instrument = instrument;
-    this.id = this.instrument.name;
+    node_number = ((function() {
+      var j, len, ref, results;
+      ref = SoundNode.canvas_instances;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        i = ref[j];
+        if (i.instrument === this.instrument) {
+          results.push(i);
+        }
+      }
+      return results;
+    }).call(this)).length + 1;
+    this.id = (function() {
+      switch (node_number) {
+        case 1:
+          return this.instrument.name;
+        default:
+          return this.instrument.name + node_number;
+      }
+    }).call(this);
     this.wrappers = {
       conditionals: {},
       forloops: {}
@@ -116,7 +136,6 @@ SoundNode = (function() {
         };
       }
     }
-    console.log(this.wrappers);
     if (c.phrase != null) {
       playing_phrases = c.phrase.input;
       if (indexOf.call(playing_phrases, phrase) < 0) {
@@ -152,7 +171,6 @@ SoundNode = (function() {
           }
           return results;
         })();
-        console.log(bar_beats);
         for (o = 0, len5 = bar_beats.length; o < len5; o++) {
           p = bar_beats[o];
           this.instrument.add(p);
