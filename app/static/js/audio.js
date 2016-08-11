@@ -203,12 +203,11 @@ JGAnalyser = (function() {
 
 })();
 
-startPlayback = function(output_chain, phrase_start_time) {
+startPlayback = function(output_chain) {
   var beat_increment, track;
-  console.log("phrase start = " + phrase_start_time);
   track = new SoundContainer();
   track.prepare();
-  track.play(output_chain, phrase_start_time);
+  track.play(output_chain, context.currentTime);
   analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
   setTimeout(function() {
     return analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)';
@@ -235,7 +234,7 @@ startPlayback = function(output_chain, phrase_start_time) {
   };
   beat_increment();
   return setTimeout(function() {
-    return startPlayback(output_chain, phrase_start_time + (tempo * 16 / 1000));
+    return startPlayback(output_chain);
   }, tempo * 16);
 };
 

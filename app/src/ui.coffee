@@ -70,7 +70,7 @@ canvas_init = ->
       if not glob.playing
         # init playback on first node drop
         glob.playing = true
-        startPlayback(output_chain, context.currentTime)
+        startPlayback(output_chain)
   })
 
   # Drop node back on tray to disable

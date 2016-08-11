@@ -139,11 +139,10 @@ class JGAnalyser
 
 # Core utility function definitions
 
-startPlayback = (output_chain, phrase_start_time) ->
-  console.log("phrase start = " + phrase_start_time)
+startPlayback = (output_chain) ->
   track = new SoundContainer()
   track.prepare()
-  track.play(output_chain, phrase_start_time)
+  track.play(output_chain, context.currentTime)
 
   # change analyser colour back to black
   analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
@@ -178,12 +177,7 @@ startPlayback = (output_chain, phrase_start_time) ->
   # Timer to keep in loop
   # TODO: Inactive tab problem
   setTimeout(->
-    startPlayback(
-      output_chain,
-      (
-        phrase_start_time + (tempo * 16 / 1000)
-      )
-    )
+    startPlayback(output_chain)
   , tempo * 16)
     # TODO: very slight early jump on succeeding phrase
 

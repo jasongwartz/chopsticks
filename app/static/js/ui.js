@@ -48,7 +48,7 @@ canvas_init = function() {
       }
       if (!glob.playing) {
         glob.playing = true;
-        return startPlayback(output_chain, context.currentTime);
+        return startPlayback(output_chain);
       }
     }
   });

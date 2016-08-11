@@ -19,20 +19,25 @@ Wrapper = (function() {
   }
 
   Wrapper.parse_input = function(str) {
-    var i, re;
+    var TypeError, error, i, re;
     re = /(\d+(\.\d+)?)/g;
-    return (function() {
-      var j, len, ref, results;
-      ref = str.match(re);
-      results = [];
-      for (j = 0, len = ref.length; j < len; j++) {
-        i = ref[j];
-        if (parseFloat(i) < 5) {
-          results.push(parseFloat(i));
+    try {
+      return (function() {
+        var j, len, ref, results;
+        ref = str.match(re);
+        results = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          i = ref[j];
+          if (parseFloat(i) < 5) {
+            results.push(parseFloat(i));
+          }
         }
-      }
-      return results;
-    })();
+        return results;
+      })();
+    } catch (error) {
+      TypeError = error;
+      return [];
+    }
   };
 
   Wrapper.prototype.eval_input = function(jq) {

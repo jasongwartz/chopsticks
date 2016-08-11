@@ -17,7 +17,10 @@ class Wrapper
 
   @parse_input: (str) ->
     re = /(\d+(\.\d+)?)/g # matches all integers and floats
-    return (parseFloat(i) for i in str.match(re) when parseFloat(i) < 5)
+    try # TODO: this implementation means can only schedule 5 phrases, etc
+      return (parseFloat(i) for i in str.match(re) when parseFloat(i) < 5)
+    catch TypeError
+      return []
 
   eval_input: (jq) -> # parameter is the corresponding jquery object
     @check(
