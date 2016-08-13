@@ -134,11 +134,10 @@ SoundNode = (function() {
 
   SoundNode.prototype.play = function() {
     var j, k, l, len, len1, p, phrases_expired, ref, ref1, ref2, ref3, results, results1, results2;
-    console.log("bars: " + this.playing_bars);
     phrases_expired = this.playing_phrases.every(function(i) {
       return i < phrase;
     });
-    if (indexOf.call(this.playing_phrases, phrase) < 0 && !phrases_expired) {
+    if (indexOf.call(this.playing_phrases, phrase) < 0 && this.playing_phrases.length !== 0) {
 
     } else {
       if (this.playing_bars.length !== 0) {
@@ -244,13 +243,13 @@ SoundNode = (function() {
   };
 
   SoundNode.prototype.eval_beat_node = function(node, index, start_beat) {
-    var bar, beat, corrected_beat, i, j, k, l, len, len1, m, new_beats, ref, ref1, ref2, ref3;
+    var bar, beat, corrected_beat, i, j, k, l, len, len1, len2, m, n, new_beats, o, ref, ref1, ref2, ref3, ref4, ref5, ref6;
     if (start_beat == null) {
       start_beat = 1;
     }
     switch (node.wrapper) {
       case "if":
-        if (this.playing_beats === ![]) {
+        if (this.playing_beats.length !== 0) {
           new_beats = [];
           ref = node.input;
           for (j = 0, len = ref.length; j < len; j++) {
@@ -278,8 +277,18 @@ SoundNode = (function() {
         }
         break;
       case "for":
-        for (i = m = ref2 = start_beat, ref3 = start_beat + node.input[0]; ref2 <= ref3 ? m < ref3 : m > ref3; i = ref2 <= ref3 ? ++m : --m) {
-          this.playing_beats.push(i);
+        if (this.playing_bars.length !== 0) {
+          ref2 = this.playing_bars;
+          for (m = 0, len2 = ref2.length; m < len2; m++) {
+            bar = ref2[m];
+            for (beat = n = ref3 = start_beat, ref4 = start_beat + node.input[0]; ref3 <= ref4 ? n < ref4 : n > ref4; beat = ref3 <= ref4 ? ++n : --n) {
+              this.playing_beats.push(beat + (bar - 1) * 4);
+            }
+          }
+        } else {
+          for (i = o = ref5 = start_beat, ref6 = start_beat + node.input[0]; ref5 <= ref6 ? o < ref6 : o > ref6; i = ref5 <= ref6 ? ++o : --o) {
+            this.playing_beats.push(i);
+          }
         }
     }
     return this.node_eval(index + 1);
@@ -300,7 +309,7 @@ SoundNode = (function() {
       case "for":
         if (!node.data.registered) {
           node.data.registered = true;
-          for (i = k = ref1 = phrase, ref2 = phrase + node.input; ref1 <= ref2 ? k <= ref2 : k >= ref2; i = ref1 <= ref2 ? ++k : --k) {
+          for (i = k = ref1 = phrase, ref2 = phrase + node.input[0]; ref1 <= ref2 ? k < ref2 : k > ref2; i = ref1 <= ref2 ? ++k : --k) {
             if (indexOf.call(this.playing_phrases, i) < 0) {
               this.playing_phrases.push(i);
             }

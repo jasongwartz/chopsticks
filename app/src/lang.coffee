@@ -98,12 +98,16 @@ class SoundNode
       </div>"""
 
   play: ->
- #   console.log("phrases: " + @playing_phrases)
-    console.log("bars: " + @playing_bars)
-  #  console.log("beats: " + @playing_beats)
-    # check if all phrase specifications are older than current
+  #  console.log("phrases: " + @playing_phrases)
+   # console.log("bars: " + @playing_bars)
+   # console.log("beats: " + @playing_beats)
+    # check if all phrase specifications are older than current/next
+      # in which case, ignore phrase markers
+
+    # TODO: this is not fixed yet for old/now unused forloops, phrase-ifs
     phrases_expired = @playing_phrases.every( (i) -> i < phrase )
-    if phrase not in @playing_phrases and not phrases_expired
+
+    if phrase not in @playing_phrases and @playing_phrases.length != 0
       return # don't play this phrase
     else
       if @playing_bars.length != 0 # not empty list
@@ -174,7 +178,7 @@ class SoundNode
   eval_beat_node: (node, index, start_beat = 1) ->
     switch node.wrapper
       when "if"
-        if @playing_beats is not []
+        if @playing_beats.length != 0
           new_beats = []
           for i in node.input #@playing_beats
             corrected_beat = do (i) ->
@@ -189,13 +193,20 @@ class SoundNode
           @playing_beats.push(
             beat + (bar - 1) * 4
           ) for beat in node.input for bar in [1..4]
-          # algorithm = beat + ( bar - 1 ) * 4
+        # algorithm = beat + ( bar - 1 ) * 4
       
       when "for"
-        @playing_beats.push(
-          i
-        ) for i in [start_beat...start_beat + node.input[0]]
-        # only accept first number from 'for' input
+        if @playing_bars.length != 0
+          @playing_beats.push(
+            beat + (bar - 1) * 4
+          ) for beat in [start_beat...start_beat + node.input[0]
+          ] for bar in @playing_bars
+
+        else
+          @playing_beats.push(
+            i
+          ) for i in [start_beat...start_beat + node.input[0]]
+          # only accept first number from 'for' input
     
     @node_eval(index + 1)
 
@@ -211,11 +222,10 @@ class SoundNode
           node.data.registered = true
           @playing_phrases.push(
             i # add the phrase + current range
-          ) for i in [phrase..(
-            phrase + node.input
+          ) for i in [phrase...(
+            phrase + node.input[0]
             )] when i not in @playing_phrases
     @node_eval(index + 1)
-      
 
     # # check if a bar conditional exists
     # if c.bar?
