@@ -99,7 +99,7 @@ class SoundNode
 
   play: ->
   #  console.log("phrases: " + @playing_phrases)
-   # console.log("bars: " + @playing_bars)
+  # console.log("bars: " + @playing_bars)
    # console.log("beats: " + @playing_beats)
     # check if all phrase specifications are older than current/next
       # in which case, ignore phrase markers
@@ -113,7 +113,7 @@ class SoundNode
       if @playing_bars.length != 0 # not empty list
         if @playing_beats.length != 0
           for p in @playing_beats
-            if (p // 4) + 1 in @playing_bars
+            if Math.ceil(p/4) in @playing_bars
             # p // 4 gives bar num, + 1 for off-by-one offset
               @instrument.add(p)
         else
@@ -163,9 +163,14 @@ class SoundNode
   eval_bar_node: (node, index, offset = 1) ->
     switch node.wrapper
       when "if"
-        @playing_bars.push(
-          i
-        ) for i in node.input when i not in @playing_bars
+        if @playing_bars.length != 0
+          # filter by if condition
+          @playing_bars = (i for i in @playing_bars when i in node.input)
+
+        else
+          @playing_bars.push(
+            i
+          ) for i in node.input when i not in @playing_bars
       when "for"
         @playing_bars.push(
           i
@@ -196,18 +201,35 @@ class SoundNode
         # algorithm = beat + ( bar - 1 ) * 4
       
       when "for"
-        if @playing_bars.length != 0
-          @playing_beats.push(
-            beat + (bar - 1) * 4
-          ) for beat in [start_beat...start_beat + node.input[0]
-          ] for bar in @playing_bars
+        if @playing_beats.length != 0
+          for start_beat in @playing_beats
 
+            if @playing_bars.length != 0
+              @playing_beats.push(
+                beat + (bar - 1) * 4
+              ) for beat in [start_beat...start_beat + node.input[0]
+              ] for bar in @playing_bars
+
+            else
+              @playing_beats.push(
+                i
+              ) for i in [start_beat...start_beat + node.input[0]]
+              # only accept first number from 'for' input
         else
-          @playing_beats.push(
-            i
-          ) for i in [start_beat...start_beat + node.input[0]]
-          # only accept first number from 'for' input
-    
+          if @playing_bars.length != 0
+            @playing_beats.push(
+              beat + (bar - 1) * 4
+            ) for beat in [start_beat...start_beat + node.input[0]
+            ] for bar in @playing_bars
+
+          else
+            @playing_beats.push(
+              i
+            ) for i in [start_beat...start_beat + node.input[0]]
+            # only accept first number from 'for' input
+
+
+
     @node_eval(index + 1)
 
   eval_phrase_node: (node, index) ->
