@@ -19,7 +19,7 @@ Wrapper = (function() {
   }
 
   Wrapper.parse_input = function(str) {
-    var TypeError, error, i, re;
+    var TypeError, error1, i, re;
     re = /(\d+(\.\d+)?)/g;
     try {
       return (function() {
@@ -34,8 +34,8 @@ Wrapper = (function() {
         }
         return results;
       })();
-    } catch (error) {
-      TypeError = error;
+    } catch (error1) {
+      TypeError = error1;
       return [];
     }
   };
@@ -66,11 +66,13 @@ IfConditional = (function(superClass) {
 })(Wrapper);
 
 ForLoop = (function(superClass) {
-  var extra_html, name;
+  var extra_html, name, registered;
 
   extend(ForLoop, superClass);
 
   name = "For";
+
+  registered = false;
 
   extra_html = "<input type=\"text\" id=\"for-input\" class=\"form-control\">\n<select class=\"form-control\" id=\"for-select\">\n    <option value=\"beat\">Beats</option>\n    <option value=\"bar\">Bars</option>\n    <option value=\"phrase\">Phrases</option>\n  </select>";
 
@@ -125,83 +127,187 @@ SoundNode = (function() {
       forloops: {}
     };
     this.playing_phrases = [];
+    this.playing_bars = [];
+    this.playing_beats = [];
     this.html = "<div class=\"node-sample-container\" id=\"" + this.id + "-container\">\n  <div class=\"wrappers\">\n  </div>\n  <div class=\"node node-sample\" id=\"" + this.id + "\">\n    <h2>" + this.id + "</h2>\n  </div>\n  </div>";
   }
 
-  SoundNode.prototype.phrase_eval = function() {
-    var bar_beats, br, bt, c, i, j, k, l, len, len1, len2, len3, len4, len5, len6, len7, m, n, o, p, playing_phrases, q, r, ref, ref1, ref2, ref3, ref4, results, s, w;
-    this.wrappers.conditionals = {};
-    c = this.wrappers.conditionals;
-    ref = $("#" + this.id + "-container").find(".wrappers");
-    for (j = 0, len = ref.length; j < len; j++) {
-      w = ref[j];
-      ref1 = $(w).children("#If");
-      for (k = 0, len1 = ref1.length; k < len1; k++) {
-        i = ref1[k];
-        c[$(i).find("select").val()] = {
-          input: Wrapper.parse_input($(i).find("input").val()),
-          data: $(i).data("Wrapper")
-        };
-      }
-    }
-    if (c.phrase != null) {
-      playing_phrases = c.phrase.input;
-      if (indexOf.call(playing_phrases, phrase) < 0) {
-        return;
-      }
+  SoundNode.prototype.play = function() {
+    var j, k, l, len, len1, p, phrases_expired, ref, ref1, ref2, ref3, results, results1, results2;
+    console.log("bars: " + this.playing_bars);
+    phrases_expired = this.playing_phrases.every(function(i) {
+      return i < phrase;
+    });
+    if (indexOf.call(this.playing_phrases, phrase) < 0 && !phrases_expired) {
+
     } else {
-      playing_phrases = [];
-    }
-    if (c.bar != null) {
-      if (c.beat != null) {
-        bar_beats = [];
-        ref2 = c.bar.input;
-        for (l = 0, len2 = ref2.length; l < len2; l++) {
-          br = ref2[l];
-          ref3 = c.beat.input;
-          for (m = 0, len3 = ref3.length; m < len3; m++) {
-            bt = ref3[m];
-            bar_beats.push(bt + ((br - 1) * 4));
-          }
-        }
-        for (n = 0, len4 = bar_beats.length; n < len4; n++) {
-          p = bar_beats[n];
-          this.instrument.add(p);
-        }
-      } else {
-        bar_beats = (function() {
-          var len5, o, ref4, results;
-          ref4 = c.bar.input;
+      if (this.playing_bars.length !== 0) {
+        if (this.playing_beats.length !== 0) {
+          ref = this.playing_beats;
           results = [];
-          for (o = 0, len5 = ref4.length; o < len5; o++) {
-            i = ref4[o];
-            results.push(1 + (i - 1) * 4);
+          for (j = 0, len = ref.length; j < len; j++) {
+            p = ref[j];
+            if (ref1 = (Math.floor(p / 4)) + 1, indexOf.call(this.playing_bars, ref1) >= 0) {
+              results.push(this.instrument.add(p));
+            } else {
+              results.push(void 0);
+            }
           }
           return results;
-        })();
-        for (o = 0, len5 = bar_beats.length; o < len5; o++) {
-          p = bar_beats[o];
-          this.instrument.add(p);
+        } else {
+          results1 = [];
+          for (p = k = 1; k <= 16; p = k += 4) {
+            if (ref2 = Math.floor(p / 4) + 1, indexOf.call(this.playing_bars, ref2) >= 0) {
+              results1.push(this.instrument.add(p));
+            }
+          }
+          return results1;
         }
+      } else {
+        ref3 = this.playing_beats;
+        results2 = [];
+        for (l = 0, len1 = ref3.length; l < len1; l++) {
+          p = ref3[l];
+          results2.push(this.instrument.add(p));
+        }
+        return results2;
       }
+    }
+  };
+
+  SoundNode.prototype.phrase_eval = function() {
+    var j, len, ref, w;
+    this.wrappers = [];
+    this.playing_bars = [];
+    this.playing_beats = [];
+    ref = $("#" + this.id + "-container").find(".wrappers").children();
+    for (j = 0, len = ref.length; j < len; j++) {
+      w = ref[j];
+      this.wrappers.push({
+        wrapper: w.id.toLowerCase(),
+        range: $(w).find("select").val(),
+        input: Wrapper.parse_input($(w).find("input").val()),
+        data: $(w).data("Wrapper"),
+        jq: $(w)
+      });
+    }
+    return this.node_eval();
+  };
+
+  SoundNode.prototype.node_eval = function(index) {
+    var error, error1;
+    if (index == null) {
+      index = 0;
+    }
+    if (index >= this.wrappers.length) {
+      this.play();
       return;
     }
-    if (c.beat != null) {
-      bar_beats = [];
-      for (br = q = 1; q <= 4; br = ++q) {
-        ref4 = c.beat.input;
-        for (r = 0, len6 = ref4.length; r < len6; r++) {
-          bt = ref4[r];
-          bar_beats.push(bt + ((br - 1) * 4));
-        }
+    try {
+      switch (this.wrappers[index].range) {
+        case "phrase" || "phrases":
+          return this.eval_phrase_node(this.wrappers[index], index);
+        case "bar" || "bars" || "bar":
+          return this.eval_bar_node(this.wrappers[index], index);
+        case "beat" || "beats":
+          return this.eval_beat_node(this.wrappers[index], index);
       }
-      results = [];
-      for (s = 0, len7 = bar_beats.length; s < len7; s++) {
-        p = bar_beats[s];
-        results.push(this.instrument.add(p));
-      }
-      return results;
+    } catch (error1) {
+      error = error1;
+      console.log(error);
     }
+  };
+
+  SoundNode.prototype.eval_bar_node = function(node, index, offset) {
+    var i, j, k, len, ref, ref1, ref2;
+    if (offset == null) {
+      offset = 1;
+    }
+    switch (node.wrapper) {
+      case "if":
+        ref = node.input;
+        for (j = 0, len = ref.length; j < len; j++) {
+          i = ref[j];
+          if (indexOf.call(this.playing_bars, i) < 0) {
+            this.playing_bars.push(i);
+          }
+        }
+        break;
+      case "for":
+        for (i = k = ref1 = offset, ref2 = offset + node.input[0]; ref1 <= ref2 ? k < ref2 : k > ref2; i = ref1 <= ref2 ? ++k : --k) {
+          if (indexOf.call(this.playing_bars, i) < 0) {
+            this.playing_bars.push(i);
+          }
+        }
+    }
+    return this.node_eval(index + 1);
+  };
+
+  SoundNode.prototype.eval_beat_node = function(node, index, start_beat) {
+    var bar, beat, corrected_beat, i, j, k, l, len, len1, m, new_beats, ref, ref1, ref2, ref3;
+    if (start_beat == null) {
+      start_beat = 1;
+    }
+    switch (node.wrapper) {
+      case "if":
+        if (this.playing_beats === ![]) {
+          new_beats = [];
+          ref = node.input;
+          for (j = 0, len = ref.length; j < len; j++) {
+            i = ref[j];
+            corrected_beat = (function(i) {
+              if (i % 4 > 0) {
+                return i % 4;
+              } else {
+                return 4;
+              }
+              if (indexOf.call(node.input, corrected_beat) >= 0) {
+                new_beats.push(i);
+              }
+              return this.playing_beats = new_beats;
+            })(i);
+          }
+        } else {
+          for (bar = k = 1; k <= 4; bar = ++k) {
+            ref1 = node.input;
+            for (l = 0, len1 = ref1.length; l < len1; l++) {
+              beat = ref1[l];
+              this.playing_beats.push(beat + (bar - 1) * 4);
+            }
+          }
+        }
+        break;
+      case "for":
+        for (i = m = ref2 = start_beat, ref3 = start_beat + node.input[0]; ref2 <= ref3 ? m < ref3 : m > ref3; i = ref2 <= ref3 ? ++m : --m) {
+          this.playing_beats.push(i);
+        }
+    }
+    return this.node_eval(index + 1);
+  };
+
+  SoundNode.prototype.eval_phrase_node = function(node, index) {
+    var i, j, k, len, ref, ref1, ref2;
+    switch (node.wrapper) {
+      case "if":
+        ref = node.input;
+        for (j = 0, len = ref.length; j < len; j++) {
+          i = ref[j];
+          if (indexOf.call(this.playing_phrases, i) < 0) {
+            this.playing_phrases.push(i);
+          }
+        }
+        break;
+      case "for":
+        if (!node.data.registered) {
+          node.data.registered = true;
+          for (i = k = ref1 = phrase, ref2 = phrase + node.input; ref1 <= ref2 ? k <= ref2 : k >= ref2; i = ref1 <= ref2 ? ++k : --k) {
+            if (indexOf.call(this.playing_phrases, i) < 0) {
+              this.playing_phrases.push(i);
+            }
+          }
+        }
+    }
+    return this.node_eval(index + 1);
   };
 
   return SoundNode;
