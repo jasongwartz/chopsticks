@@ -24,7 +24,7 @@ class LoadedSample
   # Objects of this class are playable samples which have been
     # loaded into memory and decoded (ie. are ready to be played)
 
-  constructor: (@file, @stretch = 1) ->
+  constructor: (@file, @stretch = null) ->
 
     request = new XMLHttpRequest()
     request.open('GET', @file, true)
@@ -46,7 +46,11 @@ class LoadedSample
     source = context.createBufferSource()
     source.buffer = @decoded
     source.playbackRate.value = do =>
-      @decoded.duration / (tempo/1000 * @stretch)
+      if @stretch?
+        @decoded.duration / (tempo/1000 * @stretch)
+      else
+        1
+        # TODO: trim samples so they dont play overthemselves = intereference
     source.connect(output_chain)
     source.start(n)
 
@@ -64,7 +68,6 @@ class Instrument
     @pattern = {} # hash of beat : PlaySounds
 
   load: ->
-    console.log(@data)
     if @data.beat_stretch?
       @sample = new LoadedSample(@data.file, @data.beat_stretch)
     else

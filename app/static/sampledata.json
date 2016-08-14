@@ -15,5 +15,14 @@
   "industrial": {
       "file": "static/samples/loop_industrial.wav",
       "beat_stretch": 2
+  },
+  "bass_woodsy_c": {
+      "file": "static/samples/bass_woodsy_c.wav"
+  },
+  "bass_dnb_f": {
+      "file": "static/samples/bass_dnb_f.wav"
+  },
+  "guit_em9": {
+      "file": "static/samples/guit_em9.wav"
   }
 }
