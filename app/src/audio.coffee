@@ -24,7 +24,7 @@ class LoadedSample
   # Objects of this class are playable samples which have been
     # loaded into memory and decoded (ie. are ready to be played)
 
-  constructor: (@file) ->
+  constructor: (@file, @stretch = 1) ->
 
     request = new XMLHttpRequest()
     request.open('GET', @file, true)
@@ -45,6 +45,8 @@ class LoadedSample
       return
     source = context.createBufferSource()
     source.buffer = @decoded
+    source.playbackRate.value = do =>
+      @decoded.duration / (tempo/1000 * @stretch)
     source.connect(output_chain)
     source.start(n)
 
@@ -62,7 +64,11 @@ class Instrument
     @pattern = {} # hash of beat : PlaySounds
 
   load: ->
-    @sample = new LoadedSample(@data.file)
+    console.log(@data)
+    if @data.beat_stretch?
+      @sample = new LoadedSample(@data.file, @data.beat_stretch)
+    else
+      @sample = new LoadedSample(@data.file)
 
   is_loaded: ->
     return @sample.data? # Check if not undefined/null

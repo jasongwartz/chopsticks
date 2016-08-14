@@ -32,9 +32,10 @@ playing = false;
 output_chain = null;
 
 LoadedSample = (function() {
-  function LoadedSample(file) {
+  function LoadedSample(file, stretch) {
     var request, self;
     this.file = file;
+    this.stretch = stretch != null ? stretch : 1;
     request = new XMLHttpRequest();
     request.open('GET', this.file, true);
     request.responseType = 'arraybuffer';
@@ -57,6 +58,11 @@ LoadedSample = (function() {
     }
     source = context.createBufferSource();
     source.buffer = this.decoded;
+    source.playbackRate.value = (function(_this) {
+      return function() {
+        return _this.decoded.duration / (tempo / 1000 * _this.stretch);
+      };
+    })(this)();
     source.connect(output_chain);
     return source.start(n);
   };
@@ -91,7 +97,12 @@ Instrument = (function() {
   }
 
   Instrument.prototype.load = function() {
-    return this.sample = new LoadedSample(this.data.file);
+    console.log(this.data);
+    if (this.data.beat_stretch != null) {
+      return this.sample = new LoadedSample(this.data.file, this.data.beat_stretch);
+    } else {
+      return this.sample = new LoadedSample(this.data.file);
+    }
   };
 
   Instrument.prototype.is_loaded = function() {
