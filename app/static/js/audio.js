@@ -33,21 +33,22 @@ output_chain = null;
 
 LoadedSample = (function() {
   function LoadedSample(file, stretch) {
-    var request, self;
+    var request;
     this.file = file;
     this.stretch = stretch != null ? stretch : null;
     request = new XMLHttpRequest();
     request.open('GET', this.file, true);
     request.responseType = 'arraybuffer';
-    self = this;
-    request.onload = function() {
-      self.data = request.response;
-      return context.decodeAudioData(self.data, function(decoded) {
-        return self.decoded = decoded;
-      }, function(e) {
-        return console.log("Error loading:" + self.file + e);
-      });
-    };
+    request.onload = (function(_this) {
+      return function() {
+        _this.data = request.response;
+        return context.decodeAudioData(_this.data, function(decoded) {
+          return _this.decoded = decoded;
+        }, function(e) {
+          return console.log("Error loading:" + this.file + e);
+        });
+      };
+    })(this);
     request.send();
   }
 

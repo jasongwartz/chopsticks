@@ -30,14 +30,13 @@ class LoadedSample
     request.open('GET', @file, true)
     request.responseType = 'arraybuffer'
 
-    self = @
-    request.onload = ->
+    request.onload = =>
     # TODO: P1: samples don't load from remote server in safari, 40% in chrome
-      self.data = request.response
-      context.decodeAudioData(self.data, (decoded) ->
-        self.decoded = decoded
+      @data = request.response
+      context.decodeAudioData(@data, (decoded) =>
+        @decoded = decoded
       , (e) ->
-        console.log("Error loading:" + self.file + e))
+        console.log("Error loading:" + @file + e))
     request.send()
 
   play: (output_chain, n) ->
