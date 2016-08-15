@@ -55,7 +55,7 @@ IfConditional = (function(superClass) {
 
   name = "If";
 
-  extra_html = "<select class=\"form-control\" id=\"if-select\">\n    <option value=\"beat\">Beat</option>\n    <option value=\"bar\">Bar</option>\n    <option value=\"phrase\">Phrase</option>\n  </select>\n<input type=\"text\" id=\"if-input\" class=\"form-control\">";
+  extra_html = "<select class=\"form-control input-xs\" id=\"if-select\">\n    <option value=\"beat\">Beat</option>\n    <option value=\"bar\">Bar</option>\n    <option value=\"phrase\">Phrase</option>\n  </select>\n  <h2>is</h2>\n<input type=\"text\" id=\"if-input\" class=\"form-control input-xs\">";
 
   function IfConditional() {
     IfConditional.__super__.constructor.call(this, name, extra_html);
@@ -74,7 +74,7 @@ ForLoop = (function(superClass) {
 
   registered = false;
 
-  extra_html = "<input type=\"text\" id=\"for-input\" class=\"form-control\">\n<select class=\"form-control\" id=\"for-select\">\n    <option value=\"beat\">Beats</option>\n    <option value=\"bar\">Bars</option>\n    <option value=\"phrase\">Phrases</option>\n  </select>";
+  extra_html = "<input type=\"text\" id=\"for-input\" class=\"form-control input-xs\">\n<select class=\"form-control input-xs\" id=\"for-select\">\n    <option value=\"beat\">Beats</option>\n    <option value=\"bar\">Bars</option>\n    <option value=\"phrase\">Phrases</option>\n  </select>";
 
   function ForLoop() {
     ForLoop.__super__.constructor.call(this, name, extra_html);

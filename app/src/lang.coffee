@@ -33,12 +33,13 @@ class Wrapper
 class IfConditional extends Wrapper
   name = "If"
   extra_html = """
-      <select class="form-control" id="if-select">
+      <select class="form-control input-xs" id="if-select">
           <option value="beat">Beat</option>
           <option value="bar">Bar</option>
           <option value="phrase">Phrase</option>
         </select>
-      <input type="text" id="if-input" class="form-control">
+        <h2>is</h2>
+      <input type="text" id="if-input" class="form-control input-xs">
       """
   
   constructor: ->
@@ -50,8 +51,8 @@ class ForLoop extends Wrapper
   name = "For"
   registered = false
   extra_html = """
-        <input type="text" id="for-input" class="form-control">
-        <select class="form-control" id="for-select">
+        <input type="text" id="for-input" class="form-control input-xs">
+        <select class="form-control input-xs" id="for-select">
             <option value="beat">Beats</option>
             <option value="bar">Bars</option>
             <option value="phrase">Phrases</option>
