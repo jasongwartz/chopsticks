@@ -68,7 +68,7 @@ ui_init = function() {
   ref = SoundNode.tray_instances;
   for (i = 0, len = ref.length; i < len; i++) {
     n = ref[i];
-    $(n.html).appendTo($("#node-tray")).draggable({
+    $(n.html).appendTo($("#sn-tray")).draggable({
       helper: "clone",
       scope: "tray"
     }).data("SoundNode", n);
@@ -77,7 +77,7 @@ ui_init = function() {
   results = [];
   for (j = 0, len1 = ref1.length; j < len1; j++) {
     w = ref1[j];
-    results.push($(w.html).appendTo($("#node-tray")).draggable({
+    results.push($(w.html).appendTo($("#wrapper-tray")).draggable({
       scope: "tray",
       helper: "clone"
     }).data("Wrapper", w));

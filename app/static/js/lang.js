@@ -15,7 +15,7 @@ Wrapper = (function() {
   function Wrapper(name1, extra_html) {
     this.name = name1;
     Wrapper.instances.push(this);
-    this.html = "<div class=\"node node-wrapper\" id=\"" + this.name + "\">\n  <h2>" + this.name + "</h2>\n  " + extra_html + "\n</div>";
+    this.html = "<div class=\"node node-wrapper panel panel-default\" id=\"" + this.name + "\">\n  <h2>" + this.name + "</h2>\n  " + extra_html + "\n</div>";
   }
 
   Wrapper.parse_input = function(str) {
@@ -129,50 +129,8 @@ SoundNode = (function() {
     this.playing_phrases = [];
     this.playing_bars = [];
     this.playing_beats = [];
-    this.html = "<div class=\"node-sample-container\" id=\"" + this.id + "-container\">\n  <div class=\"wrappers\">\n  </div>\n  <div class=\"node node-sample\" id=\"" + this.id + "\">\n    <h2>" + this.id + "</h2>\n  </div>\n  </div>";
+    this.html = "<div class=\"node-sample-container\" id=\"" + this.id + "-container\">\n  <div class=\"wrappers\">\n  </div>\n  <div class=\"node node-sample panel panel-default\" id=\"" + this.id + "\">\n    <h2>" + this.id + "</h2>\n  </div>\n  </div>\n  ";
   }
-
-  SoundNode.prototype.play = function() {
-    var j, k, l, len, len1, p, phrases_expired, ref, ref1, ref2, ref3, results, results1, results2;
-    phrases_expired = this.playing_phrases.every(function(i) {
-      return i < phrase;
-    });
-    if (indexOf.call(this.playing_phrases, phrase) < 0 && this.playing_phrases.length !== 0) {
-
-    } else {
-      if (this.playing_bars.length !== 0) {
-        if (this.playing_beats.length !== 0) {
-          ref = this.playing_beats;
-          results = [];
-          for (j = 0, len = ref.length; j < len; j++) {
-            p = ref[j];
-            if (ref1 = Math.ceil(p / 4), indexOf.call(this.playing_bars, ref1) >= 0) {
-              results.push(this.instrument.add(p));
-            } else {
-              results.push(void 0);
-            }
-          }
-          return results;
-        } else {
-          results1 = [];
-          for (p = k = 1; k <= 16; p = k += 4) {
-            if (ref2 = Math.floor(p / 4) + 1, indexOf.call(this.playing_bars, ref2) >= 0) {
-              results1.push(this.instrument.add(p));
-            }
-          }
-          return results1;
-        }
-      } else {
-        ref3 = this.playing_beats;
-        results2 = [];
-        for (l = 0, len1 = ref3.length; l < len1; l++) {
-          p = ref3[l];
-          results2.push(this.instrument.add(p));
-        }
-        return results2;
-      }
-    }
-  };
 
   SoundNode.prototype.phrase_eval = function() {
     var j, len, ref, w;
@@ -352,6 +310,48 @@ SoundNode = (function() {
         }
     }
     return this.node_eval(index + 1);
+  };
+
+  SoundNode.prototype.play = function() {
+    var j, k, l, len, len1, p, phrases_expired, ref, ref1, ref2, ref3, results, results1, results2;
+    phrases_expired = this.playing_phrases.every(function(i) {
+      return i < phrase;
+    });
+    if (indexOf.call(this.playing_phrases, phrase) < 0 && this.playing_phrases.length !== 0) {
+
+    } else {
+      if (this.playing_bars.length !== 0) {
+        if (this.playing_beats.length !== 0) {
+          ref = this.playing_beats;
+          results = [];
+          for (j = 0, len = ref.length; j < len; j++) {
+            p = ref[j];
+            if (ref1 = Math.ceil(p / 4), indexOf.call(this.playing_bars, ref1) >= 0) {
+              results.push(this.instrument.add(p));
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        } else {
+          results1 = [];
+          for (p = k = 1; k <= 16; p = k += 4) {
+            if (ref2 = Math.floor(p / 4) + 1, indexOf.call(this.playing_bars, ref2) >= 0) {
+              results1.push(this.instrument.add(p));
+            }
+          }
+          return results1;
+        }
+      } else {
+        ref3 = this.playing_beats;
+        results2 = [];
+        for (l = 0, len1 = ref3.length; l < len1; l++) {
+          p = ref3[l];
+          results2.push(this.instrument.add(p));
+        }
+        return results2;
+      }
+    }
   };
 
   return SoundNode;

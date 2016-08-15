@@ -10,10 +10,11 @@ class Wrapper
     Wrapper.instances.push(this)
     
     @html = """
-      <div class="node node-wrapper" id="#{ @name }">
+      <div class="node node-wrapper panel panel-default" id="#{ @name }">
         <h2>#{ @name }</h2>
         #{ extra_html }
-      </div>"""
+      </div>
+      """
 
   @parse_input: (str) ->
     re = /(\d+(\.\d+)?)/g # matches all integers and floats
@@ -92,42 +93,17 @@ class SoundNode
     <div class="node-sample-container" id="#{ @id }-container">
       <div class="wrappers">
       </div>
-      <div class="node node-sample" id="#{ @id }">
+      <div class="node node-sample panel panel-default" id="#{ @id }">
         <h2>#{ @id }</h2>
       </div>
-      </div>"""
-
-  play: ->
-  #  console.log("phrases: " + @playing_phrases)
-  # console.log("bars: " + @playing_bars)
-   # console.log("beats: " + @playing_beats)
-    # check if all phrase specifications are older than current/next
-      # in which case, ignore phrase markers
-
-    # TODO: this is not fixed yet for old/now unused forloops, phrase-ifs
-    phrases_expired = @playing_phrases.every( (i) -> i < phrase )
-
-    if phrase not in @playing_phrases and @playing_phrases.length != 0
-      return # don't play this phrase
-    else
-      if @playing_bars.length != 0 # not empty list
-        if @playing_beats.length != 0
-          for p in @playing_beats
-            if Math.ceil(p/4) in @playing_bars
-            # p // 4 gives bar num, + 1 for off-by-one offset
-              @instrument.add(p)
-        else
-          @instrument.add(
-            p
-          ) for p in [1..16] by 4 when p // 4 + 1 in @playing_bars
-      else
-        @instrument.add(p) for p in @playing_beats
+      </div>
+      
+      """
 
   phrase_eval: ->
     @wrappers = []
     @playing_bars = []
     @playing_beats = []
-
     for w in $("##{ @id }-container").find(".wrappers").children()
       
       @wrappers.push(
@@ -228,8 +204,6 @@ class SoundNode
             ) for i in [start_beat...start_beat + node.input[0]]
             # only accept first number from 'for' input
 
-
-
     @node_eval(index + 1)
 
   eval_phrase_node: (node, index) ->
@@ -248,6 +222,28 @@ class SoundNode
             phrase + node.input[0]
             )] when i not in @playing_phrases
     @node_eval(index + 1)
+
+  play: ->
+    # check if all phrase specifications are older than current/next
+      # in which case, ignore phrase markers
+    # TODO: this is not fixed yet for old/now unused forloops, phrase-ifs
+    phrases_expired = @playing_phrases.every( (i) -> i < phrase )
+
+    if phrase not in @playing_phrases and @playing_phrases.length != 0
+      return # don't play this phrase
+    else
+      if @playing_bars.length != 0 # not empty list
+        if @playing_beats.length != 0
+          for p in @playing_beats
+            if Math.ceil(p/4) in @playing_bars
+            # p // 4 gives bar num, + 1 for off-by-one offset
+              @instrument.add(p)
+        else
+          @instrument.add(
+            p
+          ) for p in [1..16] by 4 when p // 4 + 1 in @playing_bars
+      else
+        @instrument.add(p) for p in @playing_beats
 
     # # check if a bar conditional exists
     # if c.bar?

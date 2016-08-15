@@ -1,18 +1,18 @@
 {
-    "bd": {
+    "bass_drum": {
       "file": "static/samples/drum_bass_hard.wav"
     },
-    "sd": {
+    "snare_drum": {
       "file": "static/samples/drum_snare_hard.wav"
     },
-    "cym": {
+    "hi_hat": {
       "file": "static/samples/drum_cymbal_closed.wav"    
   },
-  "amen": {
+  "amen_loop": {
       "file": "static/samples/loop_amen.wav",
       "beat_stretch": 4
   },
-  "industrial": {
+  "industrial_loop": {
       "file": "static/samples/loop_industrial.wav",
       "beat_stretch": 2
   },

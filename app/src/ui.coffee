@@ -87,7 +87,7 @@ ui_init = ->
   canvas_init() # changed to happen in ui_init call, not on document.ready()
 
   # add sound nodes to tray
-  $(n.html).appendTo($("#node-tray"))
+  $(n.html).appendTo($("#sn-tray"))
     .draggable(
       {
         helper:"clone",
@@ -97,7 +97,7 @@ ui_init = ->
     .data("SoundNode", n) for n in SoundNode.tray_instances
 
   # add wrappers to tray
-  $(w.html).appendTo($("#node-tray"))
+  $(w.html).appendTo($("#wrapper-tray"))
     .draggable(
       {
         scope:"tray",
