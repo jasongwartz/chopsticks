@@ -109,7 +109,7 @@ Instrument = (function() {
   };
 
   Instrument.prototype.is_loaded = function() {
-    return this.sample.data != null;
+    return this.sample.decoded != null;
   };
 
   Instrument.prototype.add = function(beat) {
@@ -277,33 +277,25 @@ main = function() {
       ref2 = Instrument.instances;
       for (l = 0, len2 = ref2.length; l < len2; l++) {
         i = ref2[l];
-        if (i.sample.decoded === void 0) {
+        if (!i.is_loaded()) {
           ready = false;
         }
       }
       if (!ready) {
-        console.log((function() {
+        console.log("Still loading: " + ((function() {
           var len3, m, ref3, results;
           ref3 = Instrument.instances;
           results = [];
           for (m = 0, len3 = ref3.length; m < len3; m++) {
             i = ref3[m];
-            results.push(i.name + ": " + i.is_loaded());
+            if (!i.is_loaded()) {
+              results.push(" " + i.name);
+            }
           }
           return results;
-        })());
-        return setTimeout(init_samples, 1000);
+        })()));
+        return setTimeout(init_samples, 100);
       } else {
-        console.log((function() {
-          var len3, m, ref3, results;
-          ref3 = Instrument.instances;
-          results = [];
-          for (m = 0, len3 = ref3.length; m < len3; m++) {
-            i = ref3[m];
-            results.push(i.name + ": " + i.is_loaded());
-          }
-          return results;
-        })());
         return console.log("All samples loaded.");
       }
     };

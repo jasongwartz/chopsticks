@@ -74,7 +74,7 @@ class Instrument
       @sample = new LoadedSample(@data.file)
 
   is_loaded: ->
-    return @sample.data? # Check if not undefined/null
+    return @sample.decoded? # Check if not undefined/null
 
   add: (beat) -> # playSound
     @pattern[beat] = new PlaySound(@sample, beat) # beat 1 - 16
@@ -214,13 +214,15 @@ main = ->
     init_samples = ->
       ready = true
       for i in Instrument.instances
-        if i.sample.decoded is undefined
+        if not i.is_loaded()
           ready = false
       if not ready
-        console.log(i.name + ": " + i.is_loaded() for i in Instrument.instances)
-        setTimeout(init_samples, 1000)
+        console.log("Still loading: " + (
+          " " + i.name for i in Instrument.instances when not i.is_loaded()
+          )
+        )
+        setTimeout(init_samples, 100)
       else
-        console.log(i.name + ": " + i.is_loaded() for i in Instrument.instances)
         console.log("All samples loaded.")
 
     init_samples()
