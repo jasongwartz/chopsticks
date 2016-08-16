@@ -15,7 +15,7 @@ Wrapper = (function() {
   function Wrapper(name1, extra_html) {
     this.name = name1;
     Wrapper.instances.push(this);
-    this.html = "<div class=\"node node-wrapper panel panel-default\" id=\"" + this.name + "\">\n  <h2>" + this.name + "</h2>\n  " + extra_html + "\n</div>";
+    this.html = "<div class=\"node node-wrapper panel panel-default\" id=\"" + this.name + "\">\n  <div class=\"panel-body sn-node-title\">" + this.name + "</div>\n  " + extra_html + "\n</div>";
   }
 
   Wrapper.parse_input = function(str) {
@@ -55,7 +55,7 @@ IfConditional = (function(superClass) {
 
   name = "If";
 
-  extra_html = "<select class=\"form-control input-xs\" id=\"if-select\">\n    <option value=\"beat\">Beat</option>\n    <option value=\"bar\">Bar</option>\n    <option value=\"phrase\">Phrase</option>\n  </select>\n  <h2>is</h2>\n<input type=\"text\" id=\"if-input\" class=\"form-control input-xs\">";
+  extra_html = "<select class=\"form-control input-xs\" id=\"if-select\">\n    <option value=\"beat\">Beat</option>\n    <option value=\"bar\">Bar</option>\n    <option value=\"phrase\">Phrase</option>\n  </select>\n  <div class=\"sn-node-title\">is</div>\n<input type=\"text\" id=\"if-input\" class=\"form-control input-xs\">";
 
   function IfConditional() {
     IfConditional.__super__.constructor.call(this, name, extra_html);
@@ -129,7 +129,7 @@ SoundNode = (function() {
     this.playing_phrases = [];
     this.playing_bars = [];
     this.playing_beats = [];
-    this.html = "<div class=\"node-sample-container\" id=\"" + this.id + "-container\">\n  <div class=\"wrappers\">\n  </div>\n  <div class=\"node node-sample panel panel-default\" id=\"" + this.id + "\">\n    <h2>" + this.id + "</h2>\n  </div>\n  </div>\n  ";
+    this.html = "<div class=\"node-sample-container\" id=\"" + this.id + "-container\">\n  <div class=\"wrappers\">\n  </div>\n  <div class=\"node node-sample panel panel-default\" id=\"" + this.id + "\">\n    <div class=\"panel-body sn-node-title\">" + this.id + "</div>\n  </div>\n  </div>\n  ";
   }
 
   SoundNode.prototype.phrase_eval = function() {

@@ -11,7 +11,7 @@ class Wrapper
     
     @html = """
       <div class="node node-wrapper panel panel-default" id="#{ @name }">
-        <h2>#{ @name }</h2>
+        <div class="panel-body sn-node-title">#{ @name }</div>
         #{ extra_html }
       </div>
       """
@@ -38,7 +38,7 @@ class IfConditional extends Wrapper
           <option value="bar">Bar</option>
           <option value="phrase">Phrase</option>
         </select>
-        <h2>is</h2>
+        <div class="sn-node-title">is</div>
       <input type="text" id="if-input" class="form-control input-xs">
       """
   
@@ -95,7 +95,7 @@ class SoundNode
       <div class="wrappers">
       </div>
       <div class="node node-sample panel panel-default" id="#{ @id }">
-        <h2>#{ @id }</h2>
+        <div class="panel-body sn-node-title">#{ @id }</div>
       </div>
       </div>
       
@@ -245,25 +245,4 @@ class SoundNode
           ) for p in [1..16] by 4 when p // 4 + 1 in @playing_bars
       else
         @instrument.add(p) for p in @playing_beats
-
-    # # check if a bar conditional exists
-    # if c.bar?
-    #   if c.beat?
-    #     bar_beats = []
-    #     for br in c.bar.input
-    #       for bt in c.beat.input
-    #         # algorithm = beat + ( bar - 1 ) * 4
-    #         bar_beats.push(bt + ((br - 1) * 4))
-    #     @instrument.add(p) for p in bar_beats
-    #   else
-    #     bar_beats = (1 + (i-1) * 4 for i in c.bar.input)
-    #     @instrument.add(p) for p in bar_beats
-    #   return
-
-    # if c.beat?
-    #   bar_beats = []
-    #   for br in [1..4]
-    #     for bt in c.beat.input
-    #       # algorithm = beat + ( bar - 1 ) * 4
-    #       bar_beats.push(bt + ((br - 1) * 4))
-    #   @instrument.add(p) for p in bar_beats
+        

@@ -1,25 +1,25 @@
     .node-sample {
-      background-color: #E7E8E8;
-      height: 50px;
+      background-color: #91D2C5;
+      height: 40px;
       width: 80px;
     }
 
     .node-wrapper {
-      background-color: #E9F1FF;
+      background-color: #C2EBE3;
       height: 100px;
       width: 80px;
     }
     
     #node-canvas, #node-tray {
       border:1px solid black;
-      background-color: #F6FFFA;
+      background-color: #EDFBF8;
       height: 60vh;
     }
     .node-canvas-hover {
       background-color: #9ED3E8;
     }
 
-    h2 {
+    .sn-node-title {
       font-family: Raleway;
       font-size: 1rem;
     }
