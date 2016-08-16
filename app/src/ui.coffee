@@ -107,4 +107,8 @@ ui_init = ->
 
 
 update_beat_labels = ->
-  $("#beat_label").text(phrase + ":" + bar + ":" + beat)
+  $("##{ n }_label").text(i) for n, i of {
+    "phrase": phrase,
+    "beat": beat,
+    "bar": bar
+  }

@@ -63,11 +63,11 @@ canvas_init = function() {
 };
 
 ui_init = function() {
-  var i, j, len, len1, n, ref, ref1, results, w;
+  var j, k, len, len1, n, ref, ref1, results, w;
   canvas_init();
   ref = SoundNode.tray_instances;
-  for (i = 0, len = ref.length; i < len; i++) {
-    n = ref[i];
+  for (j = 0, len = ref.length; j < len; j++) {
+    n = ref[j];
     $(n.html).appendTo($("#sn-tray")).draggable({
       helper: "clone",
       scope: "tray"
@@ -75,8 +75,8 @@ ui_init = function() {
   }
   ref1 = [new IfConditional(), new ForLoop()];
   results = [];
-  for (j = 0, len1 = ref1.length; j < len1; j++) {
-    w = ref1[j];
+  for (k = 0, len1 = ref1.length; k < len1; k++) {
+    w = ref1[k];
     results.push($(w.html).appendTo($("#wrapper-tray")).draggable({
       scope: "tray",
       helper: "clone"
@@ -86,5 +86,16 @@ ui_init = function() {
 };
 
 update_beat_labels = function() {
-  return $("#beat_label").text(phrase + ":" + bar + ":" + beat);
+  var i, n, ref, results;
+  ref = {
+    "phrase": phrase,
+    "beat": beat,
+    "bar": bar
+  };
+  results = [];
+  for (n in ref) {
+    i = ref[n];
+    results.push($("#" + n + "_label").text(i));
+  }
+  return results;
 };

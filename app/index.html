@@ -31,13 +31,30 @@
         <canvas id="visual"></canvas>
         <br /><br /><br />
       </div>
-      <div class="col-md-4">
-        <h3>
-        Phrase   Bar   Beat
-        </h3>
-        <h4 id="beat_label">
-          
-        </h4>
+
+      <div class="col-md-2">
+
+        <div class="col-md-5 beat_label">
+          <h3>Phrase</h3>
+          <h4 id="phrase_label"></h4>
+        </div>
+
+        <div class="col-md-3 beat_label">
+          <h3>Bar</h3>
+          <h4 id="bar_label"></h4>
+        </div>
+        
+        <div class="col-md-3 beat_label">
+          <h3>Beat</h3>
+          <h4 id="beat_label"></h4>
+        </div>
+
+      </div>
+
+      <div class="col-md-2">
+        <br /> Volume
+        <br />
+        <input id="volume" type="range" min="0" max="1" step="0.1" value="1" onchange="final_gain.gain.value = this.value" />
       </div>
     </div>
     <div class="row">
@@ -59,10 +76,7 @@
     </div>
 
     <div class="row">
-      <br /><br /> Volume
 
-      <br />
-      <input id="volume" type="range" min="0" max="1" step="0.1" value="1" onchange="final_gain.gain.value = this.value" />
     </div>
   </div>
 
