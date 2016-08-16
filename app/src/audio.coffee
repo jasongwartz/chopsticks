@@ -6,9 +6,6 @@ Author: Jason Gwartz
 # Variable declarations with global scope
 
 context = null
-samples = null
-sample_data = null
-t = null
 analyser = null
 final_gain = null
 phrase = 1
@@ -53,18 +50,11 @@ class LoadedSample
     source.connect(output_chain)
     source.start(n)
 
-class PlaySound
-  constructor: (@sample, @beat) -> # LoadedSample, integer
-    # milliseconds to seconds conversion, account for off by one
-    @beat = (@beat - 1) * tempo / 1000
-  play: (output, time_reference) ->
-    @sample.play(output, @beat + time_reference)
-
 class Instrument
   @instances = []
   constructor: (@name, @data) ->
     Instrument.instances.push(this)
-    @pattern = {} # hash of beat : PlaySounds
+    @pattern = [] # array of beats
 
   load: ->
     if @data.beat_stretch?
@@ -76,23 +66,18 @@ class Instrument
     return @sample.decoded? # Check if not undefined/null
 
   add: (beat) -> # playSound
-    @pattern[beat] = new PlaySound(@sample, beat) # beat 1 - 16
+    @pattern.push(beat) if beat not in @pattern
+    # beat 1 - 16
   
+  play: (output_chain, time) ->
+    @sample.play(
+      output_chain,
+      (b - 1) * tempo / 1000 + time
+      # milliseconds to seconds conversion, account for off by one
+      ) for b in @pattern
+
   @reset: ->
-    for i in Instrument.instances
-      i.pattern = {}
-
-class SoundContainer
-  constructor: ->
-    @active_instruments = [] # array of Instruments
-  prepare: (phrase_time) ->
-    Instrument.reset()
-    for s in SoundNode.canvas_instances
-      s.phrase_eval()
-
-  play: (output_chain, phr_time) ->
-    for instrument in Instrument.instances
-      ps.play(output_chain, phr_time) for b, ps of instrument.pattern
+    i.pattern = [] for i in Instrument.instances
 
 class JGAnalyser
 
@@ -148,9 +133,12 @@ class JGAnalyser
 # Core utility function definitions
 
 startPlayback = (output_chain) ->
-  track = new SoundContainer()
-  track.prepare()
-  track.play(output_chain, context.currentTime)
+  Instrument.reset()
+  s.phrase_eval() for s in SoundNode.canvas_instances
+  instrument.play(
+    output_chain, context.currentTime
+  ) for instrument in Instrument.instances
+    # this may be unnecessarily iterating over all instruments, not just live
 
   # change analyser colour back to black
   analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)'

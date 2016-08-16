@@ -4,16 +4,11 @@
 Author: Jason Gwartz
 2016
  */
-var Instrument, JGAnalyser, LoadedSample, PlaySound, SoundContainer, analyser, bar, beat, context, final_gain, main, output_chain, phrase, playing, sample_data, samples, startPlayback, t, tempo,
+var Instrument, JGAnalyser, LoadedSample, analyser, bar, beat, context, final_gain, main, output_chain, phrase, playing, startPlayback, tempo,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 context = null;
-
-samples = null;
-
-sample_data = null;
-
-t = null;
 
 analyser = null;
 
@@ -76,21 +71,6 @@ LoadedSample = (function() {
 
 })();
 
-PlaySound = (function() {
-  function PlaySound(sample, beat1) {
-    this.sample = sample;
-    this.beat = beat1;
-    this.beat = (this.beat - 1) * tempo / 1000;
-  }
-
-  PlaySound.prototype.play = function(output, time_reference) {
-    return this.sample.play(output, this.beat + time_reference);
-  };
-
-  return PlaySound;
-
-})();
-
 Instrument = (function() {
   Instrument.instances = [];
 
@@ -98,7 +78,7 @@ Instrument = (function() {
     this.name = name;
     this.data = data;
     Instrument.instances.push(this);
-    this.pattern = {};
+    this.pattern = [];
   }
 
   Instrument.prototype.load = function() {
@@ -114,7 +94,20 @@ Instrument = (function() {
   };
 
   Instrument.prototype.add = function(beat) {
-    return this.pattern[beat] = new PlaySound(this.sample, beat);
+    if (indexOf.call(this.pattern, beat) < 0) {
+      return this.pattern.push(beat);
+    }
+  };
+
+  Instrument.prototype.play = function(output_chain, time) {
+    var b, j, len, ref, results;
+    ref = this.pattern;
+    results = [];
+    for (j = 0, len = ref.length; j < len; j++) {
+      b = ref[j];
+      results.push(this.sample.play(output_chain, (b - 1) * tempo / 1000 + time));
+    }
+    return results;
   };
 
   Instrument.reset = function() {
@@ -123,53 +116,12 @@ Instrument = (function() {
     results = [];
     for (j = 0, len = ref.length; j < len; j++) {
       i = ref[j];
-      results.push(i.pattern = {});
+      results.push(i.pattern = []);
     }
     return results;
   };
 
   return Instrument;
-
-})();
-
-SoundContainer = (function() {
-  function SoundContainer() {
-    this.active_instruments = [];
-  }
-
-  SoundContainer.prototype.prepare = function(phrase_time) {
-    var j, len, ref, results, s;
-    Instrument.reset();
-    ref = SoundNode.canvas_instances;
-    results = [];
-    for (j = 0, len = ref.length; j < len; j++) {
-      s = ref[j];
-      results.push(s.phrase_eval());
-    }
-    return results;
-  };
-
-  SoundContainer.prototype.play = function(output_chain, phr_time) {
-    var b, instrument, j, len, ps, ref, results;
-    ref = Instrument.instances;
-    results = [];
-    for (j = 0, len = ref.length; j < len; j++) {
-      instrument = ref[j];
-      results.push((function() {
-        var ref1, results1;
-        ref1 = instrument.pattern;
-        results1 = [];
-        for (b in ref1) {
-          ps = ref1[b];
-          results1.push(ps.play(output_chain, phr_time));
-        }
-        return results1;
-      })());
-    }
-    return results;
-  };
-
-  return SoundContainer;
 
 })();
 
@@ -219,10 +171,18 @@ JGAnalyser = (function() {
 })();
 
 startPlayback = function(output_chain) {
-  var beat_increment, track;
-  track = new SoundContainer();
-  track.prepare();
-  track.play(output_chain, context.currentTime);
+  var beat_increment, instrument, j, k, len, len1, ref, ref1, s;
+  Instrument.reset();
+  ref = SoundNode.canvas_instances;
+  for (j = 0, len = ref.length; j < len; j++) {
+    s = ref[j];
+    s.phrase_eval();
+  }
+  ref1 = Instrument.instances;
+  for (k = 0, len1 = ref1.length; k < len1; k++) {
+    instrument = ref1[k];
+    instrument.play(output_chain, context.currentTime);
+  }
   analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
   setTimeout(function() {
     return analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)';
@@ -255,7 +215,7 @@ startPlayback = function(output_chain) {
 
 main = function() {
   $.getJSON("static/sampledata.json", function(result) {
-    var d, i, init_samples, j, k, len, len1, ref, ref1, v;
+    var d, i, init_samples, j, k, len, len1, ref, ref1, sample_data, v;
     sample_data = result;
     for (d in sample_data) {
       v = sample_data[d];
