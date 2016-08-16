@@ -1,7 +1,11 @@
     .node-sample {
       background-color: #91D2C5;
       height: 40px;
+    }
+
+    .node-sample-container {
       width: 80px;
+      background-color: #91D2C5;
     }
 
     .node-wrapper {
@@ -13,7 +17,7 @@
     #node-canvas, #node-tray {
       border:1px solid black;
       background-color: #EDFBF8;
-      height: 60vh;
+      height: 80vh;
     }
     .node-canvas-hover {
       background-color: #9ED3E8;

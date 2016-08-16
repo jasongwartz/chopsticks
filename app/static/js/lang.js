@@ -129,7 +129,7 @@ SoundNode = (function() {
     this.playing_phrases = [];
     this.playing_bars = [];
     this.playing_beats = [];
-    this.html = "<div class=\"node-sample-container\" id=\"" + this.id + "-container\">\n  <div class=\"wrappers\">\n  </div>\n  <div class=\"node node-sample panel panel-default\" id=\"" + this.id + "\">\n    <div class=\"panel-body sn-node-title\">" + this.id + "</div>\n  </div>\n  </div>\n  ";
+    this.html = "<div class=\"node-sample-container\n  panel panel-default\" id=\"" + this.id + "-container\">\n<div class=\"wrappers\">\n</div>\n<div class=\"node node-sample panel-footer\" id=\"" + this.id + "\">\n  <div class=\" sn-node-title\">" + this.id + "</div>\n</div>\n</div>\n";
   }
 
   SoundNode.prototype.phrase_eval = function() {

@@ -91,11 +91,12 @@ class SoundNode
     @playing_beats = []
 
     @html = """
-    <div class="node-sample-container" id="#{ @id }-container">
+      <div class="node-sample-container
+        panel panel-default" id="#{ @id }-container">
       <div class="wrappers">
       </div>
-      <div class="node node-sample panel panel-default" id="#{ @id }">
-        <div class="panel-body sn-node-title">#{ @id }</div>
+      <div class="node node-sample panel-footer" id="#{ @id }">
+        <div class=" sn-node-title">#{ @id }</div>
       </div>
       </div>
       
@@ -245,4 +246,3 @@ class SoundNode
           ) for p in [1..16] by 4 when p // 4 + 1 in @playing_bars
       else
         @instrument.add(p) for p in @playing_beats
-        
