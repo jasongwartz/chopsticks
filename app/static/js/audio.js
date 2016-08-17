@@ -64,7 +64,8 @@ LoadedSample = (function() {
       };
     })(this)();
     source.connect(output_chain);
-    return source.start(n);
+    source.start(n);
+    return [n, source];
   };
 
   return LoadedSample;
@@ -93,19 +94,29 @@ Instrument = (function() {
     return this.sample.decoded != null;
   };
 
-  Instrument.prototype.add = function(beat) {
-    if (indexOf.call(this.pattern, beat) < 0) {
-      return this.pattern.push(beat);
+  Instrument.prototype.add = function(b) {
+    if (indexOf.call(this.pattern, b) < 0) {
+      return this.pattern.push(b);
     }
   };
 
   Instrument.prototype.play = function(output_chain, time) {
-    var b, j, len, ref, results;
+    var i, j, len, previous_buffer, ref, results;
+    previous_buffer = null;
     ref = this.pattern;
     results = [];
     for (j = 0, len = ref.length; j < len; j++) {
-      b = ref[j];
-      results.push(this.sample.play(output_chain, (b - 1) * tempo / 1000 + time));
+      i = ref[j];
+      results.push(((function(_this) {
+        return function() {
+          var b;
+          b = (i - 1) * tempo / 1000 + time;
+          if ((previous_buffer != null) && (previous_buffer[0] + _this.sample.decoded.duration >= b)) {
+            previous_buffer[1].stop(b);
+          }
+          return previous_buffer = _this.sample.play(output_chain, b);
+        };
+      })(this))());
     }
     return results;
   };

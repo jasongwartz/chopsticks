@@ -31,7 +31,7 @@ class LoadedSample
     # TODO: P1: samples don't load from remote server in safari, 40% in chrome
       @data = request.response
       context.decodeAudioData(@data, (decoded) =>
-        @decoded = decoded
+        @decoded = decoded # @decoded is of type AudioBuffer
       , (e) ->
         console.log("Error loading:" + @file + e))
     request.send()
@@ -49,6 +49,7 @@ class LoadedSample
         # TODO: trim samples so they dont play overthemselves = intereference
     source.connect(output_chain)
     source.start(n)
+    return [n, source]
 
 class Instrument
   @instances = []
@@ -65,16 +66,23 @@ class Instrument
   is_loaded: ->
     return @sample.decoded? # Check if not undefined/null
 
-  add: (beat) -> # playSound
-    @pattern.push(beat) if beat not in @pattern
+  add: (b) -> # playSound
+    @pattern.push(b) if b not in @pattern
     # beat 1 - 16
   
   play: (output_chain, time) ->
-    @sample.play(
-      output_chain,
-      (b - 1) * tempo / 1000 + time
+    previous_buffer = null
+    do (=>
+      b = (i - 1) * tempo / 1000 + time
       # milliseconds to seconds conversion, account for off by one
-      ) for b in @pattern
+      if previous_buffer? and (
+        previous_buffer[0] + @sample.decoded.duration >= b
+      )
+        previous_buffer[1].stop(b)
+        # TODO: creates 'slapping' sound when it stops
+
+      previous_buffer = @sample.play(output_chain, b)
+    ) for i in @pattern
 
   @reset: ->
     i.pattern = [] for i in Instrument.instances
