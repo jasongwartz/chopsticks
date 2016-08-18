@@ -47,7 +47,7 @@ LoadedSample = (function() {
     request.send();
   }
 
-  LoadedSample.prototype.play = function(output_chain, n) {
+  LoadedSample.prototype.play = function(output, n) {
     var source;
     if (isNaN(n)) {
       return;
@@ -63,7 +63,7 @@ LoadedSample = (function() {
         }
       };
     })(this)();
-    source.connect(output_chain);
+    source.connect(output);
     source.start(n);
     return [n, source];
   };
@@ -75,11 +75,17 @@ LoadedSample = (function() {
 Instrument = (function() {
   Instrument.instances = [];
 
+  Instrument.maxFrequency = null;
+
   function Instrument(name, data) {
     this.name = name;
     this.data = data;
     Instrument.instances.push(this);
     this.pattern = [];
+    this.filter = context.createBiquadFilter();
+    this.filter.type = 'lowpass';
+    this.filter.frequency.value = Instrument.maxFrequency;
+    this.gain = context.createGain();
   }
 
   Instrument.prototype.load = function() {
@@ -102,6 +108,8 @@ Instrument = (function() {
 
   Instrument.prototype.play = function(output_chain, time) {
     var i, j, len, previous_buffer, ref, results;
+    this.filter.connect(this.gain);
+    this.gain.connect(output_chain);
     previous_buffer = null;
     ref = this.pattern;
     results = [];
@@ -114,7 +122,7 @@ Instrument = (function() {
           if ((previous_buffer != null) && (previous_buffer[0] + _this.sample.decoded.duration >= b)) {
             previous_buffer[1].stop(b);
           }
-          return previous_buffer = _this.sample.play(output_chain, b);
+          return previous_buffer = _this.sample.play(_this.filter, b);
         };
       })(this))());
     }
@@ -130,6 +138,22 @@ Instrument = (function() {
       results.push(i.pattern = []);
     }
     return results;
+  };
+
+  Instrument.computeMaxFrequency = function() {
+    return Instrument.maxFrequency = context.sampleRate / 2;
+  };
+
+  Instrument.compute_filter = function(rate) {
+    var minValue, mult, numberOfOctaves;
+    if (Instrument.maxFrequency == null) {
+      Instrument.computeMaxFrequency();
+    }
+    minValue = 40;
+    console.log(Instrument.maxFrequency);
+    numberOfOctaves = Math.log(Instrument.maxFrequency / minValue) / Math.LN2;
+    mult = Math.pow(2, numberOfOctaves * (rate - 1.0));
+    return Instrument.maxFrequency * mult;
   };
 
   return Instrument;

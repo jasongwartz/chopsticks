@@ -29,7 +29,16 @@ canvas_init = function() {
           SoundNode.canvas_instances.push(new_sn);
           $(new_sn.html).appendTo($("#node-canvas")).addClass("on-canvas").draggable({
             helper: "original",
-            scope: "canvas"
+            scope: "canvas",
+            drag: function(evt, ui) {
+              var canvas, gain, lpf;
+              canvas = $("#node-canvas");
+              sn = $(this).find(".node-sample");
+              gain = 1 - (sn.offset().top - canvas.offset().top) / canvas.height();
+              $(this).data().SoundNode.instrument.gain.gain.value = gain;
+              lpf = Instrument.compute_filter(sn.offset().left / canvas.width());
+              return $(this).data().SoundNode.instrument.filter.frequency.value = lpf;
+            }
           }).droppable({
             accept: ".node-wrapper",
             scope: "canvas",

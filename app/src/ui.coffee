@@ -39,7 +39,28 @@ canvas_init = ->
               .draggable(
                 {
                   helper:"original",
-                  scope:"canvas"
+                  scope:"canvas",
+                  drag: (evt, ui) ->
+                    canvas = $("#node-canvas")
+
+                    sn = $(@).find(".node-sample")
+                    
+                    gain = 1 - (
+                      sn.offset().top - canvas.offset().top
+                    ) / canvas.height()
+                    # gain is currently based on SoundNode
+                    # may consider changing it to node-container
+                    $(@).data()
+                      .SoundNode.instrument
+                      .gain.gain.value = gain
+                    
+                    lpf = Instrument.compute_filter(
+                      sn.offset().left / canvas.width()
+                      )
+                      
+                    $(@).data()
+                      .SoundNode.instrument
+                      .filter.frequency.value = lpf
                 }
               )
               .droppable(

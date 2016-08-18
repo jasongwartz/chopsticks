@@ -36,7 +36,7 @@ class LoadedSample
         console.log("Error loading:" + @file + e))
     request.send()
 
-  play: (output_chain, n) ->
+  play: (output, n) ->
     if isNaN(n)
       return
     source = context.createBufferSource()
@@ -47,15 +47,22 @@ class LoadedSample
       else
         1
         # TODO: trim samples so they dont play overthemselves = intereference
-    source.connect(output_chain)
+    source.connect(output)
     source.start(n)
     return [n, source]
 
 class Instrument
   @instances = []
+  @maxFrequency =  null
+
   constructor: (@name, @data) ->
     Instrument.instances.push(this)
     @pattern = [] # array of beats
+    
+    @filter = context.createBiquadFilter()
+    @filter.type = 'lowpass'
+    @filter.frequency.value = Instrument.maxFrequency
+    @gain = context.createGain()
 
   load: ->
     if @data.beat_stretch?
@@ -71,6 +78,8 @@ class Instrument
     # beat 1 - 16
   
   play: (output_chain, time) ->
+    @filter.connect(@gain)
+    @gain.connect(output_chain)
     previous_buffer = null
     do (=>
       b = (i - 1) * tempo / 1000 + time
@@ -81,11 +90,31 @@ class Instrument
         previous_buffer[1].stop(b)
         # TODO: creates 'slapping' sound when it stops
 
-      previous_buffer = @sample.play(output_chain, b)
+      previous_buffer = @sample.play(@filter, b)
     ) for i in @pattern
 
   @reset: ->
     i.pattern = [] for i in Instrument.instances
+
+  @computeMaxFrequency: ->
+    Instrument.maxFrequency = context.sampleRate / 2
+  
+    
+  @compute_filter: (rate) ->
+    if not Instrument.maxFrequency?
+      Instrument.computeMaxFrequency()
+    # Source: http://www.html5rocks.com/en/tutorials/
+    # webaudio/intro/js/filter-sample.js
+    minValue = 40
+    console.log(Instrument.maxFrequency)
+    #// Logarithm (base 2) to compute how many octaves fall in the range.
+    numberOfOctaves = Math.log(Instrument.maxFrequency / minValue) / Math.LN2
+    #// Compute a multiplier from 0 to 1 based on an exponential scale.
+    mult = Math.pow(2, numberOfOctaves * (
+      rate - 1.0
+      ))
+    #// Get back to the frequency value between min and max.
+    return Instrument.maxFrequency * mult
 
 class JGAnalyser
 
