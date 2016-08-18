@@ -13,6 +13,10 @@
       height: 100px;
       width: 80px;
     }
+
+    .node-disabled {
+      background-color: #8F9594
+    }
     
     #node-canvas, #node-tray {
       border:1px solid black;

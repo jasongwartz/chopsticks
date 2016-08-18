@@ -103,6 +103,8 @@ class SoundNode
       """
 
   phrase_eval: ->
+    if not $("##{ @id }-container").data("live")
+      return
     @wrappers = []
     @playing_bars = []
     @playing_beats = []
@@ -114,13 +116,14 @@ class SoundNode
           range: $(w).find("select").val(),
           input: Wrapper.parse_input($(w).find("input").val()),
           data: $(w).data("Wrapper"),
+          live: $(w).data("live")
           jq: $(w)
         }
       )
     @node_eval()
 
   node_eval: (index = 0) ->
-    if index >= @wrappers.length
+    if index >= @wrappers.length or not @wrappers[index].live
       @play()
       return
     try

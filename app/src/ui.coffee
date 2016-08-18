@@ -24,6 +24,15 @@ canvas_init = ->
               }
             )
             .data("Wrapper", ui.draggable.data("Wrapper"))
+            .data("live": true)
+            .on("click", "*:not(input,select)", ->
+              if $(@).parent().data("live")
+                $(@).parent().addClass("node-disabled")
+                  .data("live", false)
+              else
+                $(@).parent().removeClass("node-disabled")
+                  .data("live", true)
+              )
           
       else # code path for Sound Nodes
 
@@ -40,6 +49,7 @@ canvas_init = ->
                 {
                   helper:"original",
                   scope:"canvas",
+                  distance: 15
                   drag: (evt, ui) ->
                     canvas = $("#node-canvas")
 
@@ -57,10 +67,12 @@ canvas_init = ->
                     lpf = Instrument.compute_filter(
                       sn.offset().left / canvas.width()
                       )
-                      
+
                     $(@).data()
                       .SoundNode.instrument
                       .filter.frequency.value = lpf
+                  start: (evt, ui) ->
+                  stop: (evt, ui) ->
                 }
               )
               .droppable(
@@ -81,12 +93,23 @@ canvas_init = ->
                 }
               )
               .data("SoundNode", new_sn)
+              .data("live", true)
               .find(".wrappers").sortable(
                 {
                   stop: (evt, ui) ->
                     # done sorting
                 }
               )
+              .parent().find(".node-sample").on("click", (e) ->
+                if $(@).hasClass(".ui-draggable-dragging")
+                  return # this doesn't solve the issue
+                if $(@).parent().data("live")
+                  $(@).addClass("node-disabled")
+                    .parent().data("live", false)
+                else
+                  $(@).removeClass("node-disabled")
+                    .parent().data("live", true)
+                )
               
       if not glob.playing
         # init playback on first node drop

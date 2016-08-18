@@ -134,6 +134,9 @@ SoundNode = (function() {
 
   SoundNode.prototype.phrase_eval = function() {
     var j, len, ref, w;
+    if (!$("#" + this.id + "-container").data("live")) {
+      return;
+    }
     this.wrappers = [];
     this.playing_bars = [];
     this.playing_beats = [];
@@ -145,6 +148,7 @@ SoundNode = (function() {
         range: $(w).find("select").val(),
         input: Wrapper.parse_input($(w).find("input").val()),
         data: $(w).data("Wrapper"),
+        live: $(w).data("live"),
         jq: $(w)
       });
     }
@@ -156,7 +160,7 @@ SoundNode = (function() {
     if (index == null) {
       index = 0;
     }
-    if (index >= this.wrappers.length) {
+    if (index >= this.wrappers.length || !this.wrappers[index].live) {
       this.play();
       return;
     }

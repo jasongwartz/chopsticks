@@ -20,7 +20,15 @@ canvas_init = function() {
           ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable({
             helper: "original",
             scope: "canvas"
-          }).data("Wrapper", ui.draggable.data("Wrapper"));
+          }).data("Wrapper", ui.draggable.data("Wrapper")).data({
+            "live": true
+          }).on("click", "*:not(input,select)", function() {
+            if ($(this).parent().data("live")) {
+              return $(this).parent().addClass("node-disabled").data("live", false);
+            } else {
+              return $(this).parent().removeClass("node-disabled").data("live", true);
+            }
+          });
         }
       } else {
         if (!ui.draggable.hasClass("on-canvas")) {
@@ -30,6 +38,7 @@ canvas_init = function() {
           $(new_sn.html).appendTo($("#node-canvas")).addClass("on-canvas").draggable({
             helper: "original",
             scope: "canvas",
+            distance: 15,
             drag: function(evt, ui) {
               var canvas, gain, lpf;
               canvas = $("#node-canvas");
@@ -38,7 +47,9 @@ canvas_init = function() {
               $(this).data().SoundNode.instrument.gain.gain.value = gain;
               lpf = Instrument.compute_filter(sn.offset().left / canvas.width());
               return $(this).data().SoundNode.instrument.filter.frequency.value = lpf;
-            }
+            },
+            start: function(evt, ui) {},
+            stop: function(evt, ui) {}
           }).droppable({
             accept: ".node-wrapper",
             scope: "canvas",
@@ -50,8 +61,17 @@ canvas_init = function() {
                 at: "top"
               }).css("top", "0px");
             }
-          }).data("SoundNode", new_sn).find(".wrappers").sortable({
+          }).data("SoundNode", new_sn).data("live", true).find(".wrappers").sortable({
             stop: function(evt, ui) {}
+          }).parent().find(".node-sample").on("click", function(e) {
+            if ($(this).hasClass(".ui-draggable-dragging")) {
+              return;
+            }
+            if ($(this).parent().data("live")) {
+              return $(this).addClass("node-disabled").parent().data("live", false);
+            } else {
+              return $(this).removeClass("node-disabled").parent().data("live", true);
+            }
           });
         }
       }
