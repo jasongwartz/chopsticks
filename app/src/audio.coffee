@@ -139,6 +139,12 @@ class JGAnalyser
     @canvasCtx = @canvas.getContext("2d")
     @canvasCtx.clearRect(0, 0, @WIDTH, @HEIGHT)
 
+  set_black: ->
+    @canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
+
+  set_red: ->
+    @canvasCtx.strokeStyle = 'rgb(255, 0, 0)'
+
   draw: =>
     # Reset width
     @WIDTH = $(@canvas).parent().width()
@@ -179,35 +185,15 @@ startPlayback = ->
   instrument.play(context.currentTime) for instrument in Instrument.instances
     # this may be unnecessarily iterating over all instruments, not just live
 
-  # change analyser colour back to black
-  analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
-  
-  # Inner timer to change colour, indicate reloop
-  setTimeout(->
-    analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)'
-  , (tempo * 16 - tempo * 2))
+  # start loop to keep beat labels in UI up to date
+  beat_increment()
 
-  beat_increment = ->
-    # only set time-out within a bar
-    # the auto-reload of the phrase will trigger the call
-    beat += 1
-    update_beat_labels()
-    if beat is 4
-      beat = 0
-      if bar is 4
-        bar = 1
-        phrase += 1
-      else
-        bar += 1
-        setTimeout(-> # TODO: async bug here, might be from tab switching
-          beat_increment()
-        , tempo)
-    else
-      setTimeout(->
-        beat_increment()
-      , tempo)
-  
-  beat_increment() # call
+  # change analyser colour back to black
+  analyser.set_black()
+  # Set dispatch to change colour to red to indicate refreshing
+  setTimeout(->
+    analyser.set_red()
+  , (tempo * 16 - tempo * 2))
 
   # Timer to keep in loop
   # TODO: Inactive tab problem
@@ -216,6 +202,26 @@ startPlayback = ->
   , tempo * 16)
     # TODO: very slight early jump on succeeding phrase
 
+beat_increment = ->
+  # only set time-out within a bar
+  # the auto-reload of the phrase will trigger the call
+  beat += 1
+  update_beat_labels()
+  switch
+    when bar == 4 and beat == 4
+      beat = 0
+      bar = 1
+      phrase += 1
+    when bar != 4 and beat == 4
+      beat = 0
+      bar += 1
+      setTimeout(-> # TODO: async bug here, might be from tab switching
+        beat_increment()
+      , tempo)
+    else # in the middle of a bar
+      setTimeout(->
+        beat_increment()
+      , tempo)
 
 # Preloader function definitions
 

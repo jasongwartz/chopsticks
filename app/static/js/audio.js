@@ -4,7 +4,7 @@
 Author: Jason Gwartz
 2016
  */
-var Instrument, JGAnalyser, LoadedSample, analyser, bar, beat, context, main, phrase, playing, startPlayback, tempo,
+var Instrument, JGAnalyser, LoadedSample, analyser, bar, beat, beat_increment, context, main, phrase, playing, startPlayback, tempo,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -175,6 +175,14 @@ JGAnalyser = (function() {
     this.canvasCtx.clearRect(0, 0, this.WIDTH, this.HEIGHT);
   }
 
+  JGAnalyser.prototype.set_black = function() {
+    return this.canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+  };
+
+  JGAnalyser.prototype.set_red = function() {
+    return this.canvasCtx.strokeStyle = 'rgb(255, 0, 0)';
+  };
+
   JGAnalyser.prototype.draw = function() {
     var drawVisual, i, j, ref, sliceWidth, v, x, y;
     this.WIDTH = $(this.canvas).parent().width();
@@ -205,7 +213,7 @@ JGAnalyser = (function() {
 })();
 
 startPlayback = function() {
-  var beat_increment, instrument, j, k, len, len1, ref, ref1, s;
+  var instrument, j, k, len, len1, ref, ref1, s;
   Instrument.reset();
   ref = SoundNode.canvas_instances;
   for (j = 0, len = ref.length; j < len; j++) {
@@ -217,34 +225,35 @@ startPlayback = function() {
     instrument = ref1[k];
     instrument.play(context.currentTime);
   }
-  analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
-  setTimeout(function() {
-    return analyser.canvasCtx.strokeStyle = 'rgb(255, 0, 0)';
-  }, tempo * 16 - tempo * 2);
-  beat_increment = function() {
-    beat += 1;
-    update_beat_labels();
-    if (beat === 4) {
-      beat = 0;
-      if (bar === 4) {
-        bar = 1;
-        return phrase += 1;
-      } else {
-        bar += 1;
-        return setTimeout(function() {
-          return beat_increment();
-        }, tempo);
-      }
-    } else {
-      return setTimeout(function() {
-        return beat_increment();
-      }, tempo);
-    }
-  };
   beat_increment();
+  analyser.set_black();
+  setTimeout(function() {
+    return analyser.set_red();
+  }, tempo * 16 - tempo * 2);
   return setTimeout(function() {
     return startPlayback();
   }, tempo * 16);
+};
+
+beat_increment = function() {
+  beat += 1;
+  update_beat_labels();
+  switch (false) {
+    case !(bar === 4 && beat === 4):
+      beat = 0;
+      bar = 1;
+      return phrase += 1;
+    case !(bar !== 4 && beat === 4):
+      beat = 0;
+      bar += 1;
+      return setTimeout(function() {
+        return beat_increment();
+      }, tempo);
+    default:
+      return setTimeout(function() {
+        return beat_increment();
+      }, tempo);
+  }
 };
 
 main = function() {
