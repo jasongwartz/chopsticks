@@ -4,7 +4,7 @@
 Author: Jason Gwartz
 2016
  */
-var canvas_init, ui_init, update_beat_labels;
+var canvas_init, ui_init, update_beat_labels, xy_compute;
 
 canvas_init = function() {
   var glob;
@@ -27,18 +27,14 @@ canvas_init = function() {
         SoundNode.canvas_instances.push(new_sn);
         $(new_sn.html).appendTo($("#node-canvas")).addClass("on-canvas").data("SoundNode", new_sn).data("live", true).position({
           of: evt
+        }).each(function() {
+          return xy_compute(this);
         }).draggable({
           helper: "original",
           scope: "canvas",
           distance: 15,
           drag: function(evt, ui) {
-            var canvas, gain, lpf;
-            canvas = $("#node-canvas");
-            sn = $(this).find(".node-sample");
-            gain = 1 - (sn.offset().top - canvas.offset().top) / canvas.height();
-            $(this).data().SoundNode.instrument.gain.gain.value = gain;
-            lpf = Instrument.compute_filter(sn.offset().left / canvas.width());
-            return $(this).data().SoundNode.instrument.filter.frequency.value = lpf;
+            return xy_compute(this);
           },
           start: function(evt, ui) {},
           stop: function(evt, ui) {}
@@ -115,6 +111,16 @@ ui_init = function() {
     }).data("Wrapper", w));
   }
   return results;
+};
+
+xy_compute = function(t) {
+  var canvas, gain, lpf, sn;
+  canvas = $("#node-canvas");
+  sn = $(t).find(".node-sample");
+  gain = 1 - (sn.offset().top - canvas.offset().top) / canvas.height();
+  lpf = Instrument.compute_filter(sn.offset().left / canvas.width());
+  $(t).data().SoundNode.instrument.gain.gain.value = gain;
+  return $(t).data().SoundNode.instrument.filter.frequency.value = lpf;
 };
 
 update_beat_labels = function() {

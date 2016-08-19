@@ -50,31 +50,16 @@ canvas_init = ->
               of: evt
             }
           )
+          .each(->
+            xy_compute(@)
+          )
           .draggable(
             {
               helper:"original",
               scope:"canvas",
               distance: 15
               drag: (evt, ui) ->
-                canvas = $("#node-canvas")
-                sn = $(@).find(".node-sample")
-                
-                gain = 1 - (
-                  sn.offset().top - canvas.offset().top
-                ) / canvas.height()
-                # gain is currently based on SoundNode
-                # may consider changing it to node-container
-                $(@).data()
-                  .SoundNode.instrument
-                  .gain.gain.value = gain
-                
-                lpf = Instrument.compute_filter(
-                  sn.offset().left / canvas.width()
-                  )
-
-                $(@).data()
-                  .SoundNode.instrument
-                  .filter.frequency.value = lpf
+                xy_compute(@)
               start: (evt, ui) ->
               stop: (evt, ui) ->
             }
@@ -165,6 +150,30 @@ ui_init = ->
       }
     ).data("Wrapper", w) for w in [new IfConditional(), new ForLoop()]
 
+
+# UI Utility Functions
+
+xy_compute = (t) ->
+   # gain is currently based on SoundNode
+     # may consider changing it to node-container
+  canvas = $("#node-canvas")
+  sn = $(t).find(".node-sample")
+
+  gain = 1 - (
+    sn.offset().top - canvas.offset().top
+  ) / canvas.height()
+
+  lpf = Instrument.compute_filter(
+    sn.offset().left / canvas.width()
+    )
+
+  $(t).data()
+    .SoundNode.instrument
+    .gain.gain.value = gain
+  
+  $(t).data()
+    .SoundNode.instrument
+    .filter.frequency.value = lpf
 
 update_beat_labels = ->
   $("##{ n }_label").text(i) for n, i of {
