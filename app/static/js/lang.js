@@ -160,8 +160,11 @@ SoundNode = (function() {
     if (index == null) {
       index = 0;
     }
-    if (index >= this.wrappers.length || !this.wrappers[index].live) {
+    if (index >= this.wrappers.length) {
       this.play();
+      return;
+    } else if (!this.wrappers[index].live) {
+      this.node_eval(index + 1);
       return;
     }
     try {

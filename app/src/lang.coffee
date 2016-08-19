@@ -123,8 +123,12 @@ class SoundNode
     @node_eval()
 
   node_eval: (index = 0) ->
-    if index >= @wrappers.length or not @wrappers[index].live
+    
+    if index >= @wrappers.length
       @play()
+      return
+    else if not @wrappers[index].live
+      @node_eval(index + 1)
       return
     try
     
