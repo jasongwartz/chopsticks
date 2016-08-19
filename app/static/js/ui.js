@@ -12,68 +12,71 @@ canvas_init = function() {
   $("#node-canvas").droppable({
     hoverClass: "node-canvas-hover",
     tolerance: "pointer",
-    scope: "tray",
     drop: function(evt, ui) {
       var new_sn, sn;
+      console.log("not greedy");
+      if (ui.draggable.hasClass("on-canvas")) {
+        return;
+      }
       if (ui.draggable.hasClass("node-wrapper")) {
-        if (!ui.draggable.hasClass("on-canvas")) {
-          ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable({
-            helper: "original",
-            scope: "canvas"
-          }).data("Wrapper", ui.draggable.data("Wrapper")).data({
-            "live": true
-          }).on("click", "*:not(input,select)", function() {
-            if ($(this).parent().data("live")) {
-              return $(this).parent().addClass("node-disabled").data("live", false);
-            } else {
-              return $(this).parent().removeClass("node-disabled").data("live", true);
-            }
-          });
-        }
+        ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable().data("Wrapper", ui.draggable.data("Wrapper"));
       } else {
-        if (!ui.draggable.hasClass("on-canvas")) {
-          sn = ui.draggable.data("SoundNode");
-          new_sn = new SoundNode(sn.instrument);
-          SoundNode.canvas_instances.push(new_sn);
-          $(new_sn.html).appendTo($("#node-canvas")).addClass("on-canvas").draggable({
-            helper: "original",
-            scope: "canvas",
-            distance: 15,
-            drag: function(evt, ui) {
-              var canvas, gain, lpf;
-              canvas = $("#node-canvas");
-              sn = $(this).find(".node-sample");
-              gain = 1 - (sn.offset().top - canvas.offset().top) / canvas.height();
-              $(this).data().SoundNode.instrument.gain.gain.value = gain;
-              lpf = Instrument.compute_filter(sn.offset().left / canvas.width());
-              return $(this).data().SoundNode.instrument.filter.frequency.value = lpf;
-            },
-            start: function(evt, ui) {},
-            stop: function(evt, ui) {}
-          }).droppable({
-            accept: ".node-wrapper",
-            scope: "canvas",
-            tolerance: "pointer",
-            drop: function(evt, ui) {
-              return ui.draggable.appendTo($(this).find(".wrappers")).draggable("disable").position({
-                of: $(this).find(".node-sample"),
-                my: "bottom",
-                at: "top"
-              }).css("top", "0px");
-            }
-          }).data("SoundNode", new_sn).data("live", true).find(".wrappers").sortable({
-            stop: function(evt, ui) {}
-          }).parent().find(".node-sample").on("click", function(e) {
-            if ($(this).hasClass(".ui-draggable-dragging")) {
-              return;
-            }
-            if ($(this).parent().data("live")) {
-              return $(this).addClass("node-disabled").parent().data("live", false);
+        sn = ui.draggable.data("SoundNode");
+        new_sn = new SoundNode(sn.instrument);
+        SoundNode.canvas_instances.push(new_sn);
+        $(new_sn.html).appendTo($("#node-canvas")).addClass("on-canvas").draggable({
+          helper: "original",
+          scope: "canvas",
+          distance: 15,
+          drag: function(evt, ui) {
+            var canvas, gain, lpf;
+            canvas = $("#node-canvas");
+            sn = $(this).find(".node-sample");
+            gain = 1 - (sn.offset().top - canvas.offset().top) / canvas.height();
+            $(this).data().SoundNode.instrument.gain.gain.value = gain;
+            lpf = Instrument.compute_filter(sn.offset().left / canvas.width());
+            return $(this).data().SoundNode.instrument.filter.frequency.value = lpf;
+          },
+          start: function(evt, ui) {},
+          stop: function(evt, ui) {}
+        }).droppable({
+          accept: ".node-wrapper",
+          greedy: true,
+          tolerance: "pointer",
+          drop: function(evt, ui) {
+            var w;
+            console.log("greedy");
+            if (ui.draggable.hasClass("on-canvas")) {
+              w = ui.draggable;
             } else {
-              return $(this).removeClass("node-disabled").parent().data("live", true);
+              w = ui.draggable.clone();
             }
-          });
-        }
+            return w.appendTo($(this).find(".wrappers")).position({
+              of: $(this).find(".node-sample"),
+              my: "bottom",
+              at: "top"
+            }).css("top", "0px").data("Wrapper", ui.draggable.data("Wrapper")).data({
+              "live": true
+            }).on("click", "*:not(input,select)", function() {
+              if ($(this).parent().data("live")) {
+                return $(this).parent().addClass("node-disabled").data("live", false);
+              } else {
+                return $(this).parent().removeClass("node-disabled").data("live", true);
+              }
+            });
+          }
+        }).data("SoundNode", new_sn).data("live", true).find(".wrappers").sortable({
+          stop: function(evt, ui) {}
+        }).parent().find(".node-sample").on("click", function(e) {
+          if ($(this).hasClass(".ui-draggable-dragging")) {
+            return;
+          }
+          if ($(this).parent().data("live")) {
+            return $(this).addClass("node-disabled").parent().data("live", false);
+          } else {
+            return $(this).removeClass("node-disabled").parent().data("live", true);
+          }
+        });
       }
       if (!glob.playing) {
         glob.playing = true;
@@ -98,8 +101,7 @@ ui_init = function() {
   for (j = 0, len = ref.length; j < len; j++) {
     n = ref[j];
     $(n.html).appendTo($("#sn-tray")).draggable({
-      helper: "clone",
-      scope: "tray"
+      helper: "clone"
     }).data("SoundNode", n);
   }
   ref1 = [new IfConditional(), new ForLoop()];
@@ -107,7 +109,6 @@ ui_init = function() {
   for (k = 0, len1 = ref1.length; k < len1; k++) {
     w = ref1[k];
     results.push($(w.html).appendTo($("#wrapper-tray")).draggable({
-      scope: "tray",
       helper: "clone"
     }).data("Wrapper", w));
   }
