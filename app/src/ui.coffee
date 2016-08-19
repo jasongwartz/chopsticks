@@ -11,7 +11,6 @@ canvas_init = ->
     hoverClass: "node-canvas-hover",
     tolerance: "pointer",
     drop: (evt, ui) ->
-      console.log "not greedy"
       if ui.draggable.hasClass("on-canvas")
         return
       # code path for node-wrappers
@@ -21,6 +20,11 @@ canvas_init = ->
           .addClass("on-canvas")
           .draggable()
           .data("Wrapper", ui.draggable.data("Wrapper"))
+          .position(
+            {
+              of: evt
+            }
+          )
           #.data("live": true)
           # .on("click", "*:not(input,select)", ->
           #   if $(@).parent().data("live")
@@ -39,6 +43,13 @@ canvas_init = ->
 
         $(new_sn.html).appendTo($("#node-canvas"))
           .addClass("on-canvas")
+          .data("SoundNode", new_sn)
+          .data("live", true)
+          .position(
+            {
+              of: evt
+            }
+          )
           .draggable(
             {
               helper:"original",
@@ -74,7 +85,6 @@ canvas_init = ->
               greedy: true,
               tolerance:"pointer",
               drop: (evt, ui) ->
-                console.log("greedy")
                 if ui.draggable.hasClass("on-canvas")
                   w = ui.draggable
                 else
@@ -102,8 +112,6 @@ canvas_init = ->
                   )
             }
           )
-          .data("SoundNode", new_sn)
-          .data("live", true)
           .find(".wrappers").sortable(
             {
               stop: (evt, ui) ->

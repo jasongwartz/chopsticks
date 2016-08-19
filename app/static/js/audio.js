@@ -150,7 +150,6 @@ Instrument = (function() {
       Instrument.computeMaxFrequency();
     }
     minValue = 40;
-    console.log(Instrument.maxFrequency);
     numberOfOctaves = Math.log(Instrument.maxFrequency / minValue) / Math.LN2;
     mult = Math.pow(2, numberOfOctaves * (rate - 1.0));
     return Instrument.maxFrequency * mult;

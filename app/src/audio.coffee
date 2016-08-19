@@ -106,7 +106,6 @@ class Instrument
     # Source: http://www.html5rocks.com/en/tutorials/
     # webaudio/intro/js/filter-sample.js
     minValue = 40
-    console.log(Instrument.maxFrequency)
     #// Logarithm (base 2) to compute how many octaves fall in the range.
     numberOfOctaves = Math.log(Instrument.maxFrequency / minValue) / Math.LN2
     #// Compute a multiplier from 0 to 1 based on an exponential scale.

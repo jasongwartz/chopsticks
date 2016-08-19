@@ -14,17 +14,20 @@ canvas_init = function() {
     tolerance: "pointer",
     drop: function(evt, ui) {
       var new_sn, sn;
-      console.log("not greedy");
       if (ui.draggable.hasClass("on-canvas")) {
         return;
       }
       if (ui.draggable.hasClass("node-wrapper")) {
-        ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable().data("Wrapper", ui.draggable.data("Wrapper"));
+        ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable().data("Wrapper", ui.draggable.data("Wrapper")).position({
+          of: evt
+        });
       } else {
         sn = ui.draggable.data("SoundNode");
         new_sn = new SoundNode(sn.instrument);
         SoundNode.canvas_instances.push(new_sn);
-        $(new_sn.html).appendTo($("#node-canvas")).addClass("on-canvas").draggable({
+        $(new_sn.html).appendTo($("#node-canvas")).addClass("on-canvas").data("SoundNode", new_sn).data("live", true).position({
+          of: evt
+        }).draggable({
           helper: "original",
           scope: "canvas",
           distance: 15,
@@ -45,7 +48,6 @@ canvas_init = function() {
           tolerance: "pointer",
           drop: function(evt, ui) {
             var w;
-            console.log("greedy");
             if (ui.draggable.hasClass("on-canvas")) {
               w = ui.draggable;
             } else {
@@ -65,7 +67,7 @@ canvas_init = function() {
               }
             });
           }
-        }).data("SoundNode", new_sn).data("live", true).find(".wrappers").sortable({
+        }).find(".wrappers").sortable({
           stop: function(evt, ui) {}
         }).parent().find(".node-sample").on("click", function(e) {
           if ($(this).hasClass(".ui-draggable-dragging")) {
