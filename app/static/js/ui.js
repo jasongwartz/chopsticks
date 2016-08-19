@@ -6,6 +6,18 @@ Author: Jason Gwartz
  */
 var canvas_init, ui_init, update_beat_labels, xy_compute;
 
+$(document).ready(function() {
+  var ios;
+  ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (ios) {
+    return $("#ios-start").modal().on("hidden.bs.modal", function() {
+      return main();
+    });
+  } else {
+    return main();
+  }
+});
+
 canvas_init = function() {
   var glob;
   glob = this;

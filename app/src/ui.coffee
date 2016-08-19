@@ -3,6 +3,16 @@ Author: Jason Gwartz
 2016
 ###
 
+$(document).ready(->
+  ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+  if ios
+    $( "#ios-start" ).modal().on("hidden.bs.modal", ->
+      main()
+    )
+  else
+    main()
+)
+
 canvas_init = ->
 
   glob = @ # to pass global vars to evt listeners
