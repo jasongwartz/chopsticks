@@ -117,7 +117,7 @@ canvas_init = ->
       if not glob.playing
         # init playback on first node drop
         glob.playing = true
-        startPlayback(output_chain)
+        startPlayback()
   })
 
   # Drop node back on tray to disable
@@ -140,7 +140,10 @@ ui_init = ->
         helper:"clone"
       }
     )
-    .data("SoundNode", n) for n in SoundNode.tray_instances
+    .data("SoundNode", n)
+    .on("click", ->
+      $(@).data("SoundNode").instrument.tryout(context.currentTime)
+    ) for n in SoundNode.tray_instances
 
   # add wrappers to tray
   $(w.html).appendTo($("#wrapper-tray"))

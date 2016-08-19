@@ -7,13 +7,11 @@ Author: Jason Gwartz
 
 context = null
 analyser = null
-final_gain = null
 phrase = 1
 beat = 0
 bar = 1
 tempo = 500.0 # milliseconds per beat - 1000 = 60bpm
 playing = false
-output_chain = null
 
 # Class definitions
 
@@ -55,7 +53,11 @@ class Instrument
   @instances = []
   @maxFrequency =  null
 
-  constructor: (@name, @data) ->
+  constructor: (@name, @data, output) ->
+
+    if not Instrument.maxFrequency?
+      Instrument.computeMaxFrequency()
+
     Instrument.instances.push(this)
     @pattern = [] # array of beats
     
@@ -63,6 +65,9 @@ class Instrument
     @filter.type = 'lowpass'
     @filter.frequency.value = Instrument.maxFrequency
     @gain = context.createGain()
+
+    @filter.connect(@gain)
+    @gain.connect(output)
 
   load: ->
     if @data.beat_stretch?
@@ -77,9 +82,7 @@ class Instrument
     @pattern.push(b) if b not in @pattern
     # beat 1 - 16
   
-  play: (output_chain, time) ->
-    @filter.connect(@gain)
-    @gain.connect(output_chain)
+  play: (time) ->
     previous_buffer = null
     do (=>
       b = (i - 1) * tempo / 1000 + time
@@ -93,6 +96,9 @@ class Instrument
       previous_buffer = @sample.play(@filter, b)
     ) for i in @pattern
 
+  tryout: (time) ->
+    @sample.play(@filter, time)
+
   @reset: ->
     i.pattern = [] for i in Instrument.instances
 
@@ -101,8 +107,7 @@ class Instrument
   
     
   @compute_filter: (rate) ->
-    if not Instrument.maxFrequency?
-      Instrument.computeMaxFrequency()
+    
     # Source: http://www.html5rocks.com/en/tutorials/
     # webaudio/intro/js/filter-sample.js
     minValue = 40
@@ -168,12 +173,10 @@ class JGAnalyser
 
 # Core utility function definitions
 
-startPlayback = (output_chain) ->
+startPlayback = ->
   Instrument.reset()
   s.phrase_eval() for s in SoundNode.canvas_instances
-  instrument.play(
-    output_chain, context.currentTime
-  ) for instrument in Instrument.instances
+  instrument.play(context.currentTime) for instrument in Instrument.instances
     # this may be unnecessarily iterating over all instruments, not just live
 
   # change analyser colour back to black
@@ -209,7 +212,7 @@ startPlayback = (output_chain) ->
   # Timer to keep in loop
   # TODO: Inactive tab problem
   setTimeout(->
-    startPlayback(output_chain)
+    startPlayback()
   , tempo * 16)
     # TODO: very slight early jump on succeeding phrase
 
@@ -220,12 +223,30 @@ main = ->
 # is called by 'onload=', thus runs slightly after $("document").ready
 # TODO: on iOS, trigger main() from button instead of onload
   
+  window.AudioContext = window.AudioContext || window.webkitAudioContext
+  context = new AudioContext()
+
+  # sources go into output_chain for "master" manipulation
+  output_chain = context.createGain()
+  # after all "master" controls, final_gain goes to output
+  final_gain = context.createGain()
+  
+  # initiate the analyser
+  analyser = new JGAnalyser()
+  analyser.draw()
+
+  # Wire up the components
+  output_chain.connect(analyser.node)
+  analyser.node.connect(final_gain)
+  final_gain.connect(context.destination)
+
+
   # async load sample data from JSON
   $.getJSON("static/sampledata.json", (result) ->
     sample_data = result
 
     # Init all the Instrument and SoundNode objects
-    new Instrument(d, v) for d, v of sample_data
+    new Instrument(d, v, output_chain) for d, v of sample_data
     i.load() for i in Instrument.instances
     SoundNode.tray_instances.push(
       new SoundNode(i)
@@ -250,21 +271,4 @@ main = ->
 
     init_samples()
   )
-  
-  window.AudioContext = window.AudioContext || window.webkitAudioContext
-  context = new AudioContext()
-
-  # sources go into output_chain for "master" manipulation
-  output_chain = context.createGain()
-  # after all "master" controls, final_gain goes to output
-  final_gain = context.createGain()
-  
-  # initiate the analyser
-  analyser = new JGAnalyser()
-  analyser.draw()
-
-  # Wire up the components
-  output_chain.connect(analyser.node)
-  analyser.node.connect(final_gain)
-  final_gain.connect(context.destination)
 

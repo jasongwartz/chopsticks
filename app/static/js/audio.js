@@ -4,15 +4,13 @@
 Author: Jason Gwartz
 2016
  */
-var Instrument, JGAnalyser, LoadedSample, analyser, bar, beat, context, final_gain, main, output_chain, phrase, playing, startPlayback, tempo,
+var Instrument, JGAnalyser, LoadedSample, analyser, bar, beat, context, main, phrase, playing, startPlayback, tempo,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 context = null;
 
 analyser = null;
-
-final_gain = null;
 
 phrase = 1;
 
@@ -23,8 +21,6 @@ bar = 1;
 tempo = 500.0;
 
 playing = false;
-
-output_chain = null;
 
 LoadedSample = (function() {
   function LoadedSample(file, stretch) {
@@ -77,15 +73,20 @@ Instrument = (function() {
 
   Instrument.maxFrequency = null;
 
-  function Instrument(name, data) {
+  function Instrument(name, data, output) {
     this.name = name;
     this.data = data;
+    if (Instrument.maxFrequency == null) {
+      Instrument.computeMaxFrequency();
+    }
     Instrument.instances.push(this);
     this.pattern = [];
     this.filter = context.createBiquadFilter();
     this.filter.type = 'lowpass';
     this.filter.frequency.value = Instrument.maxFrequency;
     this.gain = context.createGain();
+    this.filter.connect(this.gain);
+    this.gain.connect(output);
   }
 
   Instrument.prototype.load = function() {
@@ -106,10 +107,8 @@ Instrument = (function() {
     }
   };
 
-  Instrument.prototype.play = function(output_chain, time) {
+  Instrument.prototype.play = function(time) {
     var i, j, len, previous_buffer, ref, results;
-    this.filter.connect(this.gain);
-    this.gain.connect(output_chain);
     previous_buffer = null;
     ref = this.pattern;
     results = [];
@@ -129,6 +128,10 @@ Instrument = (function() {
     return results;
   };
 
+  Instrument.prototype.tryout = function(time) {
+    return this.sample.play(this.filter, time);
+  };
+
   Instrument.reset = function() {
     var i, j, len, ref, results;
     ref = Instrument.instances;
@@ -146,9 +149,6 @@ Instrument = (function() {
 
   Instrument.compute_filter = function(rate) {
     var minValue, mult, numberOfOctaves;
-    if (Instrument.maxFrequency == null) {
-      Instrument.computeMaxFrequency();
-    }
     minValue = 40;
     numberOfOctaves = Math.log(Instrument.maxFrequency / minValue) / Math.LN2;
     mult = Math.pow(2, numberOfOctaves * (rate - 1.0));
@@ -204,7 +204,7 @@ JGAnalyser = (function() {
 
 })();
 
-startPlayback = function(output_chain) {
+startPlayback = function() {
   var beat_increment, instrument, j, k, len, len1, ref, ref1, s;
   Instrument.reset();
   ref = SoundNode.canvas_instances;
@@ -215,7 +215,7 @@ startPlayback = function(output_chain) {
   ref1 = Instrument.instances;
   for (k = 0, len1 = ref1.length; k < len1; k++) {
     instrument = ref1[k];
-    instrument.play(output_chain, context.currentTime);
+    instrument.play(context.currentTime);
   }
   analyser.canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
   setTimeout(function() {
@@ -243,17 +243,27 @@ startPlayback = function(output_chain) {
   };
   beat_increment();
   return setTimeout(function() {
-    return startPlayback(output_chain);
+    return startPlayback();
   }, tempo * 16);
 };
 
 main = function() {
-  $.getJSON("static/sampledata.json", function(result) {
+  var final_gain, output_chain;
+  window.AudioContext = window.AudioContext || window.webkitAudioContext;
+  context = new AudioContext();
+  output_chain = context.createGain();
+  final_gain = context.createGain();
+  analyser = new JGAnalyser();
+  analyser.draw();
+  output_chain.connect(analyser.node);
+  analyser.node.connect(final_gain);
+  final_gain.connect(context.destination);
+  return $.getJSON("static/sampledata.json", function(result) {
     var d, i, init_samples, j, k, len, len1, ref, ref1, sample_data, v;
     sample_data = result;
     for (d in sample_data) {
       v = sample_data[d];
-      new Instrument(d, v);
+      new Instrument(d, v, output_chain);
     }
     ref = Instrument.instances;
     for (j = 0, len = ref.length; j < len; j++) {
@@ -296,13 +306,4 @@ main = function() {
     };
     return init_samples();
   });
-  window.AudioContext = window.AudioContext || window.webkitAudioContext;
-  context = new AudioContext();
-  output_chain = context.createGain();
-  final_gain = context.createGain();
-  analyser = new JGAnalyser();
-  analyser.draw();
-  output_chain.connect(analyser.node);
-  analyser.node.connect(final_gain);
-  return final_gain.connect(context.destination);
 };

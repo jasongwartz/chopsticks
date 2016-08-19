@@ -78,7 +78,7 @@ canvas_init = function() {
       }
       if (!glob.playing) {
         glob.playing = true;
-        return startPlayback(output_chain);
+        return startPlayback();
       }
     }
   });
@@ -100,7 +100,9 @@ ui_init = function() {
     n = ref[j];
     $(n.html).appendTo($("#sn-tray")).draggable({
       helper: "clone"
-    }).data("SoundNode", n);
+    }).data("SoundNode", n).on("click", function() {
+      return $(this).data("SoundNode").instrument.tryout(context.currentTime);
+    });
   }
   ref1 = [new IfConditional(), new ForLoop()];
   results = [];
