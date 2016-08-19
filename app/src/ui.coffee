@@ -11,6 +11,16 @@ $(document).ready(->
     )
   else
     main()
+
+  document.addEventListener("visibilitychange", ->
+    # Uses the PageVisibility API
+    if not context?
+      return
+    if context.state is "running"
+      context.suspend()
+    else
+      context.resume()
+  )
 )
 
 canvas_init = ->

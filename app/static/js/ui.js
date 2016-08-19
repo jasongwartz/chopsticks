@@ -10,12 +10,22 @@ $(document).ready(function() {
   var ios;
   ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   if (ios) {
-    return $("#ios-start").modal().on("hidden.bs.modal", function() {
+    $("#ios-start").modal().on("hidden.bs.modal", function() {
       return main();
     });
   } else {
-    return main();
+    main();
   }
+  return document.addEventListener("visibilitychange", function() {
+    if (typeof context === "undefined" || context === null) {
+      return;
+    }
+    if (context.state === "running") {
+      return context.suspend();
+    } else {
+      return context.resume();
+    }
+  });
 });
 
 canvas_init = function() {
