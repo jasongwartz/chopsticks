@@ -23,7 +23,7 @@ class Wrapper
     catch TypeError
       return []
 
-  eval_input: (jq) -> # parameter is the corresponding jquery object
+  eval_input: (jq) -> # parameter is the corresponding jQuery object
     @check(
       jq.find("select").val(),
       jq.find("input").val(),

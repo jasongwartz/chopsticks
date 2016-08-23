@@ -4,7 +4,7 @@
 Author: Jason Gwartz
 2016
  */
-var Instrument, JGAnalyser, LoadedSample, analyser, bar, beat, beat_increment, context, main, phrase, playing, startPlayback, tempo,
+var Instrument, JGAnalyser, LoadedSample, analyser, bar, beat, beat_increment, context, main, phrase, startPlayback, tempo,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -19,8 +19,6 @@ beat = 0;
 bar = 1;
 
 tempo = 500.0;
-
-playing = false;
 
 LoadedSample = (function() {
   function LoadedSample(file, stretch) {

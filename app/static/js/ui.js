@@ -4,7 +4,7 @@
 Author: Jason Gwartz
 2016
  */
-var canvas_init, ui_init, update_beat_labels, xy_compute;
+var ui_init, update_beat_labels, xy_compute;
 
 $(document).ready(function() {
   var ios;
@@ -28,26 +28,46 @@ $(document).ready(function() {
   });
 });
 
-canvas_init = function() {
-  var glob;
-  glob = this;
+ui_init = function() {
+  var j, k, len, len1, n, playing, ref, ref1, w;
+  ref = SoundNode.tray_instances;
+  for (j = 0, len = ref.length; j < len; j++) {
+    n = ref[j];
+    $(n.html).appendTo($("#sn-tray")).draggable({
+      helper: "clone"
+    }).data("SoundNode", n).on("click", function() {
+      return $(this).data("SoundNode").instrument.tryout(context.currentTime);
+    });
+  }
+  ref1 = [new IfConditional(), new ForLoop()];
+  for (k = 0, len1 = ref1.length; k < len1; k++) {
+    w = ref1[k];
+    $(w.html).appendTo($("#wrapper-tray")).draggable({
+      helper: "clone"
+    }).data("Wrapper", w);
+  }
+  playing = false;
   $("#node-canvas").droppable({
     hoverClass: "node-canvas-hover",
     tolerance: "pointer",
     drop: function(evt, ui) {
       var new_sn, sn;
+      if (!playing) {
+        playing = true;
+        startPlayback();
+      }
       if (ui.draggable.hasClass("on-canvas")) {
         return;
       }
       if (ui.draggable.hasClass("node-wrapper")) {
-        ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable().data("Wrapper", ui.draggable.data("Wrapper")).position({
+        return ui.draggable.clone().appendTo("#node-canvas").addClass("on-canvas").draggable().data("Wrapper", ui.draggable.data("Wrapper")).position({
           of: evt
         });
       } else {
         sn = ui.draggable.data("SoundNode");
         new_sn = new SoundNode(sn.instrument);
         SoundNode.canvas_instances.push(new_sn);
-        $(new_sn.html).appendTo($("#node-canvas")).addClass("on-canvas").data("SoundNode", new_sn).data("live", true).position({
+        return $(new_sn.html).appendTo($("#node-canvas")).addClass("on-canvas").data("SoundNode", new_sn).data("live", true).position({
           of: evt
         }).each(function() {
           return xy_compute(this);
@@ -81,7 +101,6 @@ canvas_init = function() {
           greedy: true,
           tolerance: "pointer",
           drop: function(evt, ui) {
-            var w;
             if (ui.draggable.hasClass("on-canvas")) {
               w = ui.draggable;
             } else {
@@ -105,43 +124,14 @@ canvas_init = function() {
           stop: function(evt, ui) {}
         });
       }
-      if (!glob.playing) {
-        glob.playing = true;
-        return startPlayback();
-      }
     }
   });
   return $("#node-tray").droppable({
     scope: "canvas",
     drop: function(evt, ui) {
-      var sn;
-      sn = ui.draggable.find(".node-sample").data("SoundNode");
       return ui.draggable.remove();
     }
   });
-};
-
-ui_init = function() {
-  var j, k, len, len1, n, ref, ref1, results, w;
-  canvas_init();
-  ref = SoundNode.tray_instances;
-  for (j = 0, len = ref.length; j < len; j++) {
-    n = ref[j];
-    $(n.html).appendTo($("#sn-tray")).draggable({
-      helper: "clone"
-    }).data("SoundNode", n).on("click", function() {
-      return $(this).data("SoundNode").instrument.tryout(context.currentTime);
-    });
-  }
-  ref1 = [new IfConditional(), new ForLoop()];
-  results = [];
-  for (k = 0, len1 = ref1.length; k < len1; k++) {
-    w = ref1[k];
-    results.push($(w.html).appendTo($("#wrapper-tray")).draggable({
-      helper: "clone"
-    }).data("Wrapper", w));
-  }
-  return results;
 };
 
 xy_compute = function(t) {

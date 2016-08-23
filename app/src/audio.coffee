@@ -11,7 +11,6 @@ phrase = 1
 beat = 0
 bar = 1
 tempo = 500.0 # milliseconds per beat - 1000 = 60bpm
-playing = false
 
 # Class definitions
 
