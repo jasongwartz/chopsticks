@@ -60,8 +60,22 @@ canvas_init = function() {
           },
           stop: function(evt, ui) {
             return $(evt.toElement).one('click', function(e) {
+              console.log("stop" + e.target);
               return e.stopImmediatePropagation();
             });
+          }
+        }).on("click", function(e) {
+          var ns;
+          if ($(e.target).hasClass("node-sample-container")) {
+            return;
+          }
+          ns = $(this).find(".node-sample");
+          if ($(this).data("live")) {
+            ns.addClass("node-disabled");
+            return $(this).data("live", false);
+          } else {
+            ns.removeClass("node-disabled");
+            return $(this).data("live", true);
           }
         }).droppable({
           accept: ".node-wrapper",
@@ -90,15 +104,6 @@ canvas_init = function() {
           }
         }).find(".wrappers").sortable({
           stop: function(evt, ui) {}
-        }).parent().find(".node-sample").on("click", function(e) {
-          if ($(this).hasClass(".ui-draggable-dragging")) {
-            return;
-          }
-          if ($(this).parent().data("live")) {
-            return $(this).addClass("node-disabled").parent().data("live", false);
-          } else {
-            return $(this).removeClass("node-disabled").parent().data("live", true);
-          }
         });
       }
       if (!glob.playing) {

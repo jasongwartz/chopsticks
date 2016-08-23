@@ -84,9 +84,21 @@ canvas_init = ->
             # source: http://stackoverflow.com/questions/3486760/
             # how-to-avoid-jquery-ui-draggable-from-also-triggering-click-event
                 $(evt.toElement).one('click', (e) ->
+                  console.log("stop" + e.target)
                   e.stopImmediatePropagation()
                 )
             }
+          )
+          .on("click", (e) ->
+            if $(e.target).hasClass("node-sample-container")
+              return
+            ns = $(@).find(".node-sample")
+            if $(@).data("live")
+              ns.addClass("node-disabled")
+              $(@).data("live", false)
+            else
+              ns.removeClass("node-disabled")
+              $(@).data("live", true)
           )
           .droppable(
             {
@@ -127,16 +139,6 @@ canvas_init = ->
                 # done sorting
             }
           )
-          .parent().find(".node-sample").on("click", (e) ->
-            if $(@).hasClass(".ui-draggable-dragging")
-              return # this doesn't solve the issue
-            if $(@).parent().data("live")
-              $(@).addClass("node-disabled")
-                .parent().data("live", false)
-            else
-              $(@).removeClass("node-disabled")
-                .parent().data("live", true)
-            )
             
       if not glob.playing
         # init playback on first node drop
