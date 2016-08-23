@@ -260,13 +260,15 @@ main = ->
         if not i.is_loaded()
           ready = false
       if not ready
+        $('#samples-loading').modal('show')
         console.log("Still loading: " + (
           " " + i.name for i in Instrument.instances when not i.is_loaded()
           )
         )
-        setTimeout(init_samples, 100)
+        setTimeout(init_samples, 1000)
       else
         console.log("All samples loaded.")
+        $('#samples-loading').modal('hide')
 
     init_samples()
   )

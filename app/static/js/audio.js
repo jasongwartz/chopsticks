@@ -296,6 +296,7 @@ main = function() {
         }
       }
       if (!ready) {
+        $('#samples-loading').modal('show');
         console.log("Still loading: " + ((function() {
           var len3, m, ref3, results;
           ref3 = Instrument.instances;
@@ -308,9 +309,10 @@ main = function() {
           }
           return results;
         })()));
-        return setTimeout(init_samples, 100);
+        return setTimeout(init_samples, 1000);
       } else {
-        return console.log("All samples loaded.");
+        console.log("All samples loaded.");
+        return $('#samples-loading').modal('hide');
       }
     };
     return init_samples();
