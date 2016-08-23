@@ -84,13 +84,12 @@ canvas_init = ->
             # source: http://stackoverflow.com/questions/3486760/
             # how-to-avoid-jquery-ui-draggable-from-also-triggering-click-event
                 $(evt.toElement).one('click', (e) ->
-                  console.log("stop" + e.target)
                   e.stopImmediatePropagation()
                 )
             }
           )
           .on("click", (e) ->
-            if $(e.target).hasClass("node-sample-container")
+            if not $(e.target).hasClass("node-toggle")
               return
             ns = $(@).find(".node-sample")
             if $(@).data("live")

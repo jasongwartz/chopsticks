@@ -60,13 +60,12 @@ canvas_init = function() {
           },
           stop: function(evt, ui) {
             return $(evt.toElement).one('click', function(e) {
-              console.log("stop" + e.target);
               return e.stopImmediatePropagation();
             });
           }
         }).on("click", function(e) {
           var ns;
-          if ($(e.target).hasClass("node-sample-container")) {
+          if (!$(e.target).hasClass("node-toggle")) {
             return;
           }
           ns = $(this).find(".node-sample");

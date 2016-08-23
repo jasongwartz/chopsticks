@@ -95,8 +95,8 @@ class SoundNode
         panel panel-default" id="#{ @id }-container">
       <div class="wrappers">
       </div>
-      <div class="node node-sample panel-footer" id="#{ @id }">
-        <div class=" sn-node-title">#{ @id }</div>
+      <div class="node node-sample panel-footer node-toggle" id="#{ @id }">
+        <div class=" sn-node-title node-toggle">#{ @id }</div>
       </div>
       </div>
       

@@ -26,7 +26,6 @@ class LoadedSample
     request.responseType = 'arraybuffer'
 
     request.onload = =>
-    # TODO: P1: samples don't load from remote server in safari, 40% in chrome
       @data = request.response
       context.decodeAudioData(@data, (decoded) =>
         @decoded = decoded # @decoded is of type AudioBuffer
@@ -44,7 +43,6 @@ class LoadedSample
         @decoded.duration / (tempo/1000 * @stretch)
       else
         1
-        # TODO: trim samples so they dont play overthemselves = intereference
     source.connect(output)
     source.start(n)
     return [n, source]
@@ -196,11 +194,9 @@ startPlayback = ->
   , (tempo * 16 - tempo * 2))
 
   # Timer to keep in loop
-  # TODO: Inactive tab problem
   setTimeout(->
     startPlayback()
   , tempo * 16)
-    # TODO: very slight early jump on succeeding phrase
 
 beat_increment = ->
   # only set time-out within a bar
@@ -226,9 +222,6 @@ beat_increment = ->
 # Preloader function definitions
 
 main = ->
-# is called by 'onload=', thus runs slightly after $("document").ready
-# TODO: on iOS, trigger main() from button instead of onload
-  
   window.AudioContext = window.AudioContext || window.webkitAudioContext
   context = new AudioContext()
 
