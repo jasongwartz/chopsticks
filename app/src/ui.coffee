@@ -80,8 +80,12 @@ canvas_init = ->
               distance: 15
               drag: (evt, ui) ->
                 xy_compute(@)
-              start: (evt, ui) ->
               stop: (evt, ui) ->
+            # source: http://stackoverflow.com/questions/3486760/
+            # how-to-avoid-jquery-ui-draggable-from-also-triggering-click-event
+                $(evt.toElement).one('click', (e) ->
+                  e.stopImmediatePropagation()
+                )
             }
           )
           .droppable(

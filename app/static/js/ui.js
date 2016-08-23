@@ -58,8 +58,11 @@ canvas_init = function() {
           drag: function(evt, ui) {
             return xy_compute(this);
           },
-          start: function(evt, ui) {},
-          stop: function(evt, ui) {}
+          stop: function(evt, ui) {
+            return $(evt.toElement).one('click', function(e) {
+              return e.stopImmediatePropagation();
+            });
+          }
         }).droppable({
           accept: ".node-wrapper",
           greedy: true,
