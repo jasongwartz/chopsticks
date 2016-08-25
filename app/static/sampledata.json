@@ -2,8 +2,17 @@
     "bass_drum": {
       "file": "static/samples/drum_bass_hard.wav"
     },
+    "bd_haus": {
+      "file": "static/samples/bd_haus.wav"
+    },
     "snare_drum": {
       "file": "static/samples/drum_snare_hard.wav"
+    },
+    "elec_mid_snare": {
+      "file": "static/samples/elec_mid_snare.wav"
+    },
+    "sn_dolf": {
+      "file": "static/samples/sn_dolf.wav"
     },
     "hi_hat": {
       "file": "static/samples/drum_cymbal_closed.wav"    
@@ -19,10 +28,19 @@
   "bass_woodsy_c": {
       "file": "static/samples/bass_woodsy_c.wav"
   },
+  "bass_drop_c": {
+      "file": "static/samples/bass_drop_c.wav"
+  },
   "bass_dnb_f": {
       "file": "static/samples/bass_dnb_f.wav"
   },
   "guit_em9": {
       "file": "static/samples/guit_em9.wav"
+  },
+  "ambi_choir": {
+      "file": "static/samples/ambi_choir.wav"
+  },
+  "ambi_piano": {
+      "file": "static/samples/ambi_piano.wav"
   }
 }
