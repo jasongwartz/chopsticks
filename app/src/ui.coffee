@@ -81,15 +81,6 @@ ui_init = ->
                 of: evt
               }
             )
-            #.data("live": true)
-            # .on("click", "*:not(input,select)", ->
-            #   if $(@).parent().data("live")
-            #     $(@).parent().addClass("node-disabled")
-            #       .data("live", false)
-            #   else
-            #     $(@).parent().removeClass("node-disabled")
-            #       .data("live", true)
-            #   )
             
         else # code path for Sound Nodes
           # adding a new sound node to the canvas
@@ -115,6 +106,7 @@ ui_init = ->
                 scope:"canvas",
                 distance: 15
                 drag: (evt, ui) ->
+                # implemented only for one instance of a SoundNode at a time
                   xy_compute(@)
                 stop: (evt, ui) ->
                   $(evt.toElement).one('click', (e) ->
