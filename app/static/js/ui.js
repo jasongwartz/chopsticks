@@ -8,6 +8,9 @@ var ui_init, update_beat_labels, xy_compute;
 
 $(document).ready(function() {
   var ios;
+  if (/Safari/.test(navigator.userAgent)) {
+    true;
+  }
   ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   if (ios) {
     $("#ios-start").modal().on("hidden.bs.modal", function() {

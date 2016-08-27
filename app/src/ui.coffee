@@ -6,6 +6,10 @@ Author: Jason Gwartz
 # Page-load UI code
 
 $(document).ready(->
+
+  if /Safari/.test(navigator.userAgent)
+    true # TODO: figure out way to handle refresh-needed bug
+
   ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
   if ios
     $( "#ios-start" ).modal().on("hidden.bs.modal", ->
