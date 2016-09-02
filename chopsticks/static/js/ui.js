@@ -121,7 +121,9 @@ ui_init = function() {
               } else {
                 return $(this).parent().removeClass("node-disabled").data("live", true);
               }
-            }).find("input").off();
+            }).on("click", "input", function() {
+              return $(this).focus();
+            });
           }
         }).find(".wrappers").sortable({
           stop: function(evt, ui) {}
