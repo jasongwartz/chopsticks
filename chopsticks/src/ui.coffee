@@ -162,7 +162,7 @@ ui_init = ->
                         $(@).parent().removeClass("node-disabled")
                           .data("live", true)
                     )
-                    .find("select").off()
+                    .find("input").off()
               }
             )
             .find(".wrappers").sortable(

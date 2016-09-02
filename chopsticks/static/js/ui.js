@@ -121,7 +121,7 @@ ui_init = function() {
               } else {
                 return $(this).parent().removeClass("node-disabled").data("live", true);
               }
-            }).find("select").off();
+            }).find("input").off();
           }
         }).find(".wrappers").sortable({
           stop: function(evt, ui) {}
