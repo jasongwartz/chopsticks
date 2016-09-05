@@ -223,7 +223,7 @@ SoundNode = (function() {
   };
 
   SoundNode.prototype.eval_beat_node = function(node, index, start_beat) {
-    var bar, beat, corrected_beat, i, j, k, l, len, len1, len2, len3, len4, m, n, new_beats, o, q, r, ref, ref1, ref10, ref11, ref12, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, s, t;
+    var bar, beat, corrected_beat, i, j, k, l, len, len1, len2, len3, len4, m, n, new_beats, o, q, r, ref, ref1, ref10, ref11, ref12, ref13, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, s, t;
     if (start_beat == null) {
       start_beat = 1;
     }
@@ -231,7 +231,7 @@ SoundNode = (function() {
       case "if":
         if (this.playing_beats.length !== 0) {
           new_beats = [];
-          ref = node.input;
+          ref = this.playing_beats;
           for (j = 0, len = ref.length; j < len; j++) {
             i = ref[j];
             corrected_beat = (function(i) {
@@ -240,17 +240,18 @@ SoundNode = (function() {
               } else {
                 return 4;
               }
-              if (indexOf.call(node.input, corrected_beat) >= 0) {
-                new_beats.push(i);
-              }
-              return this.playing_beats = new_beats;
             })(i);
+            console.log(i + ": " + corrected_beat);
+            if (ref1 = corrected_beat % 4, indexOf.call(node.input, ref1) >= 0) {
+              new_beats.push(i);
+            }
+            this.playing_beats = new_beats;
           }
         } else {
           for (bar = k = 1; k <= 4; bar = ++k) {
-            ref1 = node.input;
-            for (l = 0, len1 = ref1.length; l < len1; l++) {
-              beat = ref1[l];
+            ref2 = node.input;
+            for (l = 0, len1 = ref2.length; l < len1; l++) {
+              beat = ref2[l];
               this.playing_beats.push(beat + (bar - 1) * 4);
             }
           }
@@ -258,34 +259,34 @@ SoundNode = (function() {
         break;
       case "for":
         if (this.playing_beats.length !== 0) {
-          ref2 = this.playing_beats;
-          for (m = 0, len2 = ref2.length; m < len2; m++) {
-            start_beat = ref2[m];
+          ref3 = this.playing_beats;
+          for (m = 0, len2 = ref3.length; m < len2; m++) {
+            start_beat = ref3[m];
             if (this.playing_bars.length !== 0) {
-              ref3 = this.playing_bars;
-              for (n = 0, len3 = ref3.length; n < len3; n++) {
-                bar = ref3[n];
-                for (beat = o = ref4 = start_beat, ref5 = start_beat + node.input[0]; ref4 <= ref5 ? o < ref5 : o > ref5; beat = ref4 <= ref5 ? ++o : --o) {
+              ref4 = this.playing_bars;
+              for (n = 0, len3 = ref4.length; n < len3; n++) {
+                bar = ref4[n];
+                for (beat = o = ref5 = start_beat, ref6 = start_beat + node.input[0]; ref5 <= ref6 ? o < ref6 : o > ref6; beat = ref5 <= ref6 ? ++o : --o) {
                   this.playing_beats.push(beat + (bar - 1) * 4);
                 }
               }
             } else {
-              for (i = q = ref6 = start_beat, ref7 = start_beat + node.input[0]; ref6 <= ref7 ? q < ref7 : q > ref7; i = ref6 <= ref7 ? ++q : --q) {
+              for (i = q = ref7 = start_beat, ref8 = start_beat + node.input[0]; ref7 <= ref8 ? q < ref8 : q > ref8; i = ref7 <= ref8 ? ++q : --q) {
                 this.playing_beats.push(i);
               }
             }
           }
         } else {
           if (this.playing_bars.length !== 0) {
-            ref8 = this.playing_bars;
-            for (r = 0, len4 = ref8.length; r < len4; r++) {
-              bar = ref8[r];
-              for (beat = s = ref9 = start_beat, ref10 = start_beat + node.input[0]; ref9 <= ref10 ? s < ref10 : s > ref10; beat = ref9 <= ref10 ? ++s : --s) {
+            ref9 = this.playing_bars;
+            for (r = 0, len4 = ref9.length; r < len4; r++) {
+              bar = ref9[r];
+              for (beat = s = ref10 = start_beat, ref11 = start_beat + node.input[0]; ref10 <= ref11 ? s < ref11 : s > ref11; beat = ref10 <= ref11 ? ++s : --s) {
                 this.playing_beats.push(beat + (bar - 1) * 4);
               }
             }
           } else {
-            for (i = t = ref11 = start_beat, ref12 = start_beat + node.input[0]; ref11 <= ref12 ? t < ref12 : t > ref12; i = ref11 <= ref12 ? ++t : --t) {
+            for (i = t = ref12 = start_beat, ref13 = start_beat + node.input[0]; ref12 <= ref13 ? t < ref13 : t > ref13; i = ref12 <= ref13 ? ++t : --t) {
               this.playing_beats.push(i);
             }
           }

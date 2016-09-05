@@ -170,15 +170,17 @@ class SoundNode
       when "if"
         if @playing_beats.length != 0
           new_beats = []
-          for i in node.input #@playing_beats
+          for i in @playing_beats #@playing_beats
             corrected_beat = do (i) ->
+              # corrects for 0-base numbers in a 4-beat system
               if i % 4 > 0
                 return i % 4
               else
                 return 4
-              new_beats.push(i) if corrected_beat in node.input
-              # if beats already added match this node's condition
-              @playing_beats = new_beats
+            console.log(i + ": " + corrected_beat)
+            new_beats.push(i) if corrected_beat % 4 in node.input
+            # if beats already added match this node's condition
+            @playing_beats = new_beats
         else
           @playing_beats.push(
             beat + (bar - 1) * 4
