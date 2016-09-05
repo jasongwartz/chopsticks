@@ -100,6 +100,9 @@ Instrument = (function() {
   };
 
   Instrument.prototype.add = function(b) {
+    this.pattern.sort(function(a, b) {
+      return a - b;
+    });
     if (indexOf.call(this.pattern, b) < 0) {
       return this.pattern.push(b);
     }

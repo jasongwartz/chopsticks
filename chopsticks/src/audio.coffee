@@ -76,6 +76,9 @@ class Instrument
     return @sample.decoded? # Check if not undefined/null
 
   add: (b) -> # playSound
+    @pattern.sort( (a, b) ->
+      return a - b
+    )
     @pattern.push(b) if b not in @pattern
     # beat 1 - 16
   
