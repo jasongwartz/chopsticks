@@ -1,6 +1,6 @@
 # Sample License Information
 
-The samples in this directory are copied from the [Sonic Pi sample library](https://github.com/samaaron/sonic-pi/tree/master/etc/samples), originally from [freesound.org](http://www.freesound.org). The original samples are distributed under the [Creative Commons 0 license](http://creativecommons.org/publicdomain/zero/1.0/).
+The samples in this directory are copied from the [Sonic Pi sample library](https://github.com/samaaron/sonic-pi/tree/master/etc/samples), originally from [freesound.org](http://www.freesound.org). The original samples are distributed under the [Creative Commons 0 license](http://creativecommons.org/publicdomain/zero/1.0/), and permission has been given for use of the Sonic Pi edited samples.
 
 The following sounds are currently included:
 
