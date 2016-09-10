@@ -2,7 +2,9 @@
 
 ## About
 
-"Chopsticks!" is a graphical programming language for live coding music, running entirely in the browser. Inspired by Scratch, Sonic Pi, and reacTable, you can use "Chopsticks!" to combine samples and make complex beats or entire songs. Schedule when the audio samples will play using "if" conditionals and "for" loops, and rearrange nodes on the canvas to change gain and filter.
+"Chopsticks!" is a graphical programming language for live coding music, running entirely in the browser. Inspired by Scratch, Sonic Pi, ChucK, and the reacTable, you can use "Chopsticks!" to combine samples and make complex beats or entire songs. Schedule when the audio samples will play using "if" conditionals and "for" loops, and rearrange nodes on the canvas to change gain and filter.
+
+![A screenshot of Chopsticks!](screenshot.png)
 
 ## Building and Deploying
 
