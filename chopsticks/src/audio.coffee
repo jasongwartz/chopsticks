@@ -19,18 +19,22 @@ class LoadedSample
     # loaded into memory and decoded (ie. are ready to be played)
 
   constructor: (@file, @stretch = null) ->
+    return if not @file? # Uploaded sample - skip to decode
 
     request = new XMLHttpRequest()
     request.open('GET', @file, true)
     request.responseType = 'arraybuffer'
 
     request.onload = =>
-      @data = request.response
-      context.decodeAudioData(@data, (decoded) =>
-        @decoded = decoded # @decoded is of type AudioBuffer
-      , (e) ->
-        console.log("Error loading:" + @file + e))
+      @decode(request.response)
     request.send()
+
+  decode: (data_in) ->
+    context.decodeAudioData(data_in, (decoded) =>
+      @decoded = decoded # @decoded is of type AudioBuffer
+    , (e) ->
+      console.log("Error loading:" + @file + e))
+
 
   play: (output, n) ->
     if isNaN(n)
@@ -39,7 +43,7 @@ class LoadedSample
     source.buffer = @decoded
     source.playbackRate.value = do =>
       if @stretch?
-        @decoded.duration / (tempo/1000 * @stretch)
+        @decoded.duration / (tempo / 1000 * @stretch)
       else
         1
     source.connect(output)
@@ -167,14 +171,14 @@ class JGAnalyser
 
     for i in [0...@bufferLength]
       v = @dataArray[i] / 128.0
-      y = v * @HEIGHT/2
+      y = v * @HEIGHT / 2
 
       if i == 0
         @canvasCtx.moveTo(x, y)
       else
         @canvasCtx.lineTo(x, y)
       x += sliceWidth
-    @canvasCtx.lineTo(@canvas.width, @canvas.height/2)
+    @canvasCtx.lineTo(@canvas.width, @canvas.height / 2)
     @canvasCtx.stroke()
 
 # Core utility function definitions

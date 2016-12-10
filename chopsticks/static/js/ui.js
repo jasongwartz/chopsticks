@@ -4,7 +4,7 @@
 Author: Jason Gwartz
 2016
  */
-var ui_init, update_beat_labels, xy_compute;
+var init_soundnode, ui_init, update_beat_labels, upload_sample, xy_compute;
 
 $(document).ready(function() {
   var ios;
@@ -31,16 +31,36 @@ $(document).ready(function() {
   });
 });
 
+init_soundnode = function(n) {
+  $(n.html).appendTo((function() {
+    var category_tray;
+    category_tray = $("#sn-" + n.category);
+    if (category_tray.length) {
+      return category_tray;
+    } else {
+      $("<h3 class=\"accordion-category\">" + n.category + "</h3>").appendTo($("#sn-accordion"));
+      return $("<div id=sn-" + n.category + "></div>").appendTo($("#sn-accordion"));
+    }
+  })()).draggable({
+    helper: "clone"
+  }).data("SoundNode", n).on("click", function() {
+    return $(this).data("SoundNode").instrument.tryout(context.currentTime);
+  });
+  return $("#sn-accordion").accordion("refresh");
+};
+
 ui_init = function() {
   var j, k, len, len1, n, playing, ref, ref1, w;
+  $("#sn-accordion").accordion({
+    heightStyle: "content",
+    animate: 100,
+    collapsible: true,
+    active: false
+  });
   ref = SoundNode.tray_instances;
   for (j = 0, len = ref.length; j < len; j++) {
     n = ref[j];
-    $(n.html).appendTo($("#sn-tray")).draggable({
-      helper: "clone"
-    }).data("SoundNode", n).on("click", function() {
-      return $(this).data("SoundNode").instrument.tryout(context.currentTime);
-    });
+    init_soundnode(n);
   }
   ref1 = [new IfConditional(), new ForLoop()];
   for (k = 0, len1 = ref1.length; k < len1; k++) {
@@ -147,6 +167,23 @@ xy_compute = function(t) {
   lpf = Instrument.compute_filter(sn.offset().left / canvas.width());
   $(t).data().SoundNode.instrument.gain.gain.value = gain;
   return $(t).data().SoundNode.instrument.filter.frequency.value = lpf;
+};
+
+upload_sample = function(fp_list) {
+  var reader, uploaded;
+  uploaded = new Instrument(fp_list[0].name.split(".")[0], {
+    "category": "Uploaded"
+  }, Instrument.instances[0].gain.context.destination);
+  uploaded.sample = new LoadedSample();
+  reader = new FileReader();
+  reader.onload = function(file) {
+    var sn;
+    uploaded.sample.decode(file.target.result);
+    sn = new SoundNode(uploaded);
+    init_soundnode(sn);
+    return SoundNode.tray_instances.push(sn);
+  };
+  return reader.readAsArrayBuffer(fp_list[0]);
 };
 
 update_beat_labels = function() {

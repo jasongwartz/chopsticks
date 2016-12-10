@@ -74,6 +74,8 @@ class SoundNode
   @tray_instances = []
   @canvas_instances = []
   constructor: (@instrument) ->
+    @category = @instrument.data.category
+
     node_number = (
       i for i in SoundNode.canvas_instances when i.instrument is @instrument
       ).length + 1
@@ -177,7 +179,6 @@ class SoundNode
                 return i % 4
               else
                 return 4
-            console.log(i + ": " + corrected_beat)
             new_beats.push(i) if corrected_beat % 4 in node.input
             # if beats already added match this node's condition
             @playing_beats = new_beats

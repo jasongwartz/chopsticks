@@ -25,21 +25,29 @@ LoadedSample = (function() {
     var request;
     this.file = file;
     this.stretch = stretch != null ? stretch : null;
+    if (this.file == null) {
+      return;
+    }
     request = new XMLHttpRequest();
     request.open('GET', this.file, true);
     request.responseType = 'arraybuffer';
     request.onload = (function(_this) {
       return function() {
-        _this.data = request.response;
-        return context.decodeAudioData(_this.data, function(decoded) {
-          return _this.decoded = decoded;
-        }, function(e) {
-          return console.log("Error loading:" + this.file + e);
-        });
+        return _this.decode(request.response);
       };
     })(this);
     request.send();
   }
+
+  LoadedSample.prototype.decode = function(data_in) {
+    return context.decodeAudioData(data_in, (function(_this) {
+      return function(decoded) {
+        return _this.decoded = decoded;
+      };
+    })(this), function(e) {
+      return console.log("Error loading:" + this.file + e);
+    });
+  };
 
   LoadedSample.prototype.play = function(output, n) {
     var source;

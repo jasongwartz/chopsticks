@@ -102,6 +102,7 @@ SoundNode = (function() {
   function SoundNode(instrument) {
     var i, node_number;
     this.instrument = instrument;
+    this.category = this.instrument.data.category;
     node_number = ((function() {
       var j, len, ref, results;
       ref = SoundNode.canvas_instances;
@@ -241,7 +242,6 @@ SoundNode = (function() {
                 return 4;
               }
             })(i);
-            console.log(i + ": " + corrected_beat);
             if (ref1 = corrected_beat % 4, indexOf.call(node.input, ref1) >= 0) {
               new_beats.push(i);
             }

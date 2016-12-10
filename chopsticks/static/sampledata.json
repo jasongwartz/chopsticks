@@ -1,46 +1,70 @@
 {
     "bass_drum": {
-      "file": "static/samples/drum_bass_hard.wav"
+        "file": "static/samples/drum_bass_hard.wav",
+        "category": "Drums"
     },
     "bd_haus": {
-      "file": "static/samples/bd_haus.wav"
+        "file": "static/samples/bd_haus.wav",
+        "category": "Drums"
     },
     "snare_drum": {
-      "file": "static/samples/drum_snare_hard.wav"
+        "file": "static/samples/drum_snare_hard.wav",
+        "category": "Drums"
     },
     "elec_mid_snare": {
-      "file": "static/samples/elec_mid_snare.wav"
+        "file": "static/samples/elec_mid_snare.wav",
+        "category": "Drums"
     },
     "sn_dolf": {
-      "file": "static/samples/sn_dolf.wav"
+        "file": "static/samples/sn_dolf.wav",
+        "category": "Drums"
     },
     "hi_hat": {
-      "file": "static/samples/drum_cymbal_closed.wav"    
-  },
-  "amen_loop": {
-      "file": "static/samples/loop_amen.wav",
-      "beat_stretch": 4
-  },
-  "industrial_loop": {
-      "file": "static/samples/loop_industrial.wav",
-      "beat_stretch": 2
-  },
-  "bass_woodsy_c": {
-      "file": "static/samples/bass_woodsy_c.wav"
-  },
-  "bass_drop_c": {
-      "file": "static/samples/bass_drop_c.wav"
-  },
-  "bass_dnb_f": {
-      "file": "static/samples/bass_dnb_f.wav"
-  },
-  "guit_em9": {
-      "file": "static/samples/guit_em9.wav"
-  },
-  "ambi_choir": {
-      "file": "static/samples/ambi_choir.wav"
-  },
-  "ambi_piano": {
-      "file": "static/samples/ambi_piano.wav"
-  }
+        "file": "static/samples/drum_cymbal_closed.wav",
+        "category": "Drums"
+    },
+    "amen_loop": {
+        "file": "static/samples/loop_amen.wav",
+        "beat_stretch": 4,
+        "category": "DrumLoops"
+    },
+    "industrial_loop": {
+        "file": "static/samples/loop_industrial.wav",
+        "beat_stretch": 2,
+        "category": "DrumLoops"
+    },
+    "bass_woodsy_c": {
+        "file": "static/samples/bass_woodsy_c.wav",
+        "category": "Bass"
+    },
+    "bass_drop_c": {
+        "file": "static/samples/bass_drop_c.wav",
+        "category": "Bass"
+    },
+    "bass_dnb_f": {
+        "file": "static/samples/bass_dnb_f.wav",
+        "category": "Bass"
+    },
+    "guit_em9": {
+        "file": "static/samples/guit_em9.wav",
+        "category": "Guitar"
+    },
+    "ambi_choir": {
+        "file": "static/samples/ambi_choir.wav",
+        "category": "Ambient"
+    },
+    "ambi_piano": {
+        "file": "static/samples/ambi_piano.wav",
+        "category": "Ambient"
+    },
+    "piano_riff_slow": {
+        "file": "static/samples/piano_desc_riff.wav",
+        "category": "Ambient",
+        "beat_stretch": 16
+    },
+    "piano_riff_fast": {
+        "file": "static/samples/piano_desc_riff.wav",
+        "category": "Ambient",
+        "beat_stretch": 8
+    }
 }

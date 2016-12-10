@@ -17,3 +17,4 @@ The following sounds are currently included:
 - sn_dolf - http://freesound.org/people/Dolfeus/sounds/57534/
 - loop_industrial - http://freesound.org/people/godspine/sounds/222072/
 - loop_amen - http://freesound.org/people/Dolfeus/sounds/43389/
+- piano\_riff - http://www.freesound.org/people/-zin-/sounds/32158/

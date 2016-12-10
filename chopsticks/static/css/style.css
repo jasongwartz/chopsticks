@@ -32,6 +32,10 @@
       font-size: 1rem;
     }
 
+    .accordion-category {
+      border: 1px solid lightgrey;
+    }
+
     .input-xs {
     height: 22px;
     padding: 2px 5px;

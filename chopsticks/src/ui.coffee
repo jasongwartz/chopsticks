@@ -34,9 +34,18 @@ $(document).ready(->
 #   and sets up the canvas with necessary listeners and events,
 #   defines behavior for all interactions between nodes
 
-ui_init = ->
-  # add sound nodes to tray
-  $(n.html).appendTo($("#sn-tray"))
+init_soundnode = (n) ->
+  $(n.html).appendTo( do ->
+    category_tray = $("#sn-#{ n.category }")
+
+    if category_tray.length
+      return category_tray
+    else
+      $("<h3 class=\"accordion-category\">#{ n.category }</h3>")
+        .appendTo($("#sn-accordion"))
+      return $("<div id=sn-#{ n.category }></div>")
+        .appendTo($("#sn-accordion"))
+  )
     .draggable(
       {
         helper:"clone"
@@ -45,8 +54,22 @@ ui_init = ->
     .data("SoundNode", n)
     .on("click", ->
       $(@).data("SoundNode").instrument.tryout(context.currentTime)
-    ) for n in SoundNode.tray_instances
+    )
+  $("#sn-accordion").accordion("refresh")
 
+ui_init = ->
+
+  # Activate the accordion for the SoundNode objects in the tray
+  $("#sn-accordion").accordion({
+    heightStyle: "content",
+    animate: 100,
+    collapsible: true,
+    active: false,
+  })
+
+  # add sound nodes to tray
+  init_soundnode(n) for n in SoundNode.tray_instances
+  
   # add wrappers to tray
   $(w.html).appendTo($("#wrapper-tray"))
     .draggable(
@@ -211,6 +234,27 @@ xy_compute = (t) ->
   $(t).data()
     .SoundNode.instrument
     .filter.frequency.value = lpf
+
+# Upload sample from desktop
+
+upload_sample = (fp_list) ->
+
+  uploaded = new Instrument(
+    fp_list[0].name.split(".")[0],
+    { "category": "Uploaded" },
+    # This is a hack to avoid globals - maybe give up?
+    Instrument.instances[0].gain.context.destination
+  )
+  uploaded.sample = new LoadedSample()
+
+  reader = new FileReader()
+  reader.onload = (file) ->
+    uploaded.sample.decode(file.target.result)
+    sn = new SoundNode(uploaded)
+    init_soundnode(sn)
+    SoundNode.tray_instances.push(sn)
+
+  reader.readAsArrayBuffer(fp_list[0])
 
 update_beat_labels = ->
   # Small function to set UI labels to values at call-time
