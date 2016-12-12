@@ -193,7 +193,7 @@ JGAnalyser = (function() {
   };
 
   JGAnalyser.prototype.draw = function() {
-    var drawVisual, i, j, ref, sliceWidth, v, x, y;
+    var drawVisual, i, j, phrase_beat, ref, sliceWidth, v, x, y;
     this.WIDTH = $(this.canvas).parent().width();
     this.canvasCtx.fillStyle = 'rgb(255, 255, 255)';
     drawVisual = requestAnimationFrame(this.draw);
@@ -203,6 +203,15 @@ JGAnalyser = (function() {
     this.canvasCtx.beginPath();
     sliceWidth = this.WIDTH * 1.0 / this.bufferLength;
     x = 0;
+    phrase_beat = (function() {
+      var b;
+      b = beat + (bar - 1) * 4;
+      if (b) {
+        return b;
+      } else {
+        return 16;
+      }
+    })();
     for (i = j = 0, ref = this.bufferLength; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
       v = this.dataArray[i] / 128.0;
       y = v * this.HEIGHT / 2;
@@ -212,6 +221,9 @@ JGAnalyser = (function() {
         this.canvasCtx.lineTo(x, y);
       }
       x += sliceWidth;
+      if (x / this.WIDTH >= phrase_beat / 16) {
+        break;
+      }
     }
     this.canvasCtx.lineTo(this.canvas.width, this.canvas.height / 2);
     return this.canvasCtx.stroke();

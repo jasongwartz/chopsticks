@@ -169,6 +169,11 @@ class JGAnalyser
     sliceWidth = @WIDTH * 1.0 / @bufferLength
     x = 0
 
+    # Calculate percentage through the bar to portion the animation
+    phrase_beat = do ->
+      b = beat + (bar-1) * 4
+      if b then return b else return 16
+
     for i in [0...@bufferLength]
       v = @dataArray[i] / 128.0
       y = v * @HEIGHT / 2
@@ -178,6 +183,11 @@ class JGAnalyser
       else
         @canvasCtx.lineTo(x, y)
       x += sliceWidth
+
+      # Only draw percentage of animation to denote progress through phrase
+      if x / @WIDTH >= phrase_beat / 16
+        break
+
     @canvasCtx.lineTo(@canvas.width, @canvas.height / 2)
     @canvasCtx.stroke()
 
@@ -191,7 +201,7 @@ startPlayback = ->
 
   # start loop to keep beat labels in UI up to date
   beat_increment()
-
+  
   # change analyser colour back to black
   analyser.set_black()
   # Set dispatch to change colour to red to indicate refreshing
