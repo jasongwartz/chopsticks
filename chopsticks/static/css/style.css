@@ -1,15 +1,15 @@
     .node-sample {
-      background-color: #91D2C5;
+      background-color: #FFC20B;
       height: 20px;
     }
 
     .node-sample-container {
       width: 90px;
-      background-color: #91D2C5;
+      background-color: #55AAFF;
     }
 
     .node-wrapper {
-      background-color: #C2EBE3;
+      background-color: #FFAA55;
       height: 100px;
       width: 80px;
     }
@@ -17,10 +17,14 @@
     .node-disabled {
       background-color: #8F9594
     }
-    
+
+    body {
+      background-color: #55AAFF;
+    }
+
     #node-canvas, #node-tray {
       border:1px solid black;
-      background-color: #EDFBF8;
+      background-color: #000080;
       height: 80vh;
     }
     .node-canvas-hover {
@@ -34,6 +38,14 @@
 
     .accordion-category {
       border: 1px solid lightgrey;
+      color: #55AAFF;
+    }
+
+    #visual {
+      background-color: #55AAFF;
+    }
+
+    #upload_area {
     }
 
     .input-xs {
@@ -52,9 +64,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    opacity: 0.08;
+    opacity: 0.15;
     margin: auto;
-    height: 100%
+    height: 100%;
+    color: #FFFFFF;
     }
 
     h1 {

@@ -43,7 +43,7 @@ init_soundnode = (n) ->
     else
       $("<h3 class=\"accordion-category\">#{ n.category }</h3>")
         .appendTo($("#sn-accordion"))
-      return $("<div id=sn-#{ n.category }></div>")
+      return $("<div id=sn-#{ n.category } ></div>")
         .appendTo($("#sn-accordion"))
   )
     .draggable(
