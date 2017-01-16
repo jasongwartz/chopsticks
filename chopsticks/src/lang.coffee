@@ -247,7 +247,7 @@ class SoundNode
       if @playing_bars.length != 0 # not empty list
         if @playing_beats.length != 0
           for p in @playing_beats
-            if Math.ceil(p/4) in @playing_bars
+            if Math.ceil(p / 4) in @playing_bars
             # p // 4 gives bar num, + 1 for off-by-one offset
               @instrument.add(p)
         else

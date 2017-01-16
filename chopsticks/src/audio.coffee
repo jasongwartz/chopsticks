@@ -87,17 +87,18 @@ class Instrument
     # beat 1 - 16
   
   play: (time) ->
-    previous_buffer = null
     do (=>
       b = (i - 1) * tempo / 1000 + time
       # milliseconds to seconds conversion, account for off by one
-      if previous_buffer? and (
-        previous_buffer[0] + @sample.decoded.duration >= b
-      )
-        previous_buffer[1].stop(b)
-        # TODO: creates 'slapping' sound when it stops
 
-      previous_buffer = @sample.play(@filter, b)
+      # There was a bug here when samples cross a phrase (edge-case with
+      #   two different nodes for the same sample), can't replicate anymore
+      #   but not certain it's fixed
+      @previous_buffer[1].stop(b) if @previous_buffer? and (
+        @previous_buffer[0] + @sample.decoded.duration >= b
+      )
+
+      @previous_buffer = @sample.play(@filter, b)
     ) for i in @pattern
 
   tryout: (time) ->
@@ -155,7 +156,8 @@ class JGAnalyser
     
     # TODO: fix bug where auto-resizing canvas breaks the colours
     #@canvas.width = @WIDTH
-    @canvasCtx.fillStyle = 'rgb(255, 255, 255)'
+    # TODO: Make colours constants or something other than hard-coded
+    @canvasCtx.fillStyle = 'rgb(122, 188, 252)'
 
     drawVisual = requestAnimationFrame(@draw)
     @node.getByteTimeDomainData(@dataArray)

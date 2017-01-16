@@ -117,8 +117,7 @@ Instrument = (function() {
   };
 
   Instrument.prototype.play = function(time) {
-    var i, j, len, previous_buffer, ref, results;
-    previous_buffer = null;
+    var i, j, len, ref, results;
     ref = this.pattern;
     results = [];
     for (j = 0, len = ref.length; j < len; j++) {
@@ -127,10 +126,10 @@ Instrument = (function() {
         return function() {
           var b;
           b = (i - 1) * tempo / 1000 + time;
-          if ((previous_buffer != null) && (previous_buffer[0] + _this.sample.decoded.duration >= b)) {
-            previous_buffer[1].stop(b);
+          if ((_this.previous_buffer != null) && (_this.previous_buffer[0] + _this.sample.decoded.duration >= b)) {
+            _this.previous_buffer[1].stop(b);
           }
-          return previous_buffer = _this.sample.play(_this.filter, b);
+          return _this.previous_buffer = _this.sample.play(_this.filter, b);
         };
       })(this))());
     }
@@ -195,7 +194,7 @@ JGAnalyser = (function() {
   JGAnalyser.prototype.draw = function() {
     var drawVisual, i, j, phrase_beat, ref, sliceWidth, v, x, y;
     this.WIDTH = $(this.canvas).parent().width();
-    this.canvasCtx.fillStyle = 'rgb(255, 255, 255)';
+    this.canvasCtx.fillStyle = 'rgb(122, 188, 252)';
     drawVisual = requestAnimationFrame(this.draw);
     this.node.getByteTimeDomainData(this.dataArray);
     this.canvasCtx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
