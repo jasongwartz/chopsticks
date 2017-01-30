@@ -196,6 +196,7 @@ class JGAnalyser
 # Core utility function definitions
 
 startPlayback = ->
+  debug_starttime = context.currentTime
   Instrument.reset()
   s.phrase_eval() for s in SoundNode.canvas_instances
   instrument.play(context.currentTime) for instrument in Instrument.instances
@@ -213,8 +214,22 @@ startPlayback = ->
 
   # Timer to keep in loop
   setTimeout(->
+
+    # Log the diff against when the callback was expected to occur
+    console.log("Variance on expected was: " +
+      (
+        ( (debug_starttime + (tempo * 16 / 1000)) - context.currentTime ) * 1000
+      ) + " milliseconds."
+    )
     startPlayback()
   , tempo * 16)
+  
+  # Log the time to compute the scheduler function
+  console.log("Computation was: " +
+    (
+      ( (context.currentTime - debug_starttime) * 1000 )
+    ) + " milliseconds."
+  )
 
 beat_increment = ->
   # only set time-out within a bar

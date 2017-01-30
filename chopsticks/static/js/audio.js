@@ -233,7 +233,8 @@ JGAnalyser = (function() {
 })();
 
 startPlayback = function() {
-  var instrument, j, k, len, len1, ref, ref1, s;
+  var debug_starttime, instrument, j, k, len, len1, ref, ref1, s;
+  debug_starttime = context.currentTime;
   Instrument.reset();
   ref = SoundNode.canvas_instances;
   for (j = 0, len = ref.length; j < len; j++) {
@@ -250,9 +251,11 @@ startPlayback = function() {
   setTimeout(function() {
     return analyser.set_red();
   }, tempo * 16 - tempo * 2);
-  return setTimeout(function() {
+  setTimeout(function() {
+    console.log("Variance on expected was: " + (((debug_starttime + (tempo * 16 / 1000)) - context.currentTime) * 1000) + " milliseconds.");
     return startPlayback();
   }, tempo * 16);
+  return console.log("Computation was: " + ((context.currentTime - debug_starttime) * 1000) + " milliseconds.");
 };
 
 beat_increment = function() {
