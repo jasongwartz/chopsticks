@@ -20,7 +20,7 @@
 
     body {
       background-color: rgb(122, 188, 252);
-      font-family: Raleway;
+      font-family: Raleway, Helvetica, sans-serif;
     }
 
     #node-canvas, #node-tray {
@@ -33,7 +33,7 @@
     }
 
     .sn-node-title {
-      font-family: Raleway;
+      font-family: Raleway, Helvetica, sans-serif;
       font-size: 1rem;
     }
 
@@ -57,7 +57,7 @@
     }
 
     h4, .beat_label {
-      font-family: Raleway;
+      font-family: Raleway, Helvetica, sans-serif;
       text-align: center;
     }
 
@@ -72,6 +72,6 @@
     }
 
     h1 {
-     font-family: Raleway;
+     font-family: Raleway, Helvetica, sans-serif;
     font-size: 15vmin;
 }
