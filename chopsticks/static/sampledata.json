@@ -66,5 +66,89 @@
         "file": "static/samples/piano_desc_riff.wav",
         "category": "Ambient",
         "beat_stretch": 8
+    },
+    "elec_bell": {
+        "file": "static/samples/elec_bell.wav",
+        "category": "elec"
+    },
+    "elec_bong": {
+        "file": "static/samples/elec_bong.wav",
+        "category": "elec"
+    },
+    "elec_filt_snare": {
+        "file": "static/samples/elec_filt_snare.wav",
+        "category": "elec"
+    },
+    "elec_flip": {
+        "file": "static/samples/elec_flip.wav",
+        "category": "elec"
+    },
+    "elec_fuzz_tom": {
+        "file": "static/samples/elec_fuzz_tom.wav",
+        "category": "elec"
+    },
+    "elec_hi_snare": {
+        "file": "static/samples/elec_hi_snare.wav",
+        "category": "elec"
+    },
+    "elec_hollow_kick": {
+        "file": "static/samples/elec_hollow_kick.wav",
+        "category": "elec"
+    },
+    "elec_ping": {
+        "file": "static/samples/elec_ping.wav",
+        "category": "elec"
+    },
+    "elec_plip": {
+        "file": "static/samples/elec_plip.wav",
+        "category": "elec"
+    },
+    "elec_soft_kick": {
+        "file": "static/samples/elec_soft_kick.wav",
+        "category": "elec"
+    },
+    "elec_tick": {
+        "file": "static/samples/elec_tick.wav",
+        "category": "elec"
+    },
+    "tabla_dhec": {
+        "file": "static/samples/tabla_dhec.wav",
+        "category": "tabla"
+    },
+    "tabla_ghe1": {
+        "file": "static/samples/tabla_ghe1.wav",
+        "category": "tabla"
+    },
+    "tabla_ghe7": {
+        "file": "static/samples/tabla_ghe7.wav",
+        "category": "tabla"
+    },
+    "tabla_ghe8": {
+        "file": "static/samples/tabla_ghe8.wav",
+        "category": "tabla"
+    },
+    "tabla_ke3": {
+        "file": "static/samples/tabla_ke3.wav",
+        "category": "tabla"
+    },
+    "tabla_na": {
+        "file": "static/samples/tabla_na.wav",
+        "category": "tabla"
+    },
+    "tabla_re": {
+        "file": "static/samples/tabla_re.wav",
+        "category": "tabla"
+    },
+    "tabla_tas2": {
+        "file": "static/samples/tabla_tas2.wav",
+        "category": "tabla"
+    },
+    "tabla_te2": {
+        "file": "static/samples/tabla_te2.wav",
+        "category": "tabla"
+    },
+    "tabla_tun1": {
+        "file": "static/samples/tabla_tun1.wav",
+        "category": "tabla"
     }
 }
