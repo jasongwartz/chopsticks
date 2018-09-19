@@ -1,0 +1,25 @@
+{
+  "name": "chopsticks",
+  "version": "1.0.0",
+  "description": "Graphical ive-coded music in the browser",
+  "scripts": {
+    "build": "coffee -bc -o chopsticks/static/js/ chopsticks/src/",
+    "watch": "coffee -bcw -o chopsticks/static/js/ chopsticks/src/",
+    "start": "python3 -m http.server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasongwartz/chopsticks.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jasongwartz/chopsticks/issues"
+  },
+  "homepage": "https://github.com/jasongwartz/chopsticks#readme",
+  "dependencies": {
+    "coffeescript": "^2.3.1"
+  }
+}
